@@ -1,7 +1,9 @@
-import datetime
+import datetime, re
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from api.utils import _to_datetime, _datetime_to_str
+from api.algorithms import countries, worldPopulationRankByDate
+from dateutil.relativedelta import relativedelta
 
 
 
@@ -10,7 +12,7 @@ def list_countries(request):
     """ Returns a list of all countries in the statistical dataset.
     """
 
-    return Response({'countries': ['Australia', 'America', 'Europe']})
+    return Response({'countries': [x.decode('latin1') for x in countries.tolist()]})
 
 
 @api_view(['GET'])
@@ -30,7 +32,9 @@ def wprank_today(request, dob, gender, country):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/today/: calculates the person's world population rank today
     """
     dob = _to_datetime(dob)
-    return Response({"rank": 1234, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country})
+    today = datetime.datetime.utcnow()
+    rank = worldPopulationRankByDate(dob, today)
+    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country})
 
 
 @api_view(['GET'])
@@ -51,6 +55,7 @@ def wprank_by_date(request, dob, gender, country, date):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/on/2000-01-01/: calculates the person's world population rank at the turn of the century
     """
     dob = _to_datetime(dob)
+    rank = worldPopulationRankByDate(dob, date)
     return Response({"rank": 1234, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'date': date})
 
 
@@ -76,7 +81,9 @@ def wprank_by_age(request, dob, gender, country, age):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/age/25y1d/: calculates the world population rank one day after the person's 25th birthday
     """
     dob = _to_datetime(dob)
-    return Response({"rank": 1234, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'age': age})
+    age_delta = _parse_timeframe(age)
+    rank = worldPopulationRankByDate(dob, dob + age_delta)
+    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'age': age})
 
 
 @api_view(['GET'])
@@ -103,7 +110,11 @@ def wprank_ago(request, dob, gender, country, offset):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ago/1y2m3d/: calculates the world population rank one year, two months and three days ago
     """
     dob = _to_datetime(dob)
-    return Response({"rank": 1234, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'offset': offset})
+    today = datetime.datetime.utcnow()
+    before_delta = _parse_timeframe(offset)
+    print today - before_delta
+    rank = worldPopulationRankByDate(dob, today - before_delta)
+    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'offset': offset})
 
 
 @api_view(['GET'])
@@ -141,3 +152,19 @@ def life_expectancy(request, dob, gender, country):
     """
     dob = _to_datetime(dob)
     return Response({'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'life_expectancy': 12.34})
+
+
+
+TIMEFRAME_REGEX = re.compile(r'^(?:(?P<years>\d+)y)?(?:(?P<months>\d+)m)?(?:(?P<days>\d+)d)?$')
+def _parse_timeframe(val):
+    if val.isdigit():
+        return relativedelta(days=int(val))
+    else:
+        re_result = TIMEFRAME_REGEX.match(val)
+        if re_result and re_result.lastindex:   # lastindex is None (and has_any_match therefore False) if all three optional groups were left off
+            years, months, days = (int(x) if x else 0 for x in re_result.groups())
+            #interval = datetime.timedelta(years=years, months=months, days=days)
+            return relativedelta(years=years, months=months, days=days)
+
+    from rest_framework.exceptions import ParseError
+    raise ParseError(detail='Invalid offset format, please use integer to indicate days or ##y##m##d')  # TODO: improve message
