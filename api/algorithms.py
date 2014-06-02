@@ -1,8 +1,7 @@
 ''' 
 R to python: yourRank.r
-
 '''
-import os
+import os, time
 from datetime import datetime, timedelta
 from django.conf import settings
 
@@ -32,22 +31,28 @@ class WorldPopulationRankCalculator(object):
     # Range of days (age)
     AGEOUT = range(0, 36501)
 
+    GENDERS = ('PopMale', 'PopFemale', 'PopTotal',)
+
     def __init__(self):
-        # -- Read in Data --- #
-        print 'Sourcing CSV...'
+        # read in data
+        self.readCSV(os.path.join(settings.BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv'))
+
+        # get list of countries
+        self.regions = pd.unique(self.data.Location).tolist()
+
+        # create two dimensional lookup table for extrapolation tables, based on (gender, region) tuples
+        self.extrapolationTables = {(gender, region): None for gender in WorldPopulationRankCalculator.GENDERS for region in self.regions}
+
+    def readCSV(self, inputCsvFilename):
         # UN population by age in single years and sex annually during 1950-2100
-        inputData = os.path.join(settings.BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
-        self.data = pd.read_csv(inputData)
+        print 'Sourcing CSV...'
+        self.data = pd.read_csv(inputCsvFilename)
         print 'done.'
 
         # -- Change the value of Australia -- #
         self.data.Location = self.data.Location.replace("Australia/New Zealand", "Australia and New Zealand")
 
-        # -- Get list of countries -- #
-        self.countries = pd.unique(self.data.Location)
-
-    ''' --- function doitall() start --- '''
-    def doitall(self, region, gender):
+    def generateExtrapolationTable(self, gender, region):
         """
         Function that extrapolates the 1st July data to each calender day
 
@@ -55,6 +60,7 @@ class WorldPopulationRankCalculator(object):
         :param gender: valid values: PopFemale, PopMale, PopTotal
         :return: an extrapolation table for the given region/gender tuple
         """
+        start = time.clock()
         pop1 = self.data[self.data.Location == region]
         pop1 = pop1[['Time', 'Age', gender]]
         # pop1 = data[['Time', 'Age', SEX]].query('Location' == CNTRY)
@@ -77,18 +83,18 @@ class WorldPopulationRankCalculator(object):
         ''' --- function end --- '''
 
         # store the results of the date interpolation
-        result1 = []
+        table = []
         for i in range(0,100):
-            result1.append(np.array(dateInterp(i)))
+            table.append(np.array(dateInterp(i)))
         # List to pandas dataframe | dataframe.T transposes data
-        result1 = pd.DataFrame(result1).T # from 55151col x 100row --> 55151row x 100col
+        table = pd.DataFrame(table).T # from 55151col x 100row --> 55151row x 100col
 
         # Change column names by appending "age_"
-        oldHeaders = result1.columns
+        oldHeaders = table.columns
         newHeaders = []
         for i in oldHeaders:
             newHeaders.append("age" + "_" + str(i))
-        result1.columns = newHeaders
+        table.columns = newHeaders
         #print result1.head # results: "age_0, age_1, ..."
 
         # Convert the numerical days to date string
@@ -98,20 +104,26 @@ class WorldPopulationRankCalculator(object):
         fullDateRange = toDate(dateRange1970to2100inPosixDays) # 1st result: 1950-01-01
 
         # Add the fullDateRange to the result1
-        result1['date1'] = fullDateRange
+        table['date1'] = fullDateRange
 
-        # End the doitall function
-        global pop2
-        pop2 = result1
-        return result1
+        # Store the table and get some stats
+        self.extrapolationTables[(gender, region)] = table
+        generationTime = time.clock() - start
+        print table.columns.values.nbytes
+        tableSize = (table.values.nbytes + table.index.values.nbytes + table.columns.values.nbytes) / 1024**2
+        print 'Generated extrapolation table for (%s, %s) of size ~%.02fMiB in %.02f seconds' % (gender, region, tableSize, generationTime)
 
-    ''' --- function that interpolates age in days -- '''
-    # create function pyTime to convert date1 field
-    #pyTime =  np.vectorize(lambda d: datetime.strptime(d, '%Y-%m-%d') )
-    def dayInterpA(self, iDate):
-        global pop2
+    def dayInterpA(self, table, date):
+        """
+        function that interpolates age in days
+
+        :param table: the extrapolation table to use
+        :param date: the date
+        :return:
+        """
+        iDate = date.strftime('%Y-%m-%d')
         # age 0 to 99
-        popi = pop2[pop2.date1 == iDate]
+        popi = table[table.date1 == iDate]
 
         # Remove the columns for age 100 and the date1
         rmCols = [col for col in popi.columns if col not in ['date1', 'age_100']]
@@ -136,16 +148,19 @@ class WorldPopulationRankCalculator(object):
         #return pd.DataFrame(ageout, iuspl2_pred, columns=['AGE', 'POP'])
         return merged
 
-    def worldPopulationRankByDate(self, dob, date):
+    def worldPopulationRankByDate(self, gender, region, dob, date):
         """
         my rank by date: What will be my rank on particular day
 
+        :param gender:
+        :param region:
         :param dob:
         :param date:
         :return:
         """
         iAge = inPosixDays(date) - inPosixDays(dob)
-        X = self.dayInterpA(date.strftime('%Y-%m-%d'))
+        table = self.extrapolationTables[(gender, region)]
+        X = self.dayInterpA(table, date)
 
         # store age and pop in array
         ageArray = np.asarray(X.AGE)
@@ -157,15 +172,3 @@ class WorldPopulationRankCalculator(object):
         # take the mean of the cumulative sum of the iAge year and preceeding
         rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
         return long(rank*1000)
-
-
-
-#print 'Preprocessing...'
-# generate extrapolation table
-#calc = WorldPopulationRankCalculator()
-#pop2 = calc.doitall('WORLD', 'PopTotal')
-
-# we could cache the result in a CSV here:
-# pop2.to_csv(CNTRY+iSEX+".csv")
-
-#print 'done.'

@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 # FIXME: temporary hack until WorldPopulationRankCalculator has been completely cleaned up
 wprCalculator = WorldPopulationRankCalculator()
-wprCalculator.doitall('WORLD', 'PopTotal')
+wprCalculator.generateExtrapolationTable('PopTotal', 'WORLD')
 
 
 
@@ -18,7 +18,7 @@ def list_countries(request):
     """ Returns a list of all countries in the statistical dataset.
     """
 
-    return Response({'countries': [x.decode('latin1') for x in wprCalculator.countries.tolist()]})
+    return Response({'countries': [x.decode('latin1') for x in wprCalculator.regions]})
 
 
 @api_view(['GET'])
@@ -39,7 +39,7 @@ def wprank_today(request, dob, gender, country):
     """
     dob = _to_datetime(dob)
     today = datetime.datetime.utcnow()
-    rank = wprCalculator.worldPopulationRankByDate(dob, today)
+    rank = wprCalculator.worldPopulationRankByDate(gender, country, dob, today)
     return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country})
 
 
@@ -61,8 +61,8 @@ def wprank_by_date(request, dob, gender, country, date):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/on/2000-01-01/: calculates the person's world population rank at the turn of the century
     """
     dob = _to_datetime(dob)
-    rank = wprCalculator.worldPopulationRankByDate(dob, date)
-    return Response({"rank": 1234, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'date': date})
+    rank = wprCalculator.worldPopulationRankByDate(gender, country, dob, date)
+    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'date': date})
 
 
 @api_view(['GET'])
@@ -88,7 +88,7 @@ def wprank_by_age(request, dob, gender, country, age):
     """
     dob = _to_datetime(dob)
     age_delta = _parse_timeframe(age)
-    rank = wprCalculator.worldPopulationRankByDate(dob, dob + age_delta)
+    rank = wprCalculator.worldPopulationRankByDate(gender, country, dob, dob + age_delta)
     return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'age': age})
 
 
@@ -119,7 +119,7 @@ def wprank_ago(request, dob, gender, country, offset):
     today = datetime.datetime.utcnow()
     before_delta = _parse_timeframe(offset)
     print today - before_delta
-    rank = wprCalculator.worldPopulationRankByDate(dob, today - before_delta)
+    rank = wprCalculator.worldPopulationRankByDate(gender, country, dob, today - before_delta)
     return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'gender': gender, 'country': country, 'offset': offset})
 
 
