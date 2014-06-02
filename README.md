@@ -24,6 +24,12 @@ pip install --requirement requirements.txt
 python manage.py runserver
 ```
 
+You will also have to unpack the CSV data files in the `data` subdirectory.
+
+## Running unit tests
+
+Run all unit tests with `python manage.py test`. 
+
 ## Deploying to Heroku
 
 Deployment to Heroku requires a custom buildpack, because _NumPy_ and _SciPy_ have some binary dependencies which can't be installed through pip. See https://blog.dbrgn.ch/2013/6/18/heroku-buildpack-numpy-scipy-scikit-learn/ for more information.
