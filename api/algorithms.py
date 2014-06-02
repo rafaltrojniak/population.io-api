@@ -11,8 +11,6 @@ import pandas as pd
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 
-#os.path.abspath(__file__)
-#folderpath = os.getcwd()
 
 inputData = os.path.join(settings.BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
 
@@ -27,26 +25,23 @@ print 'done.'
 print 'Preprocessing...'
 # store columns to objects:
 Location = data.Location
-Time = data.Time
+#Time = data.Time
 Age = data.Age
-PopMale = data.PopMale
-PopFemale = data.PopFemale
-PopTotal = data.PopTotal
+#PopMale = data.PopMale
+#PopFemale = data.PopFemale
+#PopTotal = data.PopTotal
 
 # -- Change the value of Australia -- #
 Location = Location.replace("Australia/New Zealand", "Australia and New Zealand")
-aussie = data[Location == "Australia and New Zealand"]
-#print aussie
 
 # -- Get list of countries -- #
 countries = pd.unique(Location)
-#print countries
 
 ''' --- Date Range Wrangling --- '''
 # -- Date field manipulation: Get date Range, note: Annual data are for the 1st of July -- #
 date_format = '%Y/%m/%d' # define the time format 	#dts = Time.map(lambda x: str(x) + "/07/01")
 # Get the unique years (between 1950 - 2100)
-dts = pd.unique(Time)
+dts = pd.unique(data.Time)
 #	print dts
 
 # Define function to add July 1st
@@ -73,18 +68,6 @@ dateHighest = (numDate(datetime.strptime('2100/12/31', date_format)) - date2Max)
 xout = [dateLowest, dateHighest]
 #	print xout
 
-
-''' --- function that extrapolates the 1st July data to each calendar day --- '''
-# Sex names in the Data
-SEXnames = data.columns.values
-holder = []
-for headers in SEXnames:
-    if "Pop" in headers:
-        #print headers
-        holder.append(headers)
-SEXnames = holder
-#print SEXnames
-
 # AGE in days refering to the annual data - we assume that the average age of one years old is 1 years and 183 days
 age3 = range(0,100)
 age3 = [ x*365+183 for x in age3]
@@ -93,13 +76,16 @@ age3 = [ x*365+183 for x in age3]
 ageout = range(0, 36501)
 
 ''' --- function doitall() start --- '''
-# Function that extrapolates the 1st July data to each calender day
-def doitall(CNTRY, iSEX, RESULT):
-    SEX = SEXnames[iSEX] # iSEX will be and index number
-    #print SEX
+def doitall(region, gender):
+    """
+    Function that extrapolates the 1st July data to each calender day
 
-    pop1 = data[Location == CNTRY]
-    pop1 = pop1[['Time', 'Age', SEX]]
+    :param region: valid values: anything from 'countries'
+    :param gender: valid values: PopFemale, PopMale, PopTotal
+    :return: an extrapolation table for the given region/gender tuple
+    """
+    pop1 = data[Location == region]
+    pop1 = pop1[['Time', 'Age', gender]]
     # pop1 = data[['Time', 'Age', SEX]].query('Location' == CNTRY)
     #print pop1
 
@@ -107,7 +93,7 @@ def doitall(CNTRY, iSEX, RESULT):
     def dateInterp(iage):
         popi = pop1[Age == iage]
         #popi = pop1[Age == 21] #select particular age COMMENT OUT
-        popi = np.asarray(popi[SEX])
+        popi = np.asarray(popi[gender])
         #print popi
 
         # spline interpolation function from Scipy Package
@@ -150,17 +136,14 @@ def doitall(CNTRY, iSEX, RESULT):
     #print result1['date1']
 
     # End the doitall function
-    if (RESULT == 0):
-        result1.to_csv(CNTRY+SEX+".csv")
-        return result1
-    else:
-        return result1
+    return result1
 
-# Examples
-CNTRY = 'WORLD'
-iSEX = 2
-RESULT = 1
-pop2 = doitall(CNTRY, iSEX, RESULT)
+# generate extrapolation table
+pop2 = doitall('WORLD', 'PopTotal')
+
+# we could cache the result in a CSV here:
+# pop2.to_csv(CNTRY+iSEX+".csv")
+
 print 'done.'
 
 ''' --- function that interpolates age in days -- '''
@@ -181,100 +164,17 @@ def dayInterpA(iDate):
     popi = np.asarray(popi)
 
     # Interpolate the age in Days
-    iuspl2 =  InterpolatedUnivariateSpline(age3, popi/365)
+    iuspl2 = InterpolatedUnivariateSpline(age3, popi/365)
     iuspl2_pred = iuspl2(ageout)
 
     # the output
-    col1 =  pd.DataFrame(ageout, columns=['AGE'])
+    col1 = pd.DataFrame(ageout, columns=['AGE'])
     col2 = pd.DataFrame(iuspl2_pred, columns = ['POP'])
     #print col1, col2
     merged = col1.join(col2)
     #print merged
     #return pd.DataFrame(ageout, iuspl2_pred, columns=['AGE', 'POP'])
     return merged
-
-# example
-#dayInterpA('1950-01-05')
-
-
-''' --- function: my rank by age --- '''
-# def match function and toDate
-#match = lambda a, b: [ b.index(x)+1 if x in b else None for x in a ]
-toDate = lambda d: (refDate + timedelta(days=d)).strftime('%Y-%m-%d')
-
-# what will be my rank when I am aged xxx days
-def yourRANKbyAge (DoB, iAge):
-    DoB = datetime.strptime(DoB, date_format)
-    DATE = numDate(DoB) + iAge # returns the numerical date from 1970/01/01
-    DATE = toDate(DATE)
-    X = dayInterpA(DATE) # CHECK IF THIS CAN TAKE BOTH DATE AND NUMERIC FORMAT!!!
-#		print X
-
-    # store age and pop in array
-    ageArray = np.asarray(X.AGE)
-    popArray = np.asarray(X.POP)
-
-    # calc cumulative sum of the population
-    cumSum =  np.cumsum(popArray)
-    #print cumSum
-
-    # take the mean of the cumulative sum of the iAge year and preceeding
-    rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-    return rank
-
-#yourRANKbyAge('1993/12/06', 3650)
-
-''' --- function: my rank by date --- '''
-# my rank by date: What will be my rank on particular day
-def yourRANKbyDate(DoB, DATE):
-    DoB = datetime.strptime(DoB, date_format) 	# your date of birth
-    DATE = DATE 	# any input date
-    #print DATE
-    iAge = numDate(datetime.strptime(DATE, '%Y-%m-%d')) - numDate(DoB)
-    #print iAge
-    X = dayInterpA(DATE)
-    #print X
-
-    # store age and pop in array
-    ageArray = np.asarray(X.AGE)
-    popArray = np.asarray(X.POP)
-
-    # calc cumulative sum of the population
-    cumSum =  np.cumsum(popArray)
-    #print cumSum
-
-    # take the mean of the cumulative sum of the iAge year and preceeding
-    rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-    return rank
-
-#yourRANKbyDate('1993/12/06', '2001-09-11')
-
-''' --- function: my rank today --- '''
-# what is myrank today
-def yourRANKToday(DoB):
-    DoB = datetime.strptime(DoB, date_format) 	# your date of birth
-
-    # get time now
-    now = datetime.now()
-    today = now.strftime('%Y-%m-%d')
-    iAge = numDate(datetime.strptime(today, '%Y-%m-%d')) - numDate(DoB)
-
-    # interpolate values for that day
-    X = dayInterpA(today)
-
-    # store age and pop in array
-    ageArray = np.asarray(X.AGE)
-    popArray = np.asarray(X.POP)
-
-    # calc cumulative sum of the population
-    cumSum =  np.cumsum(popArray)
-    #print cumSum
-
-    # take the mean of the cumulative sum of the iAge year and preceeding
-    rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-    return rank
-
-#yourRANKToday('1993/12/06')
 
 # my rank by date: What will be my rank on particular day
 def worldPopulationRankByDate(dob, date):
@@ -287,7 +187,6 @@ def worldPopulationRankByDate(dob, date):
 
     # calc cumulative sum of the population
     cumSum =  np.cumsum(popArray)
-    #print cumSum
 
     # take the mean of the cumulative sum of the iAge year and preceeding
     rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
