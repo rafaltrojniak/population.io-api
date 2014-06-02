@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 # FIXME: temporary hack until WorldPopulationRankCalculator has been completely cleaned up
 wprCalculator = WorldPopulationRankCalculator()
-wprCalculator.generateExtrapolationTable('PopTotal', 'WORLD')
+wprCalculator.retrieveExtrapolationTable('PopTotal', 'WORLD')
 
 
 
@@ -18,7 +18,7 @@ def list_countries(request):
     """ Returns a list of all countries in the statistical dataset.
     """
 
-    return Response({'countries': [x.decode('latin1') for x in wprCalculator.regions]})
+    return Response({'countries': [x.decode('latin1') for x in WorldPopulationRankCalculator.REGIONS]})
 
 
 @api_view(['GET'])

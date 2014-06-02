@@ -33,17 +33,21 @@ class WorldPopulationRankCalculator(object):
 
     GENDERS = ('PopMale', 'PopFemale', 'PopTotal',)
 
-    def __init__(self):
-        # read in data
-        self.readCSV(os.path.join(settings.BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv'))
+    REGIONS = ('Afghanistan', 'Albania', 'Algeria', 'Angola', 'Antigua and Barbuda', 'Azerbaijan', 'Argentina', 'Australia', 'Austria', 'Bahamas', 'Bahrain', 'Bangladesh', 'Armenia', 'Barbados', 'Belgium', 'Bhutan', 'Bolivia (Plurinational State of)', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Belize', 'Solomon Islands', 'Brunei Darussalam', 'Bulgaria', 'Myanmar', 'Burundi', 'Belarus', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Sri Lanka', 'Chad', 'Chile', 'China', 'Other non-specified areas', 'Colombia', 'Comoros', 'Mayotte', 'Congo', 'Democratic Republic of the Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Benin', 'Denmark', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Equatorial Guinea', 'Ethiopia', 'Eritrea', 'Estonia', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'Djibouti', 'Gabon', 'Georgia', 'Gambia', 'State of Palestine', 'Germany', 'Ghana', 'Kiribati', 'Greece', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'China, Hong Kong SAR', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran (Islamic Republic of)', 'Iraq', 'Ireland', 'Israel', 'Italy', "C\xf4te d'Ivoire", 'Jamaica', 'Japan', 'Kazakhstan', 'Jordan', 'Kenya', "Dem. People's Republic of Korea", 'Republic of Korea', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Lebanon', 'Lesotho', 'Latvia', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg', 'China, Macao SAR', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Martinique', 'Mauritania', 'Mauritius', 'Mexico', 'Mongolia', 'Republic of Moldova', 'Montenegro', 'Morocco', 'Mozambique', 'Oman', 'Namibia', 'Nepal', 'Netherlands', 'Cura\xe7ao', 'Aruba', 'New Caledonia', 'Vanuatu', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Norway', 'Micronesia (Fed. States of)', 'Pakistan', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Guinea-Bissau', 'Timor-Leste', 'Puerto Rico', 'Qatar', 'R\xe9union', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Viet Nam', 'Slovenia', 'Somalia', 'South Africa', 'Zimbabwe', 'Spain', 'South Sudan', 'Sudan', 'Western Sahara', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Tajikistan', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'United Arab Emirates', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'TFYR Macedonia', 'Egypt', 'United Kingdom', 'Channel Islands', 'United Republic of Tanzania', 'United States of America', 'United States Virgin Islands', 'Burkina Faso', 'Uruguay', 'Uzbekistan', 'Venezuela (Bolivarian Republic of)', 'Samoa', 'Yemen', 'Zambia', 'WORLD', 'More developed regions', 'Less developed regions', 'AFRICA', 'LATIN AMERICA AND THE CARIBBEAN', 'NORTHERN AMERICA', 'Eastern Asia', 'EUROPE', 'OCEANIA', 'Eastern Africa', 'Middle Africa', 'Northern Africa', 'Southern Africa', 'Western Africa', 'Caribbean', 'Central America', 'South-Eastern Asia', 'South-Central Asia', 'Western Asia', 'Eastern Europe', 'Northern Europe', 'Southern Europe', 'Western Europe', 'Australia and New Zealand', 'Melanesia', 'South America', 'Less developed regions, excluding least developed countries', 'ASIA', 'Least developed countries', 'Sub-Saharan Africa', 'Less developed regions, excluding China', 'Micronesia', 'Polynesia', 'Central Asia', 'Southern Asia',)
 
-        # get list of countries
-        self.regions = pd.unique(self.data.Location).tolist()
+    DEFAULT_DATA_SOURCE = os.path.join(settings.BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
+
+    def __init__(self):
+        # prepare the filesystem cache
+        self.store = pd.HDFStore(os.path.join(settings.BASE_DIR, 'data', 'cache.hdf5'), complevel=9, complib='blosc')
+
+        # read in data
+        #self.readCSV()
 
         # create two dimensional lookup table for extrapolation tables, based on (gender, region) tuples
-        self.extrapolationTables = {(gender, region): None for gender in WorldPopulationRankCalculator.GENDERS for region in self.regions}
+        self.extrapolationTables = {(gender, region): None for gender in WorldPopulationRankCalculator.GENDERS for region in WorldPopulationRankCalculator.REGIONS}
 
-    def readCSV(self, inputCsvFilename):
+    def readCSV(self, inputCsvFilename=DEFAULT_DATA_SOURCE):
         # UN population by age in single years and sex annually during 1950-2100
         print 'Sourcing CSV...'
         self.data = pd.read_csv(inputCsvFilename)
@@ -51,6 +55,9 @@ class WorldPopulationRankCalculator(object):
 
         # -- Change the value of Australia -- #
         self.data.Location = self.data.Location.replace("Australia/New Zealand", "Australia and New Zealand")
+
+        # get list of countries
+        #self.regions = pd.unique(self.data.Location).tolist()
 
     def generateExtrapolationTable(self, gender, region):
         """
@@ -109,9 +116,20 @@ class WorldPopulationRankCalculator(object):
         # Store the table and get some stats
         self.extrapolationTables[(gender, region)] = table
         generationTime = time.clock() - start
-        print table.columns.values.nbytes
         tableSize = (table.values.nbytes + table.index.values.nbytes + table.columns.values.nbytes) / 1024**2
         print 'Generated extrapolation table for (%s, %s) of size ~%.02fMiB in %.02f seconds' % (gender, region, tableSize, generationTime)
+
+    def storeExtrapolationTable(self, gender, region):
+        start = time.clock()
+        key = '%s/%s' % (gender, region)
+        self.store.put(key, self.extrapolationTables[(gender, region)])
+        print 'Stored extrapolation table for (%s, %s) in %.02f seconds' % (gender, region, start-time.clock())
+
+    def retrieveExtrapolationTable(self, gender, region):
+        start = time.clock()
+        key = '%s/%s' % (gender, region)
+        self.extrapolationTables[(gender, region)] = self.store.get(key)
+        print 'Retrieved extrapolation table for (%s, %s) in %.02f seconds' % (gender, region, start-time.clock())
 
     def dayInterpA(self, table, date):
         """
