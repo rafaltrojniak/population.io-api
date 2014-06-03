@@ -381,7 +381,9 @@ def main():
 	RES = yourRANKTomorrow('1993/12/06', 7000000)
 
 
-	''' --- LIFE EXPECTANCY --- '''
+		''' --- LIFE EXPECTANCY --- '''
+	DoB = "1993/12/06"
+	speRANK = 7000000
 	#read data for life expectancy: male=1,female=2,both=3
 	life_expectancy_ages = pd.read_csv("life_expectancy_ages.csv")
 
@@ -393,6 +395,77 @@ def main():
 	#For which CNTRY AND SEX DO YOU WANT TO KNOW THE REMAINING LIFE EXPECTANCY AT CERTAIN TIME/AGE
 	CNTRY1 = "WORLD"
 	iSEX1 = 2 #male=0,female=1,both=2
+
+	''' --- rem_le function ---'''
+	def rem_le(CNTRY1, iSEX1, le_date):
+		# find beginning of 5 yearly period for the le_date
+		le_yr = (le_date.loc['1'])[0:4]
+		lowest_year = math.floor(int(le_yr)/5)*5
+		print le_yr, lowest_year
+
+		#extract a row corresponding to the time-period
+		life_exp_prd_5below = life_expectancy_ages[(life_expectancy_ages.region == CNTRY1) & (life_expectancy_ages.sex == iSEX1) & (life_expectancy_ages.Begin_prd == lowest_year-5)]
+		life_exp_prd_ext = life_expectancy_ages[(life_expectancy_ages.region == CNTRY1) & (life_expectancy_ages.sex == iSEX1) & (life_expectancy_ages.Begin_prd == lowest_year)]
+		life_exp_prd_5above = life_expectancy_ages[(life_expectancy_ages.region == CNTRY1) & (life_expectancy_ages.sex == iSEX1) & (life_expectancy_ages.Begin_prd == lowest_year+5)]
+		
+		life_exp_prd = pd.concat([life_exp_prd_5below, life_exp_prd_ext, life_exp_prd_5above])
+		print life_exp_prd
+
+		life_exp_prd = life_exp_prd.ix[:,7:len(life_exp_prd.columns)]
+		print life_exp_prd
+
+		# Place holder for Agenames and values for three consecutive periods of interest
+		life_exp_ = np.zeros((len(life_exp_prd.columns), 4))
+		print life_exp_
+
+		# Age group starting at and less than the next value: 0, 1, 5, 10 
+		life_exp_[:,0] =  np.insert((np.arange(5, 105, 5)), 0, [0,1])
+		print life_exp_[:,0]
+
+		# transpose the dataframe - prep for assinging life expectancy vals
+		life_exp_prd = life_exp_prd.T 
+		
+		# Assigning life expectancy values
+		life_exp_[:,1] = life_exp_prd[life_exp_prd.columns[0]].values
+		life_exp_[:,2]  = life_exp_prd[life_exp_prd.columns[1]].values
+		life_exp_[:,3]  = life_exp_prd[life_exp_prd.columns[2]].values
+
+		# interpolations
+		xx_interp1 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,1] )
+		xx_interp2 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,2] )
+		xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,3])
+
+		# predictions
+		x_interp1 = xx_interp1(le_exact_age)#interpolated value for AGE in earlier 5 yearly period
+		x_interp2 = xx_interp2(le_exact_age)#interpolated value for AGE in the 5 yearly period of interest
+		x_interp3 = xx_interp3(le_exact_age)#interpolated value for AGE in 5 yearly period after
+		print x_interp1, x_interp2, x_interp3
+		
+		# matrix of vals
+		life_exp_yr = np.zeros((3,2))
+
+		#The mid point of period 2010-2015 which is from 1st July 2010 to June 30 of 2015, therefore, the mid point is 1st Jan 2013
+  		#In the following we turn the year to the date and then to numeric. We will use these to interpolate between periods and then predict the le for exact date 
+  		addDate = lambda d: numDate(datetime.strptime(str(int(d)+3) + "/01/01", date_format))
+
+
+  		life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5) ]
+  		life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
+
+  		print life_exp_yr
+  		return life_exp_yr 
+  		#life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
+
+
+	rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=le_date)
+
+	''' --- continuing the example --- '''
+	x_interp = rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=le_date)
+
+	print ("You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " + str(CNTRY) + " on "+ str(le_date) \
+	+ " and you will be " + str(le_age) + " years old. As a " + str(iSEX1) + " " + str(CNTRY1) + " citizen, you will still have" 
+	+ str(np.round(x_interp,2)) + " years to live. And your expected date of death is " + str(le_date) + str(x_interp*365) )
+
 
 	
 
