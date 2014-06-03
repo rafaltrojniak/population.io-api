@@ -18,7 +18,7 @@ def list_countries(request):
     """ Returns a list of all countries in the statistical dataset.
     """
 
-    return Response({'countries': [x.decode('latin1') for x in WorldPopulationRankCalculator.REGIONS]})
+    return Response({'countries': WorldPopulationRankCalculator.REGIONS})
 
 
 @api_view(['GET'])
