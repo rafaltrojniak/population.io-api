@@ -19,6 +19,13 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         cls.sut.readCSV()
         cls.sut.generateExtrapolationTable('PopTotal', 'WORLD')
 
+    def test_regions(self):
+        self.assertTrue(len(self.sut.REGIONS) > 200)
+        self.assertTrue('WORLD' in self.sut.REGIONS)
+        self.assertTrue('Estonia' in self.sut.REGIONS)
+        self.assertTrue('EUROPE' in self.sut.REGIONS)
+        self.assertTrue('R\xe9union' in self.sut.REGIONS)   # TODO: currently fails because latin1-encoded region names have been disabled
+
     def test_byDate_today(self):
         self.assertAlmostEqual(56968930,   self.sut.worldPopulationRankByDate('PopTotal', 'WORLD', datetime(2013, 12, 31), datetime.utcnow()), delta=TestWorldPopulationRankCalculation.DELTA)
         self.assertAlmostEqual(2541533000, self.sut.worldPopulationRankByDate('PopTotal', 'WORLD', datetime(1993, 12,  6), datetime.utcnow()), delta=TestWorldPopulationRankCalculation.DELTA)
@@ -41,7 +48,7 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
 
         # test with the original latin1-encoded byte string
         latin1EncodedByteString = 'R\xe9union'
-        self.assertTrue(self.sut.worldPopulationRankByDate('PopTotal', latin1EncodedByteString, datetime(1993, 12,  6), datetime.utcnow()) > 0)
+        self.assertTrue(self.sut.worldPopulationRankByDate('PopTotal', latin1EncodedByteString, datetime(1993, 12,  6), datetime.utcnow()) > 0)   # TODO: currently fails because latin1-encoded region names can not be looked up
 
         # test with a unicode string
         unicodeString = latin1EncodedByteString.decode('latin1')
