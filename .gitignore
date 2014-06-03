@@ -4,3 +4,4 @@
 *.sqlite3
 data/*.csv
 *.hdf5
+.vagrant
