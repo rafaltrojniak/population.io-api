@@ -1,7 +1,8 @@
 import datetime, re
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from api.utils import _to_datetime, _datetime_to_str
+from api.decorators import expect_datetime
+from api.utils import datetime_to_str
 from api.algorithms import WorldPopulationRankCalculator
 from dateutil.relativedelta import relativedelta
 
@@ -22,6 +23,7 @@ def list_countries(request):
 
 
 @api_view(['GET'])
+@expect_datetime('dob')
 def wprank_today(request, dob, sex, country):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.
 
@@ -31,19 +33,20 @@ def wprank_today(request, dob, sex, country):
 
     Parameters:
        * dob: the person's date of birth (format: YYYY-MM-DD)
-       * sex: the person's sex (valid values: male, female, unisex)
+       * sex: the person's sex (valid values: male, female, all)
        * country: the person's country of origin (valid values: see /meta/countries, use 'WORLD' for all)
 
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/today/: calculates the person's world population rank today
     """
-    dob = _to_datetime(dob)
     today = datetime.datetime.utcnow()
     rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, today)
-    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'sex': sex, 'country': country})
+    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country})
 
 
 @api_view(['GET'])
+@expect_datetime('dob')
+@expect_datetime('date')
 def wprank_by_date(request, dob, sex, country, date):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date.
 
@@ -60,12 +63,12 @@ def wprank_by_date(request, dob, sex, country, date):
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/on/2000-01-01/: calculates the person's world population rank at the turn of the century
     """
-    dob = _to_datetime(dob)
     rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, date)
-    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'sex': sex, 'country': country, 'date': date})
+    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'date': datetime_to_str(date)})
 
 
 @api_view(['GET'])
+@expect_datetime('dob')
 def wprank_by_age(request, dob, sex, country, age):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by the person's age.
 
@@ -86,13 +89,13 @@ def wprank_by_age(request, dob, sex, country, age):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/age/6m/: calculates the world population rank when the person was six months old
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/age/25y1d/: calculates the world population rank one day after the person's 25th birthday
     """
-    dob = _to_datetime(dob)
     age_delta = _parse_timeframe(age)
     rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, dob + age_delta)
-    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'sex': sex, 'country': country, 'age': age})
+    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'age': age})
 
 
 @api_view(['GET'])
+@expect_datetime('dob')
 def wprank_ago(request, dob, sex, country, offset):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset relative to today.
 
@@ -115,15 +118,15 @@ def wprank_ago(request, dob, sex, country, offset):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ago/6m/: calculates the world population rank six months ago
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ago/1y2m3d/: calculates the world population rank one year, two months and three days ago
     """
-    dob = _to_datetime(dob)
     today = datetime.datetime.utcnow()
     before_delta = _parse_timeframe(offset)
     print today - before_delta
     rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, today - before_delta)
-    return Response({"rank": rank, 'dob': _datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset})
+    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset})
 
 
 @api_view(['GET'])
+@expect_datetime('dob')
 def wprank_by_rank(request, dob, sex, country, rank):
     """ Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.
 
@@ -138,11 +141,11 @@ def wprank_by_rank(request, dob, sex, country, rank):
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ranked/1000000000/: calculates the day on which the person became the one billionth inhabitant
     """
-    dob = _to_datetime(dob)
-    return Response({'dob': _datetime_to_str(dob), 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': _datetime_to_str(datetime.datetime(2000, 1, 1))})
+    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': datetime_to_str(datetime.datetime(2000, 1, 1))})
 
 
 @api_view(['GET'])
+@expect_datetime('dob')
 def life_expectancy(request, dob, sex, country):
     """ Calculates the remaining life expectancy of a person with the given date of birth, sex and country.
 
@@ -156,8 +159,7 @@ def life_expectancy(request, dob, sex, country):
     Examples:
        * /api/1.0/life-expectancy/1952-03-11/male/United%20Kingdom/: calculates the remaining life expectancy of the given person
     """
-    dob = _to_datetime(dob)
-    return Response({'dob': _datetime_to_str(dob), 'sex': sex, 'country': country, 'life_expectancy': 12.34})
+    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'life_expectancy': 12.34})
 
 
 
