@@ -43,7 +43,7 @@ class WorldPopulationRankCalculator(object):
         self.store = pd.HDFStore(storeFilename, complevel=9, complib='blosc')
 
         # create two dimensional lookup table for extrapolation tables, based on (sex, region) tuples
-        self.extrapolationTables = {(sex, region): None for sex in WorldPopulationRankCalculator.SEXES for region in WorldPopulationRankCalculator.REGIONS}
+        self.extrapolationTables = {}
 
     def readCSV(self, inputCsvFilename=DEFAULT_DATA_SOURCE):
         # UN population by age in single years and sex annually during 1950-2100
@@ -129,6 +129,21 @@ class WorldPopulationRankCalculator(object):
         self.extrapolationTables[(sex, region)] = self.store.get(key)
         print 'Retrieved extrapolation table for (%s, %s) in %.02f seconds' % (sex, region, time.clock()-start)
 
+    def getOrGenerateExtrapolationTable(self, sex, region):
+        if (sex, region) not in self.extrapolationTables:
+            self.generateExtrapolationTable(sex, region)
+        return self.extrapolationTables[(sex, region)]
+
+    def retrieveAllTables(self):
+        """
+        Loads all tables *into memory*.
+        """
+        start = time.clock()
+        for sex in self.SEXES:
+            for region in self.REGIONS:
+                self.extrapolationTables[(sex, region)] = self.store.get("%s/%s" % (sex, region))
+        print 'Retrieved all extrapolation tables in %.02f seconds' % (time.clock()-start)
+
     def dayInterpA(self, table, date):
         """
         function that interpolates age in days
@@ -175,7 +190,7 @@ class WorldPopulationRankCalculator(object):
         :return:
         """
         iAge = inPosixDays(date) - inPosixDays(dob)
-        table = self.extrapolationTables[(sex, region)]
+        table = self.getOrGenerateExtrapolationTable(sex, region)
         X = self.dayInterpA(table, date)
 
         # store age and pop in array

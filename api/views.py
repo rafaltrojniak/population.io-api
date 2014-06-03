@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 # FIXME: temporary hack until WorldPopulationRankCalculator has been completely cleaned up
 wprCalculator = WorldPopulationRankCalculator()
-wprCalculator.retrieveExtrapolationTable('PopTotal', 'WORLD')
+wprCalculator.readCSV()
 
 
 
