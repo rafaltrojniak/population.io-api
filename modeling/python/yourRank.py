@@ -200,6 +200,7 @@ def main():
 	#dayInterpA('1950-01-05')
 
 
+	
 	''' --- function: my rank by age --- '''
 	# def match function and toDate  
 	#match = lambda a, b: [ b.index(x)+1 if x in b else None for x in a ]
@@ -211,7 +212,7 @@ def main():
 		DATE = numDate(DoB) + iAge # returns the numerical date from 1970/01/01
 		DATE = toDate(DATE)
 		X = dayInterpA(DATE) # CHECK IF THIS CAN TAKE BOTH DATE AND NUMERIC FORMAT!!!
-		print X
+		#print X
 
 		# store age and pop in array
 		ageArray = np.asarray(X.AGE)
@@ -219,24 +220,26 @@ def main():
 
 		# calc cumulative sum of the population
 		cumSum =  np.cumsum(popArray)
-		print cumSum
+		#print cumSum
 
 		# take the mean of the cumulative sum of the iAge year and preceeding
 		RANK = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-		print RANK 
+		return RANK
+		#print RANK 
 
-	yourRANKbyAge('1993/12/06', 3650)
-	
+	#yourRANKbyAge('1993/12/06', 3650)
+
+
 	''' --- function: my rank by date --- '''
 	# my rank by date: What will be my rank on particular day
 	def yourRANKbyDate(DoB, DATE):
 		DoB = datetime.strptime(DoB, date_format) 	# your date of birth
 		DATE = DATE 	# any input date
-		print DATE
+		#print DATE
 		iAge = numDate(datetime.strptime(DATE, '%Y-%m-%d')) - numDate(DoB) 
-		print iAge
+		#print iAge
 		X = dayInterpA(DATE) 
-		print X
+		#print X
 
 		# store age and pop in array
 		ageArray = np.asarray(X.AGE)
@@ -244,13 +247,14 @@ def main():
 
 		# calc cumulative sum of the population
 		cumSum =  np.cumsum(popArray)
-		print cumSum
+		#print cumSum
 
 		# take the mean of the cumulative sum of the iAge year and preceeding
 		RANK = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-		print RANK 
+		return RANK
+		#print RANK 
 
-	yourRANKbyDate('1993/12/06', '2001-09-11')
+	#yourRANKbyDate('1993/12/06', '2001-09-11')
 
 	''' --- function: my rank today --- '''
 	# what is myrank today
@@ -271,14 +275,125 @@ def main():
 
 		# calc cumulative sum of the population
 		cumSum =  np.cumsum(popArray)
-		print cumSum
+		#print cumSum
 
 		# take the mean of the cumulative sum of the iAge year and preceeding
 		RANK = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-		print RANK 
+		return RANK
+		#print RANK 
 
-	yourRANKToday('1993/12/06') 
+	#yourRANKToday('1993/12/06') 
+	
 
+	''' --- function: your rank tomorrow --- '''
+	# finding the date for specific rank
+	def yourRANKTomorrow(birth, wRank):
+		# The date of the study
+		final_time = '2100/01/01'
+		# The number of years from input birth to '2100/01/01'
+		length_time = relativedelta(datetime.strptime(final_time, date_format) , datetime.strptime(birth, date_format)).years
+
+		# Make sure that difference between DOB and final Date > 100
+		if length_time < 100:
+			l_max = np.round(length_time)
+		else:
+			l_max = 100
+
+		xx = []
+		for jj in range(1, (len(range(10, l_max+10, 10))+1)):
+			try:
+				xx.append(yourRANKbyAge(DoB = birth, iAge= (jj*3650)))
+			except Exception:
+				print "Breaks the function if either the birthdate is too late \
+				for some rank or the rank is too high for some birthdate"
+				pass
+
+		# check the array for NaN?
+		xx = np.array(xx) # convert xx from list to array
+		nanIndex = np.where(np.isnan(xx)) # return array of index positions for NANs
+
+		''' NEED TO BREAK THE FUNCTION IF CC IS TRUE - NOT YET IMPLEMENTED '''
+		# check to see if all of the Ranks are less than the wRank
+		cc = np.all(xx < wRank)
+		if cc == True:
+			print "You are too young"
+			#break 
+
+		# now find the interval containing wRank
+		Upper_bound =  (np.amin(np.where((xx < wRank) == False))+1)*10 # +1 because of zero index
+		Lower_bound = Upper_bound-10
+
+		# Define new range
+		range_2 = np.arange(Lower_bound-2, Upper_bound+1) # +1 due to zero index
+
+		# locate the interval 
+		xx_ = np.zeros((len(range_2),2))
+
+		# given that interval, do a yearly interpolation
+		for kk in range_2:
+			xx_[(kk - np.amin(range_2)),0] = yourRANKbyAge(DoB=birth,iAge=kk*365)
+			xx_[(kk - np.amin(range_2)),1] = kk*365
+
+		# Search again for the yearly interval containing wRank
+		Upper_bound =   xx_[np.amin(np.where((xx_[:,0] < wRank) == False)),1]
+		Lower_bound = xx_[np.amax(np.where((xx_[:,0] < wRank) == True)),1]
+
+		range_3 = np.arange(Lower_bound, Upper_bound+1)
+		#print (range_3)
+
+		xx_ = np.zeros((len(range_3),2))
+
+		# From this point on, this stuff is within a year (daily), due to the fact that the evolution of the rank is linear
+  		# we do linear interpolation to get the exact day faster
+  		end_point = range_3[len(range_3)-1]
+  		first_point = range_3[0]
+  		# print end_point, first_point
+
+  		# Get the rank for the first and last days in range_3
+  		rank_end = yourRANKbyAge(DoB = birth, iAge = end_point)
+  		rank_first = yourRANKbyAge(DoB = birth, iAge = first_point)
+
+  		# This gives us the age when we reach wRank and the exact date
+  		final_age = np.interp(wRank, [rank_first, rank_end], [Lower_bound, Upper_bound])
+  		final_date = toDate(numDate(datetime.strptime(birth, date_format)) + final_age )
+  		# print final_age, final_date
+
+  		''' CHECK THESE INTERPOLATION VALUES '''
+  		#now we also want to plot our life-path, so we do spline interpolation for the stuff we calculated in the first step
+ 		# (i.e. the ranks over decades) and interpolate using bSplines.
+ 		xx_interp = InterpolatedUnivariateSpline((np.arange(10, l_max+1, 10)*365),xx)
+ 		# print xx_interp
+ 		x_interp = xx_interp((np.arange(1,36501,365)))
+ 		# print x_interp
+
+ 		# find the rank nearest to wRank
+ 		find_r = np.amin(np.where(abs(x_interp - wRank)))
+ 		# print find_r
+
+ 		# The value this function returns
+ 		exactAge =round(final_age/365, 1)
+ 		age = math.floor(final_age/365)
+ 		DATE = final_date
+ 		
+ 		return pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
+
+	RES = yourRANKTomorrow('1993/12/06', 7000000)
+
+
+	''' --- LIFE EXPECTANCY --- '''
+	#read data for life expectancy: male=1,female=2,both=3
+	life_expectancy_ages = pd.read_csv("life_expectancy_ages.csv")
+
+	# What is the life expectancy on when I reach specific RANK speRANK 
+	le_exact_age = RES.exactAge 
+	le_age =  RES.age
+	le_date = RES.DATE
+
+	#For which CNTRY AND SEX DO YOU WANT TO KNOW THE REMAINING LIFE EXPECTANCY AT CERTAIN TIME/AGE
+	CNTRY1 = "WORLD"
+	iSEX1 = 2 #male=0,female=1,both=2
+
+	
 
 if __name__ == '__main__':
 	main()
