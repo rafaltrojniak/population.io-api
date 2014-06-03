@@ -7,7 +7,7 @@ from api import views
 API_VERSION_PREFIX = r'1.0/'
 WP_RANK_PREFIX = r'wp-rank/'
 DATE_PATTERN = lambda name: r'(?P<%s>\d{4}-\d{2}-\d{2})/' % name
-PERSON_PATH = DATE_PATTERN('dob') + r'(?P<gender>.+)/(?P<country>.+)/'
+PERSON_PATH = DATE_PATTERN('dob') + r'(?P<sex>.+)/(?P<country>.+)/'
 
 
 urlpatterns = [

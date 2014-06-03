@@ -31,7 +31,7 @@ class WorldPopulationRankCalculator(object):
     # Range of days (age)
     AGEOUT = range(0, 36501)
 
-    GENDERS = ('PopMale', 'PopFemale', 'PopTotal',)
+    SEXES = ('PopMale', 'PopFemale', 'PopTotal',)
 
     #REGIONS = [x.decode('latin1').encode('ascii') for x in ('Afghanistan', 'Albania', 'Algeria', 'Angola', 'Antigua and Barbuda', 'Azerbaijan', 'Argentina', 'Australia', 'Austria', 'Bahamas', 'Bahrain', 'Bangladesh', 'Armenia', 'Barbados', 'Belgium', 'Bhutan', 'Bolivia (Plurinational State of)', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Belize', 'Solomon Islands', 'Brunei Darussalam', 'Bulgaria', 'Myanmar', 'Burundi', 'Belarus', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Sri Lanka', 'Chad', 'Chile', 'China', 'Other non-specified areas', 'Colombia', 'Comoros', 'Mayotte', 'Congo', 'Democratic Republic of the Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Benin', 'Denmark', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Equatorial Guinea', 'Ethiopia', 'Eritrea', 'Estonia', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'Djibouti', 'Gabon', 'Georgia', 'Gambia', 'State of Palestine', 'Germany', 'Ghana', 'Kiribati', 'Greece', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'China, Hong Kong SAR', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran (Islamic Republic of)', 'Iraq', 'Ireland', 'Israel', 'Italy', "C\xf4te d'Ivoire", 'Jamaica', 'Japan', 'Kazakhstan', 'Jordan', 'Kenya', "Dem. People's Republic of Korea", 'Republic of Korea', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Lebanon', 'Lesotho', 'Latvia', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg', 'China, Macao SAR', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Martinique', 'Mauritania', 'Mauritius', 'Mexico', 'Mongolia', 'Republic of Moldova', 'Montenegro', 'Morocco', 'Mozambique', 'Oman', 'Namibia', 'Nepal', 'Netherlands', 'Cura\xe7ao', 'Aruba', 'New Caledonia', 'Vanuatu', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Norway', 'Micronesia (Fed. States of)', 'Pakistan', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Guinea-Bissau', 'Timor-Leste', 'Puerto Rico', 'Qatar', 'R\xe9union', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Viet Nam', 'Slovenia', 'Somalia', 'South Africa', 'Zimbabwe', 'Spain', 'South Sudan', 'Sudan', 'Western Sahara', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Tajikistan', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'United Arab Emirates', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'TFYR Macedonia', 'Egypt', 'United Kingdom', 'Channel Islands', 'United Republic of Tanzania', 'United States of America', 'United States Virgin Islands', 'Burkina Faso', 'Uruguay', 'Uzbekistan', 'Venezuela (Bolivarian Republic of)', 'Samoa', 'Yemen', 'Zambia', 'WORLD', 'More developed regions', 'Less developed regions', 'AFRICA', 'LATIN AMERICA AND THE CARIBBEAN', 'NORTHERN AMERICA', 'Eastern Asia', 'EUROPE', 'OCEANIA', 'Eastern Africa', 'Middle Africa', 'Northern Africa', 'Southern Africa', 'Western Africa', 'Caribbean', 'Central America', 'South-Eastern Asia', 'South-Central Asia', 'Western Asia', 'Eastern Europe', 'Northern Europe', 'Southern Europe', 'Western Europe', 'Australia and New Zealand', 'Melanesia', 'South America', 'Less developed regions, excluding least developed countries', 'ASIA', 'Least developed countries', 'Sub-Saharan Africa', 'Less developed regions, excluding China', 'Micronesia', 'Polynesia', 'Central Asia', 'Southern Asia',)]
     REGIONS = ('Afghanistan', 'Albania', 'Algeria', 'Angola', 'Antigua and Barbuda', 'Azerbaijan', 'Argentina', 'Australia', 'Austria', 'Bahamas', 'Bahrain', 'Bangladesh', 'Armenia', 'Barbados', 'Belgium', 'Bhutan', 'Bolivia (Plurinational State of)', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Belize', 'Solomon Islands', 'Brunei Darussalam', 'Bulgaria', 'Myanmar', 'Burundi', 'Belarus', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Sri Lanka', 'Chad', 'Chile', 'China', 'Other non-specified areas', 'Colombia', 'Comoros', 'Mayotte', 'Congo', 'Democratic Republic of the Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Benin', 'Denmark', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Equatorial Guinea', 'Ethiopia', 'Eritrea', 'Estonia', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'Djibouti', 'Gabon', 'Georgia', 'Gambia', 'State of Palestine', 'Germany', 'Ghana', 'Kiribati', 'Greece', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'China, Hong Kong SAR', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran (Islamic Republic of)', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Kazakhstan', 'Jordan', 'Kenya', "Dem. People's Republic of Korea", 'Republic of Korea', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Lebanon', 'Lesotho', 'Latvia', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg', 'China, Macao SAR', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Martinique', 'Mauritania', 'Mauritius', 'Mexico', 'Mongolia', 'Republic of Moldova', 'Montenegro', 'Morocco', 'Mozambique', 'Oman', 'Namibia', 'Nepal', 'Netherlands', 'Aruba', 'New Caledonia', 'Vanuatu', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Norway', 'Micronesia (Fed. States of)', 'Pakistan', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Guinea-Bissau', 'Timor-Leste', 'Puerto Rico', 'Qatar', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Viet Nam', 'Slovenia', 'Somalia', 'South Africa', 'Zimbabwe', 'Spain', 'South Sudan', 'Sudan', 'Western Sahara', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Tajikistan', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'United Arab Emirates', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'TFYR Macedonia', 'Egypt', 'United Kingdom', 'Channel Islands', 'United Republic of Tanzania', 'United States of America', 'United States Virgin Islands', 'Burkina Faso', 'Uruguay', 'Uzbekistan', 'Venezuela (Bolivarian Republic of)', 'Samoa', 'Yemen', 'Zambia', 'WORLD', 'More developed regions', 'Less developed regions', 'AFRICA', 'LATIN AMERICA AND THE CARIBBEAN', 'NORTHERN AMERICA', 'Eastern Asia', 'EUROPE', 'OCEANIA', 'Eastern Africa', 'Middle Africa', 'Northern Africa', 'Southern Africa', 'Western Africa', 'Caribbean', 'Central America', 'South-Eastern Asia', 'South-Central Asia', 'Western Asia', 'Eastern Europe', 'Northern Europe', 'Southern Europe', 'Western Europe', 'Australia and New Zealand', 'Melanesia', 'South America', 'Less developed regions, excluding least developed countries', 'ASIA', 'Least developed countries', 'Sub-Saharan Africa', 'Less developed regions, excluding China', 'Micronesia', 'Polynesia', 'Central Asia', 'Southern Asia',)
@@ -42,11 +42,8 @@ class WorldPopulationRankCalculator(object):
         # prepare the filesystem cache
         self.store = pd.HDFStore(storeFilename, complevel=9, complib='blosc')
 
-        # read in data
-        #self.readCSV()
-
-        # create two dimensional lookup table for extrapolation tables, based on (gender, region) tuples
-        self.extrapolationTables = {(gender, region): None for gender in WorldPopulationRankCalculator.GENDERS for region in WorldPopulationRankCalculator.REGIONS}
+        # create two dimensional lookup table for extrapolation tables, based on (sex, region) tuples
+        self.extrapolationTables = {(sex, region): None for sex in WorldPopulationRankCalculator.SEXES for region in WorldPopulationRankCalculator.REGIONS}
 
     def readCSV(self, inputCsvFilename=DEFAULT_DATA_SOURCE):
         # UN population by age in single years and sex annually during 1950-2100
@@ -60,17 +57,17 @@ class WorldPopulationRankCalculator(object):
         # get list of countries
         #self.regions = pd.unique(self.data.Location).tolist()
 
-    def generateExtrapolationTable(self, gender, region):
+    def generateExtrapolationTable(self, sex, region):
         """
         Function that extrapolates the 1st July data to each calender day
 
         :param region: valid values: anything from 'countries'
-        :param gender: valid values: PopFemale, PopMale, PopTotal
-        :return: an extrapolation table for the given region/gender tuple
+        :param sex: valid values: PopFemale, PopMale, PopTotal
+        :return: an extrapolation table for the given region/sex tuple
         """
         start = time.clock()
         pop1 = self.data[self.data.Location == region]
-        pop1 = pop1[['Time', 'Age', gender]]
+        pop1 = pop1[['Time', 'Age', sex]]
         # pop1 = data[['Time', 'Age', SEX]].query('Location' == CNTRY)
         #print pop1
 
@@ -82,7 +79,7 @@ class WorldPopulationRankCalculator(object):
         def dateInterp(iage):
             popi = pop1[self.data.Age == iage]
             #popi = pop1[Age == 21] #select particular age COMMENT OUT
-            popi = np.asarray(popi[gender])
+            popi = np.asarray(popi[sex])
 
             # spline interpolation function from Scipy Package
             iuspl = InterpolatedUnivariateSpline(july1from1950to2100, popi)
@@ -115,22 +112,22 @@ class WorldPopulationRankCalculator(object):
         table['date1'] = fullDateRange
 
         # Store the table and get some stats
-        self.extrapolationTables[(gender, region)] = table
+        self.extrapolationTables[(sex, region)] = table
         generationTime = time.clock() - start
         tableSize = (table.values.nbytes + table.index.values.nbytes + table.columns.values.nbytes) / 1024**2
-        print 'Generated extrapolation table for (%s, %s) of size ~%.02fMiB in %.02f seconds' % (gender, region, tableSize, generationTime)
+        print 'Generated extrapolation table for (%s, %s) of size ~%.02fMiB in %.02f seconds' % (sex, region, tableSize, generationTime)
 
-    def storeExtrapolationTable(self, gender, region):
+    def storeExtrapolationTable(self, sex, region):
         start = time.clock()
-        key = '%s/%s' % (gender, region)
-        self.store.put(key, self.extrapolationTables[(gender, region)])
-        print 'Stored extrapolation table for (%s, %s) in %.02f seconds' % (gender, region, time.clock()-start)
+        key = '%s/%s' % (sex, region)
+        self.store.put(key, self.extrapolationTables[(sex, region)])
+        print 'Stored extrapolation table for (%s, %s) in %.02f seconds' % (sex, region, time.clock()-start)
 
-    def retrieveExtrapolationTable(self, gender, region):
+    def retrieveExtrapolationTable(self, sex, region):
         start = time.clock()
-        key = '%s/%s' % (gender, region)
-        self.extrapolationTables[(gender, region)] = self.store.get(key)
-        print 'Retrieved extrapolation table for (%s, %s) in %.02f seconds' % (gender, region, time.clock()-start)
+        key = '%s/%s' % (sex, region)
+        self.extrapolationTables[(sex, region)] = self.store.get(key)
+        print 'Retrieved extrapolation table for (%s, %s) in %.02f seconds' % (sex, region, time.clock()-start)
 
     def dayInterpA(self, table, date):
         """
@@ -167,18 +164,18 @@ class WorldPopulationRankCalculator(object):
         #return pd.DataFrame(ageout, iuspl2_pred, columns=['AGE', 'POP'])
         return merged
 
-    def worldPopulationRankByDate(self, gender, region, dob, date):
+    def worldPopulationRankByDate(self, sex, region, dob, date):
         """
         my rank by date: What will be my rank on particular day
 
-        :param gender:
+        :param sex:
         :param region:
         :param dob:
         :param date:
         :return:
         """
         iAge = inPosixDays(date) - inPosixDays(dob)
-        table = self.extrapolationTables[(gender, region)]
+        table = self.extrapolationTables[(sex, region)]
         X = self.dayInterpA(table, date)
 
         # store age and pop in array
