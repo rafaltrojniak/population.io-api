@@ -5,21 +5,17 @@ djangorestframework==2.3.13
 # Swagger integration
 django-rest-swagger==0.1.14
 
-# Helper libraries
+# helper libraries
 python-dateutil==2.2
 
 # numeric and data analysis libraries
-# (note that for Heroku deployment, NumPy/SciPy have to be versions with binaries available at https://github.com/dbrgn/npscipy-binaries)
-numpy==1.7.0
-scipy==0.11.0
-pandas==0.13.1
+numpy>=1.7.0
+scipy>=0.11.0
+pandas>=0.13.1
 
-# storing data with HDF5: PyTables and its dependencies
-numexpr>=2.4
-h5py>=2.3
-cython>=0.13
+# PyTables for caching data with HDF5
 tables>=3.1
 
-# WSGI server for Heroku
+# WSGI server
 gunicorn==18.0
 dj-static==0.0.5

@@ -8,6 +8,7 @@ Django project for population.io
 * Python 2.7
 * pip 1.5+
 * NumPy 1.7.0+, SciPy 0.11.0+, Pandas 0.13.1+ (see http://www.scipy.org/install.html for installation instructions)
+* PyTables 3.1+
 * further dependencies can be installed with pip from a requirements file
 
 ## Project setup for development
@@ -30,14 +31,8 @@ You will also have to unpack the CSV data files in the `data` subdirectory.
 
 Run all unit tests with `python manage.py test`. 
 
-## Deploying to Heroku
+## Running on Vagrant box
 
-Deployment to Heroku requires a custom buildpack, because _NumPy_ and _SciPy_ have some binary dependencies which can't be installed through pip. See https://blog.dbrgn.ch/2013/6/18/heroku-buildpack-numpy-scipy-scikit-learn/ for more information.
-
-Follow these steps to run your own testing instance on Heroku:
-
-* Set up Heroku account, install the Heroku toolbelt and log in. See: https://devcenter.heroku.com/articles/quickstart.
-* Run `heroku create --buildpack https://github.com/dbrgn/heroku-buildpack-python-sklearn/`. Note the URL of your new app and the Heroku git repo URL.
-* If Heroku didn't create a git remote for you, run `git remote add heroku <git_repo_url>`.
-* Run `git push heroku master` to deploy to Heroku and run your app. Make yourself a cup of coffee, because compiling the _pandas_ dependency will take a while...
-* View the API docs of your app at `http://<heroku_app_name>.herokuapp.com/api/docs/`.
+* Install Vagrant: https://www.vagrantup.com/.
+* Run `vagrant up` in the `/vagrant` subdirectory of the project.
+* View the API docs of your app at `http://localhost:9999/api/docs/`.
