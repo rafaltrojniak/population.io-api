@@ -3,6 +3,7 @@ R to python: yourRank.r
 '''
 import os, time
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 
 import numpy as np
@@ -181,6 +182,24 @@ class WorldPopulationRankCalculator(object):
         #return pd.DataFrame(ageout, iuspl2_pred, columns=['AGE', 'POP'])
         return merged
 
+    def _calculateRankByDate(self, table, dob, date):
+        # do the interpolation
+        iAge = inPosixDays(date) - inPosixDays(dob)
+        X = self.dayInterpA(table, date)
+
+        # store age and pop in array
+        ageArray = np.asarray(X.AGE)
+        popArray = np.asarray(X.POP)
+
+        # calc cumulative sum of the population
+        cumSum =  np.cumsum(popArray)
+
+        # take the mean of the cumulative sum of the iAge year and preceeding
+        rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
+        if not rank > 0:
+            raise RuntimeError('Rank calculation failed due to internal error')   # we should never get here, if we do that means the parameter checks at the beginning are incomplete
+        return rank
+
     def worldPopulationRankByDate(self, sex, region, dob, date):
         """
         my rank by date: What will be my rank on particular day
@@ -213,19 +232,112 @@ class WorldPopulationRankCalculator(object):
         # retrieve or build the extrapolation table for this (sex, region) tuple
         table = self.getOrGenerateExtrapolationTable(sex, region)
 
-        # do the interpolation
-        iAge = inPosixDays(date) - inPosixDays(dob)
-        X = self.dayInterpA(table, date)
-
-        # store age and pop in array
-        ageArray = np.asarray(X.AGE)
-        popArray = np.asarray(X.POP)
-
-        # calc cumulative sum of the population
-        cumSum =  np.cumsum(popArray)
-
-        # take the mean of the cumulative sum of the iAge year and preceeding
-        rank = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
-        if not rank > 0:
-            raise RuntimeError('Rank calculation failed due to internal error')   # we should never get here, if we do that means the parameter checks at the beginning are incomplete
+        # do the calculations
+        rank = self._calculateRankByDate(table, dob, date)
         return long(rank*1000)
+
+    def dateByWorldPopulationRank(self, sex, region, dob, rank):
+        """
+        finding the date for specific rank
+
+        :param birth:
+        :param wRank:
+        :return:
+        """
+        # internally, the algorithm works with k-ranks
+        rank = rank / 1000.0
+
+        # prefetch the extrapolation table
+        table = self.getOrGenerateExtrapolationTable(sex, region)
+
+        # The number of years from input birth to '2100/01/01'
+        length_time = relativedelta(datetime(2100, 1, 1), dob).years
+
+        # Make sure that difference between DOB and final Date > 100
+        if length_time < 100:
+            l_max = np.round(length_time)
+        else:
+            l_max = 100
+
+        xx = []
+        for jj in range(1, (len(range(10, l_max+10, 10))+1)):
+            try:
+                xx.append(self._calculateRankByDate(table, dob, dob + relativedelta(days = jj*3650)))
+            except Exception:
+                print "Breaks the function if either the birthdate is too late \
+                for some rank or the rank is too high for some birthdate"
+
+        # check the array for NaN?
+        xx = np.array(xx) # convert xx from list to array
+        #nanIndex = np.where(np.isnan(xx)) # return array of index positions for NANs
+
+        ''' NEED TO BREAK THE FUNCTION IF CC IS TRUE - NOT YET IMPLEMENTED '''
+        # check to see if all of the Ranks are less than the wRank
+        if np.all(xx < rank):
+            print "You are too young"
+            return
+
+        #print xx
+        # now find the interval containing wRank
+        #print rank
+        #print np.amin(np.where((xx < rank) == False))
+        Upper_bound = (np.amin(np.where((xx < rank) == False))+1)*10 # +1 because of zero index
+        Lower_bound = Upper_bound-10
+        #print Upper_bound, Lower_bound
+
+        # Define new range
+        range_2 = np.arange(Lower_bound-2, Upper_bound+1) # +1 due to zero index
+
+        # locate the interval
+        xx_ = np.zeros((len(range_2),2))
+
+        # given that interval, do a yearly interpolation
+        #print range_2
+        for kk in range_2:
+            #print kk
+            xx_[(kk - np.amin(range_2)),0] = self._calculateRankByDate(table, dob, dob + relativedelta(years=kk))
+            xx_[(kk - np.amin(range_2)),1] = kk*365
+
+        # Search again for the yearly interval containing wRank
+        Upper_bound = xx_[np.amin(np.where((xx_[:,0] < rank) == False)),1]
+        Lower_bound = xx_[np.amax(np.where((xx_[:,0] < rank) == True)),1]
+
+        range_3 = np.arange(Lower_bound, Upper_bound+1)
+        #print (range_3)
+
+        #xx_ = np.zeros((len(range_3),2))
+
+        # From this point on, this stuff is within a year (daily), due to the fact that the evolution of the rank is linear
+        # we do linear interpolation to get the exact day faster
+        end_point = range_3[len(range_3)-1]
+        first_point = range_3[0]
+        # print end_point, first_point
+
+        # Get the rank for the first and last days in range_3
+        rank_end = self._calculateRankByDate(table, dob, dob + relativedelta(days=end_point))
+        rank_first = self._calculateRankByDate(table, dob, dob + relativedelta(days=first_point))
+
+        # This gives us the age when we reach wRank and the exact date
+        final_age = np.interp(rank, [rank_first, rank_end], [Lower_bound, Upper_bound])
+        final_date = dob + relativedelta(days=final_age)
+        #print final_age, final_date
+
+        ''' CHECK THESE INTERPOLATION VALUES '''
+        #now we also want to plot our life-path, so we do spline interpolation for the stuff we calculated in the first step
+        # (i.e. the ranks over decades) and interpolate using bSplines.
+        #xx_interp = InterpolatedUnivariateSpline((np.arange(10, l_max+1, 10)*365),xx)
+        # print xx_interp
+        #x_interp = xx_interp((np.arange(1,36501,365)))
+        # print x_interp
+
+        # find the rank nearest to wRank
+        #find_r = np.amin(np.where(abs(x_interp - rank)))
+        # print find_r
+
+        # The value this function returns
+        #exactAge = round(final_age/365, 1)
+        #age = math.floor(final_age/365)
+        #DATE = final_date
+
+        #pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
+        return datetime(final_date.year, final_date.month, final_date.day)

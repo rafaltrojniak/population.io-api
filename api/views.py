@@ -120,7 +120,6 @@ def wprank_ago(request, dob, sex, country, offset):
     """
     today = datetime.datetime.utcnow()
     before_delta = _parse_timeframe(offset)
-    print today - before_delta
     rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, today - before_delta)
     return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset})
 
@@ -141,7 +140,9 @@ def wprank_by_rank(request, dob, sex, country, rank):
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ranked/1000000000/: calculates the day on which the person became the one billionth inhabitant
     """
-    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': datetime_to_str(datetime.datetime(2000, 1, 1))})
+    # TODO: validate rank and return error message if not int
+    date = wprCalculator.dateByWorldPopulationRank(sex, country, dob, int(rank))
+    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': datetime_to_str(date)})
 
 
 @api_view(['GET'])
@@ -171,7 +172,6 @@ def _parse_timeframe(val):
         re_result = TIMEFRAME_REGEX.match(val)
         if re_result and re_result.lastindex:   # lastindex is None (and has_any_match therefore False) if all three optional groups were left off
             years, months, days = (int(x) if x else 0 for x in re_result.groups())
-            #interval = datetime.timedelta(years=years, months=months, days=days)
             return relativedelta(years=years, months=months, days=days)
 
     from rest_framework.exceptions import ParseError

@@ -75,3 +75,6 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         # test with an UTF8-encoded byte string
         utf8EncodedByteString = unicodeString.encode('utf-8')
         self.assertTrue(self.sut.worldPopulationRankByDate('unisex', utf8EncodedByteString, datetime(1993, 12,  6), datetime.utcnow()) > 0)
+
+    def test_byRank(self):
+        self.assertEqual(datetime(2049,  3, 11), self.sut.dateByWorldPopulationRank('unisex', 'WORLD', datetime(1993, 12,  6), 7000000000))
