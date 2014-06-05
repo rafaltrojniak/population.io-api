@@ -78,3 +78,6 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
 
     def test_byRank(self):
         self.assertEqual(datetime(2049,  3, 11), self.sut.dateByWorldPopulationRank('unisex', 'WORLD', datetime(1993, 12,  6), 7000000000))
+
+    def test_lifeExpectancy(self):
+        self.assertAlmostEqual(26.24, self.sut.lifeExpectancy('unisex', 'WORLD', datetime(1993, 12, 6), datetime(2049, 3, 11), 55.3), places=0)

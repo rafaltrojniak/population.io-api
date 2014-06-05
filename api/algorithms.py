@@ -1,7 +1,7 @@
 ''' 
 R to python: yourRank.r
 '''
-import os, time
+import os, time, math
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -35,6 +35,7 @@ class WorldPopulationRankCalculator(object):
     AGEOUT = range(0, 36501)
 
     SEXES = {'male': 'PopMale', 'female': 'PopFemale', 'unisex': 'PopTotal',}
+    SEXES_LIFE_EXPECTANCY = {'male': 1, 'female': 2, 'unisex': 3,}
 
     #REGIONS = [x.decode('latin1') for x in ('Afghanistan', 'Albania', 'Algeria', 'Angola', 'Antigua and Barbuda', 'Azerbaijan', 'Argentina', 'Australia', 'Austria', 'Bahamas', 'Bahrain', 'Bangladesh', 'Armenia', 'Barbados', 'Belgium', 'Bhutan', 'Bolivia (Plurinational State of)', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Belize', 'Solomon Islands', 'Brunei Darussalam', 'Bulgaria', 'Myanmar', 'Burundi', 'Belarus', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Sri Lanka', 'Chad', 'Chile', 'China', 'Other non-specified areas', 'Colombia', 'Comoros', 'Mayotte', 'Congo', 'Democratic Republic of the Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Benin', 'Denmark', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Equatorial Guinea', 'Ethiopia', 'Eritrea', 'Estonia', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'Djibouti', 'Gabon', 'Georgia', 'Gambia', 'State of Palestine', 'Germany', 'Ghana', 'Kiribati', 'Greece', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'China, Hong Kong SAR', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran (Islamic Republic of)', 'Iraq', 'Ireland', 'Israel', 'Italy', "C\xf4te d'Ivoire", 'Jamaica', 'Japan', 'Kazakhstan', 'Jordan', 'Kenya', "Dem. People's Republic of Korea", 'Republic of Korea', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Lebanon', 'Lesotho', 'Latvia', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg', 'China, Macao SAR', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Martinique', 'Mauritania', 'Mauritius', 'Mexico', 'Mongolia', 'Republic of Moldova', 'Montenegro', 'Morocco', 'Mozambique', 'Oman', 'Namibia', 'Nepal', 'Netherlands', 'Cura\xe7ao', 'Aruba', 'New Caledonia', 'Vanuatu', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Norway', 'Micronesia (Fed. States of)', 'Pakistan', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Guinea-Bissau', 'Timor-Leste', 'Puerto Rico', 'Qatar', 'R\xe9union', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Viet Nam', 'Slovenia', 'Somalia', 'South Africa', 'Zimbabwe', 'Spain', 'South Sudan', 'Sudan', 'Western Sahara', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Tajikistan', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'United Arab Emirates', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'TFYR Macedonia', 'Egypt', 'United Kingdom', 'Channel Islands', 'United Republic of Tanzania', 'United States of America', 'United States Virgin Islands', 'Burkina Faso', 'Uruguay', 'Uzbekistan', 'Venezuela (Bolivarian Republic of)', 'Samoa', 'Yemen', 'Zambia', 'WORLD', 'More developed regions', 'Less developed regions', 'AFRICA', 'LATIN AMERICA AND THE CARIBBEAN', 'NORTHERN AMERICA', 'Eastern Asia', 'EUROPE', 'OCEANIA', 'Eastern Africa', 'Middle Africa', 'Northern Africa', 'Southern Africa', 'Western Africa', 'Caribbean', 'Central America', 'South-Eastern Asia', 'South-Central Asia', 'Western Asia', 'Eastern Europe', 'Northern Europe', 'Southern Europe', 'Western Europe', 'Australia and New Zealand', 'Melanesia', 'South America', 'Less developed regions, excluding least developed countries', 'ASIA', 'Least developed countries', 'Sub-Saharan Africa', 'Less developed regions, excluding China', 'Micronesia', 'Polynesia', 'Central Asia', 'Southern Asia',)]
     REGIONS = ('Afghanistan', 'Albania', 'Algeria', 'Angola', 'Antigua and Barbuda', 'Azerbaijan', 'Argentina', 'Australia', 'Austria', 'Bahamas', 'Bahrain', 'Bangladesh', 'Armenia', 'Barbados', 'Belgium', 'Bhutan', 'Bolivia (Plurinational State of)', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Belize', 'Solomon Islands', 'Brunei Darussalam', 'Bulgaria', 'Myanmar', 'Burundi', 'Belarus', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Sri Lanka', 'Chad', 'Chile', 'China', 'Other non-specified areas', 'Colombia', 'Comoros', 'Mayotte', 'Congo', 'Democratic Republic of the Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Benin', 'Denmark', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Equatorial Guinea', 'Ethiopia', 'Eritrea', 'Estonia', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'Djibouti', 'Gabon', 'Georgia', 'Gambia', 'State of Palestine', 'Germany', 'Ghana', 'Kiribati', 'Greece', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'China, Hong Kong SAR', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran (Islamic Republic of)', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Kazakhstan', 'Jordan', 'Kenya', "Dem. People's Republic of Korea", 'Republic of Korea', 'Kuwait', 'Kyrgyzstan', "Lao People's Democratic Republic", 'Lebanon', 'Lesotho', 'Latvia', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg', 'China, Macao SAR', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Martinique', 'Mauritania', 'Mauritius', 'Mexico', 'Mongolia', 'Republic of Moldova', 'Montenegro', 'Morocco', 'Mozambique', 'Oman', 'Namibia', 'Nepal', 'Netherlands', 'Aruba', 'New Caledonia', 'Vanuatu', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Norway', 'Micronesia (Fed. States of)', 'Pakistan', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Guinea-Bissau', 'Timor-Leste', 'Puerto Rico', 'Qatar', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Viet Nam', 'Slovenia', 'Somalia', 'South Africa', 'Zimbabwe', 'Spain', 'South Sudan', 'Sudan', 'Western Sahara', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syrian Arab Republic', 'Tajikistan', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'United Arab Emirates', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'TFYR Macedonia', 'Egypt', 'United Kingdom', 'Channel Islands', 'United Republic of Tanzania', 'United States of America', 'United States Virgin Islands', 'Burkina Faso', 'Uruguay', 'Uzbekistan', 'Venezuela (Bolivarian Republic of)', 'Samoa', 'Yemen', 'Zambia', 'WORLD', 'More developed regions', 'Less developed regions', 'AFRICA', 'LATIN AMERICA AND THE CARIBBEAN', 'NORTHERN AMERICA', 'Eastern Asia', 'EUROPE', 'OCEANIA', 'Eastern Africa', 'Middle Africa', 'Northern Africa', 'Southern Africa', 'Western Africa', 'Caribbean', 'Central America', 'South-Eastern Asia', 'South-Central Asia', 'Western Asia', 'Eastern Europe', 'Northern Europe', 'Southern Europe', 'Western Europe', 'Australia and New Zealand', 'Melanesia', 'South America', 'Less developed regions, excluding least developed countries', 'ASIA', 'Least developed countries', 'Sub-Saharan Africa', 'Less developed regions, excluding China', 'Micronesia', 'Polynesia', 'Central Asia', 'Southern Asia',)
@@ -341,3 +342,63 @@ class WorldPopulationRankCalculator(object):
 
         #pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
         return datetime(final_date.year, final_date.month, final_date.day)
+
+    def lifeExpectancy(self, sex, region, dob, le_date, le_exact_age):
+        life_expectancy_ages = pd.read_csv(os.path.join(settings.BASE_DIR, 'data', 'life_expectancy_ages.csv'))
+
+        # find beginning of 5 yearly period for the le_date
+        le_yr = le_date.year   #(le_date.loc['1'])[0:4]
+        lowest_year = math.floor(int(le_yr)/5)*5
+        print le_yr, lowest_year
+
+        #extract a row corresponding to the time-period
+        life_exp_prd_5below = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == self.SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year-5)]
+        life_exp_prd_ext = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == self.SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year)]
+        life_exp_prd_5above = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == self.SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year+5)]
+
+        life_exp_prd = pd.concat([life_exp_prd_5below, life_exp_prd_ext, life_exp_prd_5above])
+        print life_exp_prd
+
+        life_exp_prd = life_exp_prd.ix[:,7:len(life_exp_prd.columns)]
+        print life_exp_prd
+
+        # Place holder for Agenames and values for three consecutive periods of interest
+        life_exp_ = np.zeros((len(life_exp_prd.columns), 4))
+        print life_exp_
+
+        # Age group starting at and less than the next value: 0, 1, 5, 10
+        life_exp_[:,0] = np.insert((np.arange(5, 105, 5)), 0, [0,1])
+        print life_exp_[:,0]
+
+        # transpose the dataframe - prep for assinging life expectancy vals
+        life_exp_prd = life_exp_prd.T
+
+        # Assigning life expectancy values
+        life_exp_[:,1] = life_exp_prd[life_exp_prd.columns[0]].values
+        life_exp_[:,2] = life_exp_prd[life_exp_prd.columns[1]].values
+        life_exp_[:,3] = life_exp_prd[life_exp_prd.columns[2]].values
+
+        # interpolations
+        xx_interp1 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,1])
+        xx_interp2 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,2])
+        xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,3])
+
+        # predictions
+        x_interp1 = xx_interp1(le_exact_age)#interpolated value for AGE in earlier 5 yearly period
+        x_interp2 = xx_interp2(le_exact_age)#interpolated value for AGE in the 5 yearly period of interest
+        x_interp3 = xx_interp3(le_exact_age)#interpolated value for AGE in 5 yearly period after
+        print x_interp1, x_interp2, x_interp3
+
+        # matrix of vals
+        life_exp_yr = np.zeros((3,2))
+
+        #The mid point of period 2010-2015 which is from 1st July 2010 to June 30 of 2015, therefore, the mid point is 1st Jan 2013
+        #In the following we turn the year to the date and then to numeric. We will use these to interpolate between periods and then predict the le for exact date
+        addDate = lambda d: inPosixDays(datetime(int(d)+3, 1, 1))
+
+        life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5)]
+        life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
+
+        print life_exp_yr
+        return life_exp_yr[1,1]
+        #life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
