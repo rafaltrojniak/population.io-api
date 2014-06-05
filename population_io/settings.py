@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_swagger',
+    'corsheaders',
 #    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',   # needs to come before CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,3 +102,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONPRenderer',
     ),
 }
+
+
+# CORS headers configuration
+# https://github.com/ottoyiu/django-cors-headers/#configuration
+
+CORS_ORIGIN_ALLOW_ALL = True

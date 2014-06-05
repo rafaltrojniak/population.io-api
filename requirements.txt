@@ -1,12 +1,15 @@
 # Django and Django REST Framework
-django==1.6.5
-djangorestframework==2.3.13
+django>=1.6,<1.7
+djangorestframework>=2.3,<2.4
+
+# CORS support
+django-cors-headers>=0.12
 
 # Swagger integration
 django-rest-swagger==0.1.14
 
 # helper libraries
-python-dateutil==2.2
+python-dateutil>=2.2
 
 # numeric and data analysis libraries
 numpy>=1.7.0
