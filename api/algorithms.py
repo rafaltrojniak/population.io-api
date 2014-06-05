@@ -397,3 +397,11 @@ class WorldPopulationRankCalculator(object):
         print life_exp_yr
         return life_exp_yr[1,1]
         #life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
+
+    def populationCount(self, country, age, year=None):
+        results = self.data[self.data['Location']==country][self.data['Age']==age]
+        if year:
+            results = results[self.data['Time']==year]
+        for row in results.iterrows():
+            series = row[1]
+            yield {'year': series['Time'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)}

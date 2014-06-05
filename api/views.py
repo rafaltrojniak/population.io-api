@@ -164,6 +164,13 @@ def life_expectancy(request, dob, sex, country):
 
 
 
+@api_view(['GET'])
+def list_population(request, country, age, year=None):
+    result = wprCalculator.populationCount(country, int(age), int(year) if year else None)
+    return Response(result)
+
+
+
 TIMEFRAME_REGEX = re.compile(r'^(?:(?P<years>\d+)y)?(?:(?P<months>\d+)m)?(?:(?P<days>\d+)d)?$')
 def _parse_timeframe(val):
     if val.isdigit():
