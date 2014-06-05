@@ -28,7 +28,7 @@ else
   pip install --requirement population.io/requirements.txt
 
   # Extract the data file
-  unzip -o population.io/data/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv.zip -x "__MACOSX/*" -d population.io/data
+  unzip -o population.io/data/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.zip -x "__MACOSX/*" -d population.io/data
 
   # Clean up
   chown -R vagrant:vagrant population.io
