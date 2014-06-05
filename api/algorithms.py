@@ -123,30 +123,25 @@ class WorldPopulationRankCalculator(object):
 
     def storeExtrapolationTable(self, sex, region):
         start = time.clock()
-        key = '%s/%s' % (sex, region)
+        key = '%s/%s' % (self.SEXES[sex], region)
         self.store.put(key, self.extrapolationTables[(sex, region)])
         print 'Stored extrapolation table for (%s, %s) in %.02f seconds' % (sex, region, time.clock()-start)
 
     def retrieveExtrapolationTable(self, sex, region):
         start = time.clock()
-        key = '%s/%s' % (sex, region)
+        key = '%s/%s' % (self.SEXES[sex], region)
         self.extrapolationTables[(sex, region)] = self.store.get(key)
         print 'Retrieved extrapolation table for (%s, %s) in %.02f seconds' % (sex, region, time.clock()-start)
 
     def getOrGenerateExtrapolationTable(self, sex, region):
         if (sex, region) not in self.extrapolationTables:
-            self.generateExtrapolationTable(sex, region)
+            key = "%s/%s" % (self.SEXES[sex], region)
+            print self.store.get_node(key)
+            if self.store.get_node(key):
+                self.retrieveExtrapolationTable(sex, region)
+            else:
+                self.generateExtrapolationTable(sex, region)
         return self.extrapolationTables[(sex, region)]
-
-    def retrieveAllTables(self):
-        """
-        Loads all tables *into memory*.
-        """
-        start = time.clock()
-        for sex in self.SEXES:
-            for region in self.REGIONS:
-                self.extrapolationTables[(sex, region)] = self.store.get("%s/%s" % (sex, region))
-        print 'Retrieved all extrapolation tables in %.02f seconds' % (time.clock()-start)
 
     def dayInterpA(self, table, date):
         """
