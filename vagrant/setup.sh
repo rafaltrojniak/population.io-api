@@ -30,9 +30,6 @@ else
   # Extract the data file
   unzip -o population.io/data/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv.zip -x "__MACOSX/*" -d population.io/data
 
-  # Django still needs its database, even though we don't really make use of it
-  cd population.io && python manage.py syncdb --noinput && cd ..
-
   # Clean up
   chown -R vagrant:vagrant population.io
   touch /.installed
