@@ -286,16 +286,14 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     return datetime(final_date.year, final_date.month, final_date.day)
 
 def lifeExpectancy(sex, region, date, age):
-    life_expectancy_ages = pd.read_csv(os.path.join(settings.BASE_DIR, 'data', 'life_expectancy_ages.csv'))
-
     # find beginning of 5 yearly period for the le_date
     le_yr = date.year   #(le_date.loc['1'])[0:4]
     lowest_year = math.floor(int(le_yr)/5)*5
 
     #extract a row corresponding to the time-period
-    life_exp_prd_5below = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year-5)]
-    life_exp_prd_ext = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year)]
-    life_exp_prd_5above = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year+5)]
+    life_exp_prd_5below = dataStore.life_expectancy_ages[(dataStore.life_expectancy_ages.region == region) & (dataStore.life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.life_expectancy_ages.Begin_prd == lowest_year-5)]
+    life_exp_prd_ext = dataStore.life_expectancy_ages[(dataStore.life_expectancy_ages.region == region) & (dataStore.life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.life_expectancy_ages.Begin_prd == lowest_year)]
+    life_exp_prd_5above = dataStore.life_expectancy_ages[(dataStore.life_expectancy_ages.region == region) & (dataStore.life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.life_expectancy_ages.Begin_prd == lowest_year+5)]
 
     life_exp_prd = pd.concat([life_exp_prd_5below, life_exp_prd_ext, life_exp_prd_5above])
 
