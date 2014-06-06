@@ -45,14 +45,7 @@ class DataStore(object):
         sex, country = item
         return self.getOrGenerateExtrapolationTable(sex, country)
 
-    def prebuildAllExtrapolationTables(self, builder):
-        for sex in self.SEXES.keys():
-            for region in self.countries:
-                table = self.generateExtrapolationTable(sex, region)
-                table = None   # delete from memory immediately
-
     def _buildTableKey(self, sex, country):
-        #return '%s/%s' % (self.SEXES[sex], country)
         return '%s/%s' % (sex, country)
 
     def storeExtrapolationTable(self, sex, country, table):

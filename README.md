@@ -31,6 +31,12 @@ You will also have to unpack the CSV data files in the `data` subdirectory.
 
 Run all unit tests with `python manage.py test`. 
 
+## Prebuilding all extrapolation tables
+
+Many API requests require an extrapolation table (based on sex and country) to do their work. Generating this table can take a while (up to 20s on an average machine). Therefore, if you have about 25 GiB to spare, you might want to generate all of these ahead of time making the API calls really snappy (far below 1s).
+
+Run `python manage.py buildtables` to rebuild all tables. Expect this to take about 2-4 hours. 
+
 ## Running on Vagrant box
 
 * Install Vagrant: https://www.vagrantup.com/.

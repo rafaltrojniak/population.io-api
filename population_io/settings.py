@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'rest_framework_swagger',
     'corsheaders',
     'django.contrib.staticfiles',
+    'api',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,5 +106,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 DATA_STORE_PATH = os.path.join(BASE_DIR, 'data', 'datastore.hdf5')
 CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
 CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
-CACHE_TABLES_IN_MEMORY = False   # This should only be enabled during development, when working without pregenerated tables.
+CACHE_TABLES_IN_MEMORY = True   # This should only be enabled during development, when working without pregenerated tables.
                                 # There is no limit to the amount of tables cached, so eventually there'll be a MemoryError.
