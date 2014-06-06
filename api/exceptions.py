@@ -7,13 +7,21 @@ class InvalidSexError(ParseError):
     def __init__(self, invalidValue):
         self.detail = '%s is an invalid value for the parameter "sex", valid values are: male, female, unisex' % invalidValue
 
-class InvalidRegionError(ParseError):
+class InvalidCountryError(ParseError):
     def __init__(self, invalidValue):
-        self.detail = '%s is an invalid value for the parameter "region", the list of valid values can be retrieved from the endpoint /meta/countries' % invalidValue
+        self.detail = '%s is an invalid value for the parameter "country", the list of valid values can be retrieved from the endpoint /meta/countries' % invalidValue
 
 class DateParsingError(ParseError):
     def __init__(self, paramName, invalidValue):
-        self.detail = 'The given date %s in parameter %s could not be parsed. Please provide dates in the format YYYY-MM-DD' % (datetime_to_str(invalidValue), paramName)
+        self.detail = 'The given date %s in parameter %s could not be parsed. Please provide dates in the format YYYY-MM-DD' % (invalidValue, paramName)
+
+class NumberParsingError(ParseError):
+    def __init__(self, paramName, invalidValue):
+        self.detail = 'The given number %s in parameter %s could not be parsed. Please use digits only' % (invalidValue, paramName)
+
+class OffsetParsingError(ParseError):
+    def __init__(self, paramName, invalidValue):
+        self.detail = 'The given offset %s in parameter %s could not be parsed. Valid values are a number to express days, or a combination of years, months and days in the format ##y##m##d' % (invalidValue, paramName)
 
 class BirthdateOutOfRangeError(ParseError):
     def __init__(self, invalidValue):

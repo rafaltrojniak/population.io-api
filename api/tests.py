@@ -1,8 +1,8 @@
-from django.test import SimpleTestCase
 from datetime import datetime, timedelta
+from django.test import SimpleTestCase
 from django.conf import settings
+from rest_framework.test import APISimpleTestCase
 settings.CACHE_TABLES_IN_MEMORY = True
-
 from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancy, populationCount
 from api.datastore import dataStore
 from api.exceptions import *
@@ -47,7 +47,7 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         self.assertRaises(InvalidSexError, worldPopulationRankByDate, 'INVALID', 'World', datetime(1980, 1, 1), datetime(2000, 1, 1))
 
     def test_byDate_invalidRegion(self):
-        self.assertRaises(InvalidRegionError, worldPopulationRankByDate, 'unisex', 'THIS COUNTRY DOES NOT EXIST', datetime(1980, 1, 1), datetime(2000, 1, 1))
+        self.assertRaises(InvalidCountryError, worldPopulationRankByDate, 'unisex', 'THIS COUNTRY DOES NOT EXIST', datetime(1980, 1, 1), datetime(2000, 1, 1))
 
     def test_byDate_dobOutOfRange(self):
         self.assertRaises(BirthdateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', datetime(1915, 1, 1), datetime(2000, 1, 1))
@@ -74,3 +74,44 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         self.assertEqual(151, len(data))
         self.assertEqual(1980, data[30]['year'])
         self.assertEqual(2719710, data[30]['total'])
+
+
+
+class TestViews(APISimpleTestCase):
+    def testRankEndpointToday(self):
+        # valid request
+        self._testEndpoint('/wp-rank/1952-03-11/unisex/World/today/')
+        # invalid value for sex
+        self._testEndpoint('/wp-rank/1952-03-11/123/World/today/', expectErrorContaining='sex')
+        # invalid value for country
+        self._testEndpoint('/wp-rank/1952-03-11/unisex/123/today/', expectErrorContaining='country')
+
+    def testRankEndpointAged(self):
+        # valid request: days given
+        self._testEndpoint('/wp-rank/1952-03-11/unisex/World/aged/123/',)
+        # valid request: full offset string given
+        self._testEndpoint('/wp-rank/1952-03-11/unisex/World/aged/12y34m56d/')
+        # invalid offset
+        self._testEndpoint('/wp-rank/1952-03-11/unisex/World/aged/5x/', expectErrorContaining='offset')
+
+    # TODO: need a lot more of these, and for the other endpoints, too
+
+    def testPopulationEndpoint(self):
+        # valid request
+        self._testEndpoint('/population/Brazil/18/')
+        # valid request
+        self._testEndpoint('/population/Brazil/18/1980/')
+        # invalid age: string given
+        self._testEndpoint('/population/Brazil/abc/1980/', expectErrorContaining='number')
+        # invalid age: string given, without year
+        self._testEndpoint('/population/Brazil/abc/', expectErrorContaining='number')
+        # invalid year: string given
+        self._testEndpoint('/population/Brazil/18/abc/', expectErrorContaining='number')
+
+    def _testEndpoint(self, path, expectErrorContaining=None):
+        response = self.client.get('/api/1.0' + path)
+        if expectErrorContaining:
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue(expectErrorContaining in response.data['detail'], 'Expected fragment "%s" in error message: %s' % (expectErrorContaining, response.data['detail']))
+        else:
+            self.assertEqual(response.status_code, 200)

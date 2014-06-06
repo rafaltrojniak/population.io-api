@@ -161,7 +161,7 @@ def worldPopulationRankByDate(sex, region, dob, date):
     if sex not in SEXES:
         raise InvalidSexError(sex)
     if region not in dataStore.countries:
-        raise InvalidRegionError(region)
+        raise InvalidCountryError(region)
 
     # check the various date requirements
     today = datetime.utcnow()
