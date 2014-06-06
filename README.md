@@ -37,6 +37,8 @@ Many API requests require an extrapolation table (based on sex and country) to d
 
 Run `python manage.py buildtables` to rebuild all tables. Expect this to take about 2-4 hours. 
 
+To just update the CSVs in the data store without rebuilding the tables, run `python manage.py reloadcsv`.
+
 ## Running on Vagrant box
 
 * Install Vagrant: https://www.vagrantup.com/.
