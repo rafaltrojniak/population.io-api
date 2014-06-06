@@ -1,16 +1,11 @@
 import datetime, re
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from api.datastore import dataStore
 from api.decorators import expect_datetime
 from api.utils import datetime_to_str
-from api.algorithms import WorldPopulationRankCalculator
+from api.algorithms import dateByWorldPopulationRank, lifeExpectancy, populationCount, worldPopulationRankByDate
 from dateutil.relativedelta import relativedelta
-
-
-
-# FIXME: temporary hack until WorldPopulationRankCalculator has been completely cleaned up
-wprCalculator = WorldPopulationRankCalculator()
-wprCalculator.readCSV()
 
 
 
@@ -18,8 +13,7 @@ wprCalculator.readCSV()
 def list_countries(request):
     """ Returns a list of all countries in the statistical dataset.
     """
-
-    return Response({'countries': WorldPopulationRankCalculator.REGIONS})
+    return Response({'countries': dataStore.countries})
 
 
 @api_view(['GET'])
@@ -40,7 +34,7 @@ def wprank_today(request, dob, sex, country):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/today/: calculates the person's world population rank today
     """
     today = datetime.datetime.utcnow()
-    rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, today)
+    rank = worldPopulationRankByDate(sex, country, dob, today)
     return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country})
 
 
@@ -63,7 +57,7 @@ def wprank_by_date(request, dob, sex, country, date):
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/on/2000-01-01/: calculates the person's world population rank at the turn of the century
     """
-    rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, date)
+    rank = worldPopulationRankByDate(sex, country, dob, date)
     return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'date': datetime_to_str(date)})
 
 
@@ -90,7 +84,7 @@ def wprank_by_age(request, dob, sex, country, age):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/age/25y1d/: calculates the world population rank one day after the person's 25th birthday
     """
     age_delta = _parse_timeframe(age)
-    rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, dob + age_delta)
+    rank = worldPopulationRankByDate(sex, country, dob, dob + age_delta)
     return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'age': age})
 
 
@@ -120,7 +114,7 @@ def wprank_ago(request, dob, sex, country, offset):
     """
     today = datetime.datetime.utcnow()
     before_delta = _parse_timeframe(offset)
-    rank = wprCalculator.worldPopulationRankByDate(sex, country, dob, today - before_delta)
+    rank = worldPopulationRankByDate(sex, country, dob, today - before_delta)
     return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset})
 
 
@@ -141,7 +135,7 @@ def wprank_by_rank(request, dob, sex, country, rank):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ranked/1000000000/: calculates the day on which the person became the one billionth inhabitant
     """
     # TODO: validate rank and return error message if not int
-    date = wprCalculator.dateByWorldPopulationRank(sex, country, dob, int(rank))
+    date = dateByWorldPopulationRank(sex, country, dob, int(rank))
     return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': datetime_to_str(date)})
 
 
@@ -166,7 +160,7 @@ def life_expectancy(request, dob, sex, country):
 
 @api_view(['GET'])
 def list_population(request, country, age, year=None):
-    result = wprCalculator.populationCount(country, int(age), int(year) if year else None)
+    result = populationCount(country, int(age), int(year) if year else None)
     return Response(result)
 
 
