@@ -9,7 +9,7 @@ def expect_datetime(param_name):
         @functools.wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if param_name not in kwargs:
-                raise RuntimeError('Parameter param_name to decorator has to match one of the kwargs of the decorated function')
+                raise RuntimeError('View is decorated to process parameter %s, but this parameter is not declared as a keyword argument in the URL pattern' % param_name)
 
             # try to convert, raise exception if this fails
             value = kwargs[param_name]
@@ -32,7 +32,7 @@ def expect_number(param_name, optional=False):
         def _wrapped_view(request, *args, **kwargs):
             if not optional or param_name in kwargs:
                 if param_name not in kwargs:
-                    raise RuntimeError('Parameter param_name to decorator has to match one of the kwargs of the decorated function')
+                    raise RuntimeError('View is decorated to process parameter %s, but this parameter is not declared as a keyword argument in the URL pattern' % param_name)
 
                 # try to convert, raise exception if this fails
                 if param_name in kwargs:
@@ -59,7 +59,7 @@ def expect_offset(param_name):
         @functools.wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if param_name not in kwargs:
-                raise RuntimeError('Parameter param_name to decorator has to match one of the kwargs of the decorated function')
+                raise RuntimeError('View is decorated to process parameter %s, but this parameter is not declared as a keyword argument in the URL pattern' % param_name)
 
             # try to convert, raise exception if this fails
             value = kwargs[param_name]

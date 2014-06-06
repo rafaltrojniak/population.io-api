@@ -91,7 +91,7 @@ def wprank_by_age(request, dob, sex, country, age):
 @expect_datetime('dob')
 @expect_offset('offset')
 def wprank_ago(request, dob, sex, country, offset):
-    """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset relative to today.
+    """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the past from today.
 
     The world population rank is defined as the position of someone's birthday when compared to the entire world population ordered by date of birth decreasing. That is, the last person born is assigned rank #1.
 
@@ -119,6 +119,19 @@ def wprank_ago(request, dob, sex, country, offset):
 
 @api_view(['GET'])
 @expect_datetime('dob')
+@expect_offset('offset')
+def wprank_in(request, dob, sex, country, offset):
+    """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the future from today.
+
+    TBD
+    """
+    today = datetime.datetime.utcnow()
+    rank = worldPopulationRankByDate(sex, country, dob, today + offset)
+    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset_to_str(offset)})
+
+
+@api_view(['GET'])
+@expect_datetime('dob')
 @expect_number('rank')
 def wprank_by_rank(request, dob, sex, country, rank):
     """ Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.
@@ -139,21 +152,24 @@ def wprank_by_rank(request, dob, sex, country, rank):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
-def life_expectancy(request, dob, sex, country):
-    """ Calculates the remaining life expectancy of a person with the given date of birth, sex and country.
+@expect_datetime('date')
+# TODO: need an @expect_float(age) here
+def life_expectancy_remaining(request, sex, country, date, age):
+    """ Calculates the remaining life expectancy of a person with the given sex and country, based on the person's age at a given point in time.
 
-    The result is given in a decimal number of years as of today (UTC).
-
-    Parameters:
-       * dob: the person's date of birth (format: YYYY-MM-DD)
-       * sex: the person's sex (valid values: male, female, unisex)
-       * country: the person's country of origin (valid values: see /meta/countries, use 'WORLD' for all)
-
-    Examples:
-       * /api/1.0/life-expectancy/1952-03-11/male/United%20Kingdom/: calculates the remaining life expectancy of the given person
+    TBD
     """
-    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'life_expectancy': 12.34})
+    return Response({'date': datetime_to_str(date), 'sex': sex, 'country': country, 'age': age, 'remaining_life_expectancy': 12.34})
+
+
+@api_view(['GET'])
+@expect_datetime('dob')
+def life_expectancy_total(request, sex, country, dob):
+    """ Calculates the total life expectancy of a person with the given date of birth, sex and country.
+
+    TBD
+    """
+    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'total_life_expectancy': 81.23})
 
 
 @api_view(['GET'])
