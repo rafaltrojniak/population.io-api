@@ -64,7 +64,7 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         self.assertEqual(datetime(2049,  3, 11), dateByWorldPopulationRank('unisex', 'World', datetime(1993, 12,  6), 7000000000))
 
     def test_lifeExpectancy(self):
-        self.assertAlmostEqual(26.24, lifeExpectancy('unisex', 'World', datetime(1993, 12, 6), datetime(2049, 3, 11), 55.3), places=0)
+        self.assertAlmostEqual(26.24, lifeExpectancy('unisex', 'World', datetime(2049, 3, 11), 55.3), places=0)
 
     def test_population(self):
         data = list(populationCount('Brazil', 18, 1980))

@@ -285,13 +285,12 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     #pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
     return datetime(final_date.year, final_date.month, final_date.day)
 
-def lifeExpectancy(sex, region, dob, le_date, le_exact_age):
+def lifeExpectancy(sex, region, date, age):
     life_expectancy_ages = pd.read_csv(os.path.join(settings.BASE_DIR, 'data', 'life_expectancy_ages.csv'))
 
     # find beginning of 5 yearly period for the le_date
-    le_yr = le_date.year   #(le_date.loc['1'])[0:4]
+    le_yr = date.year   #(le_date.loc['1'])[0:4]
     lowest_year = math.floor(int(le_yr)/5)*5
-    print le_yr, lowest_year
 
     #extract a row corresponding to the time-period
     life_exp_prd_5below = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year-5)]
@@ -299,18 +298,14 @@ def lifeExpectancy(sex, region, dob, le_date, le_exact_age):
     life_exp_prd_5above = life_expectancy_ages[(life_expectancy_ages.region == region) & (life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (life_expectancy_ages.Begin_prd == lowest_year+5)]
 
     life_exp_prd = pd.concat([life_exp_prd_5below, life_exp_prd_ext, life_exp_prd_5above])
-    print life_exp_prd
 
     life_exp_prd = life_exp_prd.ix[:,7:len(life_exp_prd.columns)]
-    print life_exp_prd
 
     # Place holder for Agenames and values for three consecutive periods of interest
     life_exp_ = np.zeros((len(life_exp_prd.columns), 4))
-    print life_exp_
 
     # Age group starting at and less than the next value: 0, 1, 5, 10
     life_exp_[:,0] = np.insert((np.arange(5, 105, 5)), 0, [0,1])
-    print life_exp_[:,0]
 
     # transpose the dataframe - prep for assinging life expectancy vals
     life_exp_prd = life_exp_prd.T
@@ -326,10 +321,9 @@ def lifeExpectancy(sex, region, dob, le_date, le_exact_age):
     xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,3])
 
     # predictions
-    x_interp1 = xx_interp1(le_exact_age)#interpolated value for AGE in earlier 5 yearly period
-    x_interp2 = xx_interp2(le_exact_age)#interpolated value for AGE in the 5 yearly period of interest
-    x_interp3 = xx_interp3(le_exact_age)#interpolated value for AGE in 5 yearly period after
-    print x_interp1, x_interp2, x_interp3
+    x_interp1 = xx_interp1(age)#interpolated value for AGE in earlier 5 yearly period
+    x_interp2 = xx_interp2(age)#interpolated value for AGE in the 5 yearly period of interest
+    x_interp3 = xx_interp3(age)#interpolated value for AGE in 5 yearly period after
 
     # matrix of vals
     life_exp_yr = np.zeros((3,2))
@@ -341,7 +335,6 @@ def lifeExpectancy(sex, region, dob, le_date, le_exact_age):
     life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5)]
     life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
 
-    print life_exp_yr
     return life_exp_yr[1,1]
     #life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
 

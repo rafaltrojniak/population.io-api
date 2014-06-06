@@ -159,7 +159,8 @@ def life_expectancy_remaining(request, sex, country, date, age):
 
     TBD
     """
-    return Response({'date': datetime_to_str(date), 'sex': sex, 'country': country, 'age': age, 'remaining_life_expectancy': 12.34})
+    remaining_life_expectancy = lifeExpectancy(sex, country, date, float(age))
+    return Response({'date': datetime_to_str(date), 'sex': sex, 'country': country, 'age': age, 'remaining_life_expectancy': remaining_life_expectancy})
 
 
 @api_view(['GET'])
@@ -169,7 +170,10 @@ def life_expectancy_total(request, sex, country, dob):
 
     TBD
     """
-    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'total_life_expectancy': 81.23})
+    today = datetime.datetime.utcnow()
+    age = today - dob
+    total_life_expectancy = lifeExpectancy(sex, country, today, age)
+    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'total_life_expectancy': total_life_expectancy})
 
 
 @api_view(['GET'])
