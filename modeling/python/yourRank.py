@@ -453,7 +453,9 @@ def main():
   		life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
 
   		print life_exp_yr
-  		return life_exp_yr 
+  		print life_exp_yr[:1,1]
+
+  		return life_exp_yr[:1,1] 
   		#life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
 
 
@@ -462,12 +464,13 @@ def main():
 	''' --- continuing the example --- '''
 	x_interp = rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=le_date)
 
-	print ("You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " + str(CNTRY) + " on "+ str(le_date) \
-	+ " and you will be " + str(le_age) + " years old. As a " + str(iSEX1) + " " + str(CNTRY1) + " citizen, you will still have" 
-	+ str(np.round(x_interp,2)) + " years to live. And your expected date of death is " + str(le_date) + str(x_interp*365) )
+	dateOfDeath = lambda d: ((datetime.strptime(le_date[0], '%Y-%m-%d')) + timedelta(days=d)).strftime('%Y/%m/%d')  
 
+	print "You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " \
+	+ str(CNTRY) + " on "+ str(le_date[0]) + " and you will be " + str(le_age[0]) + " years old. As a " \
+	+ str(iSEX1) + " " + str(CNTRY1) + " citizen, you will still have" + str(np.round(x_interp,2)) \
+	+ " years to live. And your expected date of death is " + str(dateOfDeath(x_interp[0]*365))
 
-	
 
 if __name__ == '__main__':
 	main()
