@@ -2,7 +2,7 @@ import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from api.datastore import dataStore
-from api.decorators import expect_date, expect_offset, expect_number
+from api.decorators import expect_date, expect_offset, expect_int, expect_float
 from api.utils import offset_to_str
 from api.algorithms import dateByWorldPopulationRank, lifeExpectancy, populationCount, worldPopulationRankByDate
 
@@ -132,7 +132,7 @@ def wprank_in(request, dob, sex, country, offset):
 
 @api_view(['GET'])
 @expect_date('dob')
-@expect_number('rank')
+@expect_int('rank')
 def wprank_by_rank(request, dob, sex, country, rank):
     """ Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.
 
@@ -153,13 +153,13 @@ def wprank_by_rank(request, dob, sex, country, rank):
 
 @api_view(['GET'])
 @expect_date('date')
-# TODO: need an @expect_float(age) here
+@expect_float('age')
 def life_expectancy_remaining(request, sex, country, date, age):
     """ Calculates the remaining life expectancy of a person with the given sex and country, based on the person's age at a given point in time.
 
     TBD
     """
-    remaining_life_expectancy = lifeExpectancy(sex, country, date, float(age))
+    remaining_life_expectancy = lifeExpectancy(sex, country, date, age)
     return Response({'date': date, 'sex': sex, 'country': country, 'age': age, 'remaining_life_expectancy': remaining_life_expectancy})
 
 
@@ -177,8 +177,8 @@ def life_expectancy_total(request, sex, country, dob):
 
 
 @api_view(['GET'])
-@expect_number('age', optional=True)
-@expect_number('year', optional=True)
+@expect_int('age', optional=True)
+@expect_int('year', optional=True)
 def list_population(request, country, age=None, year=None):
     if not age and not year:
         raise RuntimeError('Either age or year have to be specified')

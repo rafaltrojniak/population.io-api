@@ -14,9 +14,13 @@ class DateParsingError(ParseError):
     def __init__(self, paramName, invalidValue):
         self.detail = 'The given date %s in parameter %s could not be parsed. Please provide dates in the format YYYY-MM-DD' % (invalidValue, paramName)
 
-class NumberParsingError(ParseError):
+class IntParsingError(ParseError):
     def __init__(self, paramName, invalidValue):
         self.detail = 'The given number %s in parameter %s could not be parsed. Please use digits only' % (invalidValue, paramName)
+
+class FloatParsingError(ParseError):
+    def __init__(self, paramName, invalidValue):
+        self.detail = 'The given floating point number %s in parameter %s could not be parsed. Please use digits and the period only' % (invalidValue, paramName)
 
 class OffsetParsingError(ParseError):
     def __init__(self, paramName, invalidValue):

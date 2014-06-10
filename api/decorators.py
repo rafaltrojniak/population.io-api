@@ -1,76 +1,60 @@
 import functools
-from api.exceptions import DateParsingError, OffsetParsingError, NumberParsingError
+from api.exceptions import DateParsingError, OffsetParsingError, IntParsingError, FloatParsingError
 from api.utils import str_to_date, parse_offset
 
 
 
-def expect_date(param_name):
-    def decorator(view_func):
-        @functools.wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
-            if param_name not in kwargs:
-                raise RuntimeError('View is decorated to process parameter %s, but this parameter is not declared as a keyword argument in the URL pattern' % param_name)
-
-            # try to convert, raise exception if this fails
-            value = kwargs[param_name]
-            try:
-                new_value = str_to_date(param_name, value)
-            except ValueError:
-                raise DateParsingError(param_name, value)
-
-            # inject converted value into the original function
-            kwargs.update({param_name: new_value})
-
-            # run the original view
-            return view_func(request, *args, **kwargs)
-        return _wrapped_view
-    return decorator
-
-def expect_number(param_name, optional=False):
-    def decorator(view_func):
-        @functools.wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
-            if not optional or param_name in kwargs:
-                if param_name not in kwargs:
+def build_decorator(conversion_function):
+    """ Helper function, that builds a standard parameter conversion decorator from a conversion function """
+    def decorator_with_param_generator(param_name, optional=False):
+        def decorator(view_func):
+            @functools.wraps(view_func)
+            def _wrapped_view(request, *args, **kwargs):
+                # unless this parameter is optional, not specifying it is an error
+                if not optional and param_name not in kwargs:
                     raise RuntimeError('View is decorated to process parameter %s, but this parameter is not declared as a keyword argument in the URL pattern' % param_name)
-
-                # try to convert, raise exception if this fails
-                if param_name in kwargs:
-                    value = kwargs[param_name]
-                    try:
-                        new_value = int(value)
-                    except ValueError:
-                        raise NumberParsingError(param_name, value)
-                elif optional:
-                    new_value = None
+                # if it's optional and not given, that's fine
+                elif optional and param_name not in kwargs:
+                    pass
+                # otherwise, we know the parameter is given
                 else:
-                    raise RuntimeError('Missing parameter: ' + param_name)
+                    # run the conversion
+                    value = kwargs[param_name]
+                    new_value = conversion_function(param_name, value)
 
-                # inject converted value into the original function
-                kwargs.update({param_name: new_value})
+                    # inject converted value into the original function
+                    kwargs.update({param_name: new_value})
 
-            # run the original view
-            return view_func(request, *args, **kwargs)
-        return _wrapped_view
-    return decorator
+                # run the original view
+                return view_func(request, *args, **kwargs)
+            return _wrapped_view
+        return decorator
+    return decorator_with_param_generator
 
-def expect_offset(param_name):
-    def decorator(view_func):
-        @functools.wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
-            if param_name not in kwargs:
-                raise RuntimeError('View is decorated to process parameter %s, but this parameter is not declared as a keyword argument in the URL pattern' % param_name)
+def normalize_int(param_name, value):
+    try:
+        return int(value)
+    except ValueError:
+        raise IntParsingError(param_name, value)
+expect_int = build_decorator(normalize_int)
 
-            # try to convert, raise exception if this fails
-            value = kwargs[param_name]
-            new_value = parse_offset(value)
-            if not new_value:
-                raise OffsetParsingError(param_name, value)
+def normalize_float(param_name, value):
+    try:
+        return float(value)
+    except ValueError:
+        raise FloatParsingError(param_name, value)
+expect_float = build_decorator(normalize_float)
 
-            # inject converted value into the original function
-            kwargs.update({param_name: new_value})
+def normalize_date(param_name, value):
+    try:
+        return str_to_date(param_name, value)
+    except ValueError:
+        raise DateParsingError(param_name, value)
+expect_date = build_decorator(normalize_date)
 
-            # run the original view
-            return view_func(request, *args, **kwargs)
-        return _wrapped_view
-    return decorator
+def normalize_offset(param_name, value):
+    new_value = parse_offset(value)
+    if not new_value:
+        raise OffsetParsingError(param_name, value)
+    return new_value
+expect_offset = build_decorator(normalize_offset)
