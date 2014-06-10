@@ -147,8 +147,8 @@ def wprank_by_rank(request, dob, sex, country, rank):
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ranked/1000000000/: calculates the day on which the person became the one billionth inhabitant
     """
-    date = dateByWorldPopulationRank(sex, country, dob, rank)
-    return Response({'dob': dob, 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': str(date)})
+    calcdate = dateByWorldPopulationRank(sex, country, dob, rank)
+    return Response({'dob': dob, 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': calcdate})
 
 
 @api_view(['GET'])

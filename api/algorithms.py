@@ -282,7 +282,7 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     #DATE = final_date
 
     #pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
-    return date(final_date.year, final_date.month, final_date.day)
+    return final_date
 
 def lifeExpectancy(sex, region, refdate, age):
     # find beginning of 5 yearly period for the le_date
