@@ -14,8 +14,9 @@ urlpatterns = [
     url(API_VERSION_PREFIX + r'countries/', views.list_countries),
 
     # /api/1.0/population/
-    url(API_VERSION_PREFIX + r'population/(?P<country>.+)/(?P<age>.+)/(?P<year>.+)/', views.list_population),
-    url(API_VERSION_PREFIX + r'population/(?P<country>.+)/(?P<age>.+)/', views.list_population),
+    url(API_VERSION_PREFIX + r'population/(?P<year>\d+)/(?P<country>.+)/(?P<age>\d+)/', views.list_population),
+    url(API_VERSION_PREFIX + r'population/(?P<year>\d+)/(?P<country>.+)/', views.list_population),
+    url(API_VERSION_PREFIX + r'population/(?P<country>.+)/(?P<age>\d+)/', views.list_population),
 
     # /api/1.0/wp-rank/
     url(API_VERSION_PREFIX + r'wp-rank/' + PERSON_PATH + r'today/', views.wprank_today),

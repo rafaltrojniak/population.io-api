@@ -177,8 +177,11 @@ def life_expectancy_total(request, sex, country, dob):
 
 
 @api_view(['GET'])
-@expect_number('age')
+@expect_number('age', optional=True)
 @expect_number('year', optional=True)
-def list_population(request, country, age, year=None):
+def list_population(request, country, age=None, year=None):
+    if not age and not year:
+        raise RuntimeError('Either age or year have to be specified')
+
     result = populationCount(country, age, year)
     return Response(result)
