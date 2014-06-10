@@ -1,6 +1,6 @@
 import functools
 from api.exceptions import DateParsingError, OffsetParsingError, NumberParsingError
-from api.utils import str_to_datetime, parse_offset
+from api.utils import str_to_date, parse_offset
 
 
 
@@ -14,7 +14,7 @@ def expect_datetime(param_name):
             # try to convert, raise exception if this fails
             value = kwargs[param_name]
             try:
-                new_value = str_to_datetime(param_name, value)
+                new_value = str_to_date(param_name, value)
             except ValueError:
                 raise DateParsingError(param_name, value)
 

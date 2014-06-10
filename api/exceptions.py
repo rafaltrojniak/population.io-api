@@ -1,5 +1,4 @@
 from rest_framework.exceptions import ParseError
-from api.utils import datetime_to_str
 
 
 
@@ -25,12 +24,12 @@ class OffsetParsingError(ParseError):
 
 class BirthdateOutOfRangeError(ParseError):
     def __init__(self, invalidValue):
-        self.detail = 'The birthdate %s can not be processed, only dates between 1920-01-01 and today are supported' % datetime_to_str(invalidValue)
+        self.detail = 'The birthdate %s can not be processed, only dates between 1920-01-01 and today are supported' % invalidValue
 
 class CalculationDateOutOfRangeError(ParseError):
     def __init__(self, invalidValue):
-        self.detail = 'The calculation date %s can not be processed, only dates past 1950-01-01 and past the birthdate are supported' % datetime_to_str(invalidValue)
+        self.detail = 'The calculation date %s can not be processed, only dates past 1950-01-01 and past the birthdate are supported' % invalidValue
 
 class CalculationTooWideError(ParseError):
     def __init__(self, invalidValue):
-        self.detail = 'The calculation date %s can not be processed, because only calculations up to an age of 100 years are supported' % datetime_to_str(invalidValue)
+        self.detail = 'The calculation date %s can not be processed, because only calculations up to an age of 100 years are supported' % invalidValue

@@ -3,11 +3,8 @@ from dateutil.relativedelta import relativedelta
 
 
 
-def str_to_datetime(param_name, date_string):
-    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
-
-def datetime_to_str(datetime_obj):
-    return datetime_obj.strftime('%Y-%m-%d')
+def str_to_date(param_name, date_string):
+    return datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
 
 OFFSET_REGEX = re.compile(r'^(?:(?P<years>\d+)y)?(?:(?P<months>\d+)m)?(?:(?P<days>\d+)d)?$')
 def parse_offset(val):

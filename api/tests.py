@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 from django.test import SimpleTestCase
 from django.conf import settings
 from rest_framework.test import APISimpleTestCase
@@ -27,45 +27,45 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         self.assertTrue('Reunion' in dataStore.countries)
 
     def test_byDate_today(self):
-        self.assertAlmostEqual(56598000,   worldPopulationRankByDate('unisex', 'World', datetime(2013, 12, 31), datetime(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(2541178000, worldPopulationRankByDate('unisex', 'World', datetime(1993, 12,  6), datetime(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(4178250000, worldPopulationRankByDate('unisex', 'World', datetime(1980,  1,  1), datetime(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(5989238000, worldPopulationRankByDate('unisex', 'World', datetime(1960,  2, 29), datetime(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(7233264000, worldPopulationRankByDate('unisex', 'World', datetime(1920,  1,  1), datetime(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(56598000,   worldPopulationRankByDate('unisex', 'World', date(2013, 12, 31), date(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(2541178000, worldPopulationRankByDate('unisex', 'World', date(1993, 12,  6), date(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(4178250000, worldPopulationRankByDate('unisex', 'World', date(1980,  1,  1), date(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(5989238000, worldPopulationRankByDate('unisex', 'World', date(1960,  2, 29), date(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(7233264000, worldPopulationRankByDate('unisex', 'World', date(1920,  1,  1), date(2014,  6,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
 
     def test_byDate_age(self):
-        self.assertAlmostEqual(2541533000, worldPopulationRankByDate('unisex', 'World', datetime(1993, 12,  6), datetime(1993, 12,  6) + timedelta(days=7483)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(1209918000, worldPopulationRankByDate('unisex', 'World', datetime(1993, 12,  6), datetime(1993, 12,  6) + timedelta(days=3650)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(578344100,  worldPopulationRankByDate('unisex', 'World', datetime(1940,  5,  3), datetime(1940,  5,  3) + timedelta(days=3530)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(217482,     worldPopulationRankByDate('unisex', 'World', datetime(1950,  1,  1), datetime(1950,  1,  1) + timedelta(days=0)),    delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(2541533000, worldPopulationRankByDate('unisex', 'World', date(1993, 12,  6), date(1993, 12,  6) + timedelta(days=7483)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(1209918000, worldPopulationRankByDate('unisex', 'World', date(1993, 12,  6), date(1993, 12,  6) + timedelta(days=3650)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(578344100,  worldPopulationRankByDate('unisex', 'World', date(1940,  5,  3), date(1940,  5,  3) + timedelta(days=3530)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(217482,     worldPopulationRankByDate('unisex', 'World', date(1950,  1,  1), date(1950,  1,  1) + timedelta(days=0)),    delta=TestWorldPopulationRankCalculation.DELTA)
 
     def test_byDate_date(self):
-        self.assertAlmostEqual(940947000,  worldPopulationRankByDate('unisex', 'World', datetime(1993, 12,  6), datetime(2001,  9, 11)), delta=TestWorldPopulationRankCalculation.DELTA)
-        self.assertAlmostEqual(7198923000, worldPopulationRankByDate('unisex', 'World', datetime(1920,  1,  1), datetime(2014,  1,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(940947000,  worldPopulationRankByDate('unisex', 'World', date(1993, 12,  6), date(2001,  9, 11)), delta=TestWorldPopulationRankCalculation.DELTA)
+        self.assertAlmostEqual(7198923000, worldPopulationRankByDate('unisex', 'World', date(1920,  1,  1), date(2014,  1,  1)), delta=TestWorldPopulationRankCalculation.DELTA)
 
     def test_byDate_invalidSex(self):
-        self.assertRaises(InvalidSexError, worldPopulationRankByDate, 'INVALID', 'World', datetime(1980, 1, 1), datetime(2000, 1, 1))
+        self.assertRaises(InvalidSexError, worldPopulationRankByDate, 'INVALID', 'World', date(1980, 1, 1), date(2000, 1, 1))
 
     def test_byDate_invalidRegion(self):
-        self.assertRaises(InvalidCountryError, worldPopulationRankByDate, 'unisex', 'THIS COUNTRY DOES NOT EXIST', datetime(1980, 1, 1), datetime(2000, 1, 1))
+        self.assertRaises(InvalidCountryError, worldPopulationRankByDate, 'unisex', 'THIS COUNTRY DOES NOT EXIST', date(1980, 1, 1), date(2000, 1, 1))
 
     def test_byDate_dobOutOfRange(self):
-        self.assertRaises(BirthdateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', datetime(1915, 1, 1), datetime(2000, 1, 1))
-        self.assertRaises(BirthdateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', datetime(2030, 1, 1), datetime(2000, 1, 1))
+        self.assertRaises(BirthdateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', date(1915, 1, 1), date(2000, 1, 1))
+        self.assertRaises(BirthdateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', date(2030, 1, 1), date(2000, 1, 1))
 
     def test_byDate_dateOutOfRange(self):
-        self.assertRaises(CalculationDateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', datetime(1945, 1, 1), datetime(1949, 1, 1))
-        self.assertRaises(CalculationDateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', datetime(1970, 1, 1), datetime(1960, 1, 1))
+        self.assertRaises(CalculationDateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', date(1945, 1, 1), date(1949, 1, 1))
+        self.assertRaises(CalculationDateOutOfRangeError, worldPopulationRankByDate, 'unisex', 'World', date(1970, 1, 1), date(1960, 1, 1))
 
     def test_byDate_calculationTooWide(self):
-        self.assertRaises(CalculationTooWideError, worldPopulationRankByDate, 'unisex', 'World', datetime(1930, 1, 1), datetime(2031, 1, 1))
+        self.assertRaises(CalculationTooWideError, worldPopulationRankByDate, 'unisex', 'World', date(1930, 1, 1), date(2031, 1, 1))
 
     def test_byRank(self):
-        self.assertEqual(datetime(2049,  3, 11), dateByWorldPopulationRank('unisex', 'World', datetime(1993, 12,  6), 7000000000))
+        self.assertEqual(date(2049,  3, 11), dateByWorldPopulationRank('unisex', 'World', date(1993, 12,  6), 7000000000))
 
     def test_lifeExpectancy(self):
-        self.assertAlmostEqual(26.24, lifeExpectancy('unisex', 'World', datetime(2049, 3, 11), 55.3), places=0)
-        self.assertAlmostEqual(99.99, lifeExpectancy('male', 'UK', datetime(1952, 3, 11), 55.0), places=0)
+        self.assertAlmostEqual(26.24, lifeExpectancy('unisex', 'World', date(2049, 3, 11), 55.3), places=0)
+        self.assertAlmostEqual(99.99, lifeExpectancy('male', 'UK', date(1952, 3, 11), 55.0), places=0)
 
     def test_population(self):
         data = list(populationCount('Brazil', 18, 1980))

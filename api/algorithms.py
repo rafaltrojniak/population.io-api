@@ -1,10 +1,9 @@
 ''' 
 R to python: yourRank.r
 '''
-import os, math
-from datetime import datetime, timedelta
+import math
+from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 
 import numpy as np
 import pandas as pd
@@ -24,7 +23,7 @@ AGEOUT = range(0, 36501)
 SEXES = {'male': 'PopMale', 'female': 'PopFemale', 'unisex': 'PopTotal',}
 SEXES_LIFE_EXPECTANCY = {'male': 1, 'female': 2, 'unisex': 3,}
 
-POSIX_EPOCH = datetime(1970, 1, 1)
+POSIX_EPOCH = date(1970, 1, 1)
 def inPosixDays(date):
     """
     Transforms a datetime object into 'posix days', here defined as the days since the posix epoch, Jan 1, 1970.
@@ -47,9 +46,9 @@ def generateExtrapolationTable(sex, region):
     # pop1 = data[['Time', 'Age', SEX]].query('Location' == CNTRY)
     #print pop1
 
-    july1from1950to2100 = [inPosixDays(datetime(y, 7, 1)) for y in xrange(1950, 2100+1)]
+    july1from1950to2100 = [inPosixDays(date(y, 7, 1)) for y in xrange(1950, 2100+1)]
 
-    dateRange1970to2100inPosixDays = range(inPosixDays(datetime(1950,1,1)), inPosixDays(datetime(2100,12,31))+1)
+    dateRange1970to2100inPosixDays = range(inPosixDays(date(1950,1,1)), inPosixDays(date(2100,12,31))+1)
 
     ''' --- Date interpolation function --- '''
     def dateInterp(iage):
@@ -80,7 +79,7 @@ def generateExtrapolationTable(sex, region):
 
     # Convert the numerical days to date string
     def toDate(d):
-        return (datetime(1970, 1, 1) + timedelta(days=d)).strftime('%Y-%m-%d')
+        return (date(1970, 1, 1) + timedelta(days=d)).strftime('%Y-%m-%d')
     toDate = np.vectorize(toDate) # vectorize the function to iterate over numpy ndarray
     fullDateRange = toDate(dateRange1970to2100inPosixDays) # 1st result: 1950-01-01
 
@@ -143,18 +142,18 @@ def _calculateRankByDate(table, dob, date):
         raise RuntimeError('Rank calculation failed due to internal error')   # we should never get here, if we do that means the parameter checks at the beginning are incomplete
     return rank
 
-def worldPopulationRankByDate(sex, region, dob, date):
+def worldPopulationRankByDate(sex, region, dob, refdate):
     """
     my rank by date: What will be my rank on particular day
 
     :param sex:
     :param region:
     :param dob:
-    :param date:
+    :param refdate:
     :return:
     """
     # check that all arguments have the right type (even though it's not very pythonic)
-    if not isinstance(sex, basestring) or not isinstance(region, basestring) or not isinstance(dob, datetime) or not isinstance(date, datetime):
+    if not isinstance(sex, basestring) or not isinstance(region, basestring) or not isinstance(dob, date) or not isinstance(refdate, date):
         raise TypeError('One or more arguments did not match the expected parameter type')
 
     # confirm that sex and region contain valid values
@@ -164,19 +163,19 @@ def worldPopulationRankByDate(sex, region, dob, date):
         raise InvalidCountryError(region)
 
     # check the various date requirements
-    today = datetime.utcnow()
-    if dob < datetime(1920, 1, 1) or dob > today:
+    today = datetime.utcnow().date()
+    if dob < date(1920, 1, 1) or dob > today:
         raise BirthdateOutOfRangeError(dob)
-    if date < datetime(1950, 1, 1) or date < dob:
-        raise CalculationDateOutOfRangeError(date)
-    if (date - dob).days > 36500:
-        raise CalculationTooWideError(date)
+    if refdate < date(1950, 1, 1) or refdate < dob:
+        raise CalculationDateOutOfRangeError(refdate)
+    if (refdate - dob).days > 36500:
+        raise CalculationTooWideError(refdate)
 
     # retrieve or build the extrapolation table for this (sex, region) tuple
     table = dataStore[sex, region]
 
     # do the calculations
-    rank = _calculateRankByDate(table, dob, date)
+    rank = _calculateRankByDate(table, dob, refdate)
     return long(rank*1000)
 
 def dateByWorldPopulationRank(sex, region, dob, rank):
@@ -194,7 +193,7 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     table = dataStore[sex, region]
 
     # The number of years from input birth to '2100/01/01'
-    length_time = relativedelta(datetime(2100, 1, 1), dob).years
+    length_time = relativedelta(date(2100, 1, 1), dob).years
 
     # Make sure that difference between DOB and final Date > 100
     if length_time < 100:
@@ -283,11 +282,11 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     #DATE = final_date
 
     #pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
-    return datetime(final_date.year, final_date.month, final_date.day)
+    return date(final_date.year, final_date.month, final_date.day)
 
-def lifeExpectancy(sex, region, date, age):
+def lifeExpectancy(sex, region, refdate, age):
     # find beginning of 5 yearly period for the le_date
-    le_yr = date.year   #(le_date.loc['1'])[0:4]
+    le_yr = refdate.year   #(le_date.loc['1'])[0:4]
     lowest_year = math.floor(int(le_yr)/5)*5
 
     #extract a row corresponding to the time-period
@@ -328,7 +327,7 @@ def lifeExpectancy(sex, region, date, age):
 
     #The mid point of period 2010-2015 which is from 1st July 2010 to June 30 of 2015, therefore, the mid point is 1st Jan 2013
     #In the following we turn the year to the date and then to numeric. We will use these to interpolate between periods and then predict the le for exact date
-    addDate = lambda d: inPosixDays(datetime(int(d)+3, 1, 1))
+    addDate = lambda d: inPosixDays(date(int(d)+3, 1, 1))
 
     life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5)]
     life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from api.datastore import dataStore
 from api.decorators import expect_datetime, expect_offset, expect_number
-from api.utils import datetime_to_str, offset_to_str
+from api.utils import offset_to_str
 from api.algorithms import dateByWorldPopulationRank, lifeExpectancy, populationCount, worldPopulationRankByDate
 
 
@@ -32,9 +32,9 @@ def wprank_today(request, dob, sex, country):
     Examples:
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/today/: calculates the person's world population rank today
     """
-    today = datetime.datetime.utcnow()
+    today = datetime.datetime.utcnow().date()
     rank = worldPopulationRankByDate(sex, country, dob, today)
-    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country})
+    return Response({"rank": rank, 'dob': dob, 'sex': sex, 'country': country})
 
 
 @api_view(['GET'])
@@ -57,7 +57,7 @@ def wprank_by_date(request, dob, sex, country, date):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/on/2000-01-01/: calculates the person's world population rank at the turn of the century
     """
     rank = worldPopulationRankByDate(sex, country, dob, date)
-    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'date': datetime_to_str(date)})
+    return Response({"rank": rank, 'dob': dob, 'sex': sex, 'country': country, 'date': date})
 
 
 @api_view(['GET'])
@@ -84,7 +84,7 @@ def wprank_by_age(request, dob, sex, country, age):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/age/25y1d/: calculates the world population rank one day after the person's 25th birthday
     """
     rank = worldPopulationRankByDate(sex, country, dob, dob + age)
-    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'age': offset_to_str(age)})
+    return Response({"rank": rank, 'dob': dob, 'sex': sex, 'country': country, 'age': offset_to_str(age)})
 
 
 @api_view(['GET'])
@@ -112,9 +112,9 @@ def wprank_ago(request, dob, sex, country, offset):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ago/6m/: calculates the world population rank six months ago
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ago/1y2m3d/: calculates the world population rank one year, two months and three days ago
     """
-    today = datetime.datetime.utcnow()
+    today = datetime.datetime.utcnow().date()
     rank = worldPopulationRankByDate(sex, country, dob, today - offset)
-    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset_to_str(offset)})
+    return Response({"rank": rank, 'dob': dob, 'sex': sex, 'country': country, 'offset': offset_to_str(offset)})
 
 
 @api_view(['GET'])
@@ -125,9 +125,9 @@ def wprank_in(request, dob, sex, country, offset):
 
     TBD
     """
-    today = datetime.datetime.utcnow()
+    today = datetime.datetime.utcnow().date()
     rank = worldPopulationRankByDate(sex, country, dob, today + offset)
-    return Response({"rank": rank, 'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'offset': offset_to_str(offset)})
+    return Response({"rank": rank, 'dob': dob, 'sex': sex, 'country': country, 'offset': offset_to_str(offset)})
 
 
 @api_view(['GET'])
@@ -148,7 +148,7 @@ def wprank_by_rank(request, dob, sex, country, rank):
        * /api/1.0/wp-rank/1952-03-11/male/United%20Kingdom/ranked/1000000000/: calculates the day on which the person became the one billionth inhabitant
     """
     date = dateByWorldPopulationRank(sex, country, dob, rank)
-    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': datetime_to_str(date)})
+    return Response({'dob': dob, 'sex': sex, 'country': country, 'rank': rank, 'date_on_rank': str(date)})
 
 
 @api_view(['GET'])
@@ -160,7 +160,7 @@ def life_expectancy_remaining(request, sex, country, date, age):
     TBD
     """
     remaining_life_expectancy = lifeExpectancy(sex, country, date, float(age))
-    return Response({'date': datetime_to_str(date), 'sex': sex, 'country': country, 'age': age, 'remaining_life_expectancy': remaining_life_expectancy})
+    return Response({'date': date, 'sex': sex, 'country': country, 'age': age, 'remaining_life_expectancy': remaining_life_expectancy})
 
 
 @api_view(['GET'])
@@ -173,7 +173,7 @@ def life_expectancy_total(request, sex, country, dob):
     today = datetime.datetime.utcnow()
     age = today - dob
     total_life_expectancy = lifeExpectancy(sex, country, today, age)
-    return Response({'dob': datetime_to_str(dob), 'sex': sex, 'country': country, 'total_life_expectancy': total_life_expectancy})
+    return Response({'dob': dob, 'sex': sex, 'country': country, 'total_life_expectancy': total_life_expectancy})
 
 
 @api_view(['GET'])
