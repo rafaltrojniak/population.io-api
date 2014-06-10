@@ -9,7 +9,7 @@ from api.algorithms import dateByWorldPopulationRank, lifeExpectancy, population
 
 
 @api_view(['GET'])
-def list_countries(request):
+def country_list(request):
     """ Returns a list of all countries in the statistical dataset.
     """
     return Response({'countries': dataStore.countries})
@@ -17,7 +17,7 @@ def list_countries(request):
 
 @api_view(['GET'])
 @expect_date('dob')
-def wprank_today(request, dob, sex, country):
+def world_population_rank_today(request, dob, sex, country):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.
 
     The world population rank is defined as the position of someone's birthday when compared to the entire world population ordered by date of birth decreasing. That is, the last person born is assigned rank #1.
@@ -40,7 +40,7 @@ def wprank_today(request, dob, sex, country):
 @api_view(['GET'])
 @expect_date('dob')
 @expect_date('date')
-def wprank_by_date(request, dob, sex, country, date):
+def world_population_rank_by_date(request, dob, sex, country, date):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date.
 
     The world population rank is defined as the position of someone's birthday when compared to the entire world population ordered by date of birth decreasing. That is, the last person born is assigned rank #1.
@@ -63,7 +63,7 @@ def wprank_by_date(request, dob, sex, country, date):
 @api_view(['GET'])
 @expect_date('dob')
 @expect_offset('age')
-def wprank_by_age(request, dob, sex, country, age):
+def world_population_rank_by_age(request, dob, sex, country, age):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by the person's age.
 
     The world population rank is defined as the position of someone's birthday when compared to the entire world population ordered by date of birth decreasing. That is, the last person born is assigned rank #1.
@@ -90,7 +90,7 @@ def wprank_by_age(request, dob, sex, country, age):
 @api_view(['GET'])
 @expect_date('dob')
 @expect_offset('offset')
-def wprank_ago(request, dob, sex, country, offset):
+def world_population_rank_in_past(request, dob, sex, country, offset):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the past from today.
 
     The world population rank is defined as the position of someone's birthday when compared to the entire world population ordered by date of birth decreasing. That is, the last person born is assigned rank #1.
@@ -120,7 +120,7 @@ def wprank_ago(request, dob, sex, country, offset):
 @api_view(['GET'])
 @expect_date('dob')
 @expect_offset('offset')
-def wprank_in(request, dob, sex, country, offset):
+def world_population_rank_in_future(request, dob, sex, country, offset):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the future from today.
 
     TBD
@@ -133,7 +133,7 @@ def wprank_in(request, dob, sex, country, offset):
 @api_view(['GET'])
 @expect_date('dob')
 @expect_int('rank')
-def wprank_by_rank(request, dob, sex, country, rank):
+def date_by_world_population_rank(request, dob, sex, country, rank):
     """ Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.
 
     The world population rank is defined as the position of someone's birthday when compared to the entire world population ordered by date of birth decreasing. That is, the last person born is assigned rank #1.
@@ -154,7 +154,7 @@ def wprank_by_rank(request, dob, sex, country, rank):
 @api_view(['GET'])
 @expect_date('date')
 @expect_float('age')
-def life_expectancy_remaining(request, sex, country, date, age):
+def remaining_life_expectancy(request, sex, country, date, age):
     """ Calculates the remaining life expectancy of a person with the given sex and country, based on the person's age at a given point in time.
 
     TBD
@@ -165,7 +165,7 @@ def life_expectancy_remaining(request, sex, country, date, age):
 
 @api_view(['GET'])
 @expect_date('dob')
-def life_expectancy_total(request, sex, country, dob):
+def total_life_expectancy(request, sex, country, dob):
     """ Calculates the total life expectancy of a person with the given date of birth, sex and country.
 
     TBD
@@ -179,7 +179,7 @@ def life_expectancy_total(request, sex, country, dob):
 @api_view(['GET'])
 @expect_int('age', optional=True)
 @expect_int('year', optional=True)
-def list_population(request, country, age=None, year=None):
+def population_data(request, country, age=None, year=None):
     if not age and not year:
         raise RuntimeError('Either age or year have to be specified')
 
