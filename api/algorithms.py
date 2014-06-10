@@ -333,7 +333,7 @@ def lifeExpectancy(sex, region, date, age):
     life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5)]
     life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
 
-    return life_exp_yr[:1,1]
+    return life_exp_yr[0,1]
     #life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
 
 def populationCount(country, age, year=None):
