@@ -4,7 +4,7 @@ from api.utils import str_to_date, parse_offset
 
 
 
-def expect_datetime(param_name):
+def expect_date(param_name):
     def decorator(view_func):
         @functools.wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):

@@ -2,7 +2,7 @@ import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from api.datastore import dataStore
-from api.decorators import expect_datetime, expect_offset, expect_number
+from api.decorators import expect_date, expect_offset, expect_number
 from api.utils import offset_to_str
 from api.algorithms import dateByWorldPopulationRank, lifeExpectancy, populationCount, worldPopulationRankByDate
 
@@ -16,7 +16,7 @@ def list_countries(request):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
+@expect_date('dob')
 def wprank_today(request, dob, sex, country):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.
 
@@ -38,8 +38,8 @@ def wprank_today(request, dob, sex, country):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
-@expect_datetime('date')
+@expect_date('dob')
+@expect_date('date')
 def wprank_by_date(request, dob, sex, country, date):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date.
 
@@ -61,7 +61,7 @@ def wprank_by_date(request, dob, sex, country, date):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
+@expect_date('dob')
 @expect_offset('age')
 def wprank_by_age(request, dob, sex, country, age):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by the person's age.
@@ -88,7 +88,7 @@ def wprank_by_age(request, dob, sex, country, age):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
+@expect_date('dob')
 @expect_offset('offset')
 def wprank_ago(request, dob, sex, country, offset):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the past from today.
@@ -118,7 +118,7 @@ def wprank_ago(request, dob, sex, country, offset):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
+@expect_date('dob')
 @expect_offset('offset')
 def wprank_in(request, dob, sex, country, offset):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the future from today.
@@ -131,7 +131,7 @@ def wprank_in(request, dob, sex, country, offset):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
+@expect_date('dob')
 @expect_number('rank')
 def wprank_by_rank(request, dob, sex, country, rank):
     """ Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.
@@ -152,7 +152,7 @@ def wprank_by_rank(request, dob, sex, country, rank):
 
 
 @api_view(['GET'])
-@expect_datetime('date')
+@expect_date('date')
 # TODO: need an @expect_float(age) here
 def life_expectancy_remaining(request, sex, country, date, age):
     """ Calculates the remaining life expectancy of a person with the given sex and country, based on the person's age at a given point in time.
@@ -164,7 +164,7 @@ def life_expectancy_remaining(request, sex, country, date, age):
 
 
 @api_view(['GET'])
-@expect_datetime('dob')
+@expect_date('dob')
 def life_expectancy_total(request, sex, country, dob):
     """ Calculates the total life expectancy of a person with the given date of birth, sex and country.
 
