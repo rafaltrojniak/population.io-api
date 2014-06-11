@@ -47,4 +47,4 @@ To just update the CSVs in the data store without rebuilding the tables, run `py
 
 ## Running in production
 
-When running on production, you should set the environment variable `POPULATIONIO_DEBUG` to `False`. This deactivates the display of internal exceptions and also disables caching of the extrapolation tables in memory, which does not scale in production.
+When running on production, you should set the environment variable `POPULATIONIO_DEBUG` to `false`. This deactivates the display of internal exceptions and also disables caching of the extrapolation tables in memory, which does not scale in production.

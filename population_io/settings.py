@@ -17,14 +17,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0)c2!1m%#%fg1@k)mq&l5df9c8qdq_fh^25v%_s(*kg=ek*qk*'
+SECRET_KEY = os.environ.get('POPULATIONIO_SECRET_KEY', '0)c2!1m%#%fg1@k)mq&l5df9c8qdq_fh^25v%_s(*kg=ek*qk*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('POPULATIONIO_DEBUG', True).lower() == 'true'
+DEBUG = os.environ.get('POPULATIONIO_DEBUG', 'true').lower() != 'false'
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['population.io', 'www.population.io', '104.130.5.217']
 
 
 # Application definition
