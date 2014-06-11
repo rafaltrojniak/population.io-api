@@ -28,7 +28,7 @@ urlpatterns = [
 
     # /api/1.0/life-expectancy/
     url(API_VERSION_PREFIX + r'life-expectancy/remaining/(?P<sex>.+)/(?P<country>.+)/(?P<date>.+)/(?P<age>.+)/', views.remaining_life_expectancy),
-    url(API_VERSION_PREFIX + r'life-expectancy/total/(?P<sex>.+)/(?P<country>.+)/(?P<dob>.+)', views.total_life_expectancy),
+    url(API_VERSION_PREFIX + r'life-expectancy/total/(?P<sex>.+)/(?P<country>.+)/(?P<dob>.+)/', views.total_life_expectancy),
 
     # /api/docs/ (Swagger documentation)
     url(r'^docs/', include('rest_framework_swagger.urls')),
