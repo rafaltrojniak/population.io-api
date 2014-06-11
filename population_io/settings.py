@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '0)c2!1m%#%fg1@k)mq&l5df9c8qdq_fh^25v%_s(*kg=ek*qk*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('POPULATIONIO_DEBUG', True).lower() == 'true'
 
 TEMPLATE_DEBUG = True
 
@@ -106,5 +106,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 DATA_STORE_PATH = os.path.join(BASE_DIR, 'data', 'datastore.hdf5')
 CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
 CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
-CACHE_TABLES_IN_MEMORY = True   # This should only be enabled during development, when working without pregenerated tables.
-                                # There is no limit to the amount of tables cached, so eventually there'll be a MemoryError.
+CACHE_TABLES_IN_MEMORY = DEBUG   # This should only be enabled during development, when working without pregenerated tables.
+                                 # There is no limit to the amount of tables cached, so eventually there'll be a MemoryError.

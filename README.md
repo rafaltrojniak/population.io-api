@@ -39,8 +39,12 @@ Run `python manage.py buildtables` to rebuild all tables. Expect this to take ab
 
 To just update the CSVs in the data store without rebuilding the tables, run `python manage.py reloadcsv`.
 
-## Running on Vagrant box
+## Running on Vagrant
 
 * Install Vagrant: https://www.vagrantup.com/.
 * Run `vagrant up` in the `/vagrant` subdirectory of the project.
 * View the API docs of your app at `http://localhost:9999/api/docs/`.
+
+## Running in production
+
+When running on production, you should set the environment variable `POPULATIONIO_DEBUG` to `False`. This deactivates the display of internal exceptions and also disables caching of the extrapolation tables in memory, which does not scale in production.
