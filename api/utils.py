@@ -1,4 +1,4 @@
-import datetime, re
+import datetime, re, math
 from dateutil.relativedelta import relativedelta
 
 
@@ -19,3 +19,11 @@ def parse_offset(val):
 
 def offset_to_str(offset):
     return '' + ('%iy' % offset.years if offset.years else '') + ('%im' % offset.months if offset.months else '') + ('%id' % offset.days if offset.days else '')
+
+def decimal_years_to_relativedelta(years_float):
+    years = math.trunc(years_float)
+    days = math.trunc((years_float% 1)*365)
+    return relativedelta(years=years, days=days)
+
+def relativedelta_to_decimal_years(offset):
+    return offset.years * 1.0 + offset.months / 12.0 + offset.days / 365.0

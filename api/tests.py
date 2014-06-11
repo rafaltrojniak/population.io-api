@@ -1,9 +1,10 @@
 from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 from django.test import SimpleTestCase
 from django.conf import settings
 from rest_framework.test import APISimpleTestCase
 settings.CACHE_TABLES_IN_MEMORY = True
-from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancy, populationCount
+from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, populationCount
 from api.datastore import dataStore
 from api.exceptions import *
 
@@ -64,8 +65,8 @@ class TestWorldPopulationRankCalculation(SimpleTestCase):
         self.assertEqual(date(2049,  3, 11), dateByWorldPopulationRank('unisex', 'World', date(1993, 12,  6), 7000000000))
 
     def test_lifeExpectancy(self):
-        self.assertAlmostEqual(26.24, lifeExpectancy('unisex', 'World', date(2049, 3, 11), 55.3), places=0)
-        self.assertAlmostEqual(99.99, lifeExpectancy('male', 'UK', date(1952, 3, 11), 55.0), places=0)
+        self.assertAlmostEqual(26.24, lifeExpectancyRemaining('unisex', 'World', date(2049, 3, 11), relativedelta(years=55, months=4)), places=0)
+        self.assertAlmostEqual(28.05, lifeExpectancyRemaining('male', 'UK', date(2001, 5, 11), relativedelta(years=49)), places=0)
 
     def test_population(self):
         data = list(populationCount('Brazil', 18, 1980))
@@ -108,6 +109,28 @@ class TestViews(APISimpleTestCase):
         #self._testEndpoint('/population/Brazil/abc/', expectErrorContaining='number')
         # invalid year: string given
         #self._testEndpoint('/population/12a/Brazil/18/', expectErrorContaining='number')
+
+    def testLifeExpectancyEndpoint(self):
+        # valid request
+        self._testEndpoint('/life-expectancy/remaining/unisex/World/2094-12-31/100y/')
+        # invalid value for refdate
+        self._testEndpoint('/life-expectancy/remaining/unisex/World/2095-01-01/100y/', expectErrorContaining='calculation date')
+        # invalid value for age
+        self._testEndpoint('/life-expectancy/remaining/unisex/World/2094-12-31/100y1d/', expectErrorContaining='age')
+        # valid request
+        self._testEndpoint('/life-expectancy/remaining/unisex/World/1955-01-01/1/')
+        # valid request
+        self._testEndpoint('/life-expectancy/remaining/unisex/World/1954-12-31/1/', expectErrorContaining='calculation date')
+        # valid request
+        self._testEndpoint('/life-expectancy/remaining/unisex/World/1955-01-01/100y1d/', expectErrorContaining='age')
+        # valid request
+        self._testEndpoint('/life-expectancy/total/unisex/World/1920-01-01/')
+        # valid request
+        self._testEndpoint('/life-expectancy/total/unisex/World/1919-12-31/', expectErrorContaining='birthdate')
+        # valid request
+        self._testEndpoint('/life-expectancy/total/unisex/World/2059-12-31/')
+        # valid request
+        self._testEndpoint('/life-expectancy/total/unisex/World/2060-01-01/', expectErrorContaining='birthdate')
 
     def _testEndpoint(self, path, expectErrorContaining=None):
         response = self.client.get('/api/1.0' + path)

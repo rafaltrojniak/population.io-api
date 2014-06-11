@@ -1,4 +1,5 @@
 from rest_framework.exceptions import ParseError
+from api.utils import offset_to_str
 
 
 
@@ -27,13 +28,17 @@ class OffsetParsingError(ParseError):
         self.detail = 'The given offset %s in parameter %s could not be parsed. Valid values are a number to express days, or a combination of years, months and days in the format ##y##m##d' % (invalidValue, paramName)
 
 class BirthdateOutOfRangeError(ParseError):
-    def __init__(self, invalidValue):
-        self.detail = 'The birthdate %s can not be processed, only dates between 1920-01-01 and today are supported' % invalidValue
+    def __init__(self, invalidValue, dateIntervalText):
+        self.detail = 'The birthdate %s can not be processed, only dates %s are supported' % (invalidValue, dateIntervalText)
 
 class CalculationDateOutOfRangeError(ParseError):
-    def __init__(self, invalidValue):
-        self.detail = 'The calculation date %s can not be processed, only dates past 1950-01-01 and past the birthdate are supported' % invalidValue
+    def __init__(self, invalidValue, dateIntervalText):
+        self.detail = 'The calculation date %s can not be processed, only dates %s are supported' % (invalidValue, dateIntervalText)
 
 class CalculationTooWideError(ParseError):
     def __init__(self, invalidValue):
         self.detail = 'The calculation date %s can not be processed, because only calculations up to an age of 100 years are supported' % invalidValue
+
+class AgeOutOfRangeError(ParseError):
+    def __init__(self, invalidValue):
+        self.detail = 'The age %s can not be processed, because only calculations up to an age of 100 years are supported' % offset_to_str(invalidValue)

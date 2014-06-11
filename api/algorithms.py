@@ -12,6 +12,8 @@ from scipy.interpolate import InterpolatedUnivariateSpline
 from api.exceptions import *
 from api.datastore import dataStore
 
+from api.utils import relativedelta_to_decimal_years
+
 
 
 # AGE in days refering to the annual data - we assume that the average age of one years old is 1 years and 183 days
@@ -165,9 +167,9 @@ def worldPopulationRankByDate(sex, region, dob, refdate):
     # check the various date requirements
     today = datetime.utcnow().date()
     if dob < date(1920, 1, 1) or dob > today:
-        raise BirthdateOutOfRangeError(dob)
+        raise BirthdateOutOfRangeError(dob, 'between 1920-01-01 and today')
     if refdate < date(1950, 1, 1) or refdate < dob:
-        raise CalculationDateOutOfRangeError(refdate)
+        raise CalculationDateOutOfRangeError(refdate, 'past 1950-01-01 and past the birthdate')
     if (refdate - dob).days > 36500:
         raise CalculationTooWideError(refdate)
 
@@ -284,7 +286,24 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     #pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
     return final_date
 
-def lifeExpectancy(sex, region, refdate, age):
+def lifeExpectancyRemaining(sex, region, refdate, age):
+    # check that all arguments have the right type (even though it's not very pythonic)
+    if not isinstance(sex, basestring) or not isinstance(region, basestring) or not isinstance(refdate, date) or not isinstance(age, relativedelta):
+        raise TypeError('One or more arguments did not match the expected parameter type')
+
+    # confirm that sex and region contain valid values
+    if sex not in SEXES_LIFE_EXPECTANCY:
+        raise InvalidSexError(sex)
+    if region not in dataStore.countries:
+        raise InvalidCountryError(region)
+
+    # check the various date requirements
+    if refdate < date(1955, 1, 1) or refdate >= date(2095, 1, 1):
+        raise CalculationDateOutOfRangeError(refdate, 'from 1955-01-01 to 2094-12-31')
+    age_float = relativedelta_to_decimal_years(age)
+    if age_float > 100:
+        raise AgeOutOfRangeError(age)
+
     # find beginning of 5 yearly period for the le_date
     le_yr = refdate.year   #(le_date.loc['1'])[0:4]
     lowest_year = math.floor(int(le_yr)/5)*5
@@ -318,9 +337,9 @@ def lifeExpectancy(sex, region, refdate, age):
     xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,3])
 
     # predictions
-    x_interp1 = xx_interp1(age)#interpolated value for AGE in earlier 5 yearly period
-    x_interp2 = xx_interp2(age)#interpolated value for AGE in the 5 yearly period of interest
-    x_interp3 = xx_interp3(age)#interpolated value for AGE in 5 yearly period after
+    x_interp1 = xx_interp1(age_float)   #interpolated value for AGE in earlier 5 yearly period
+    x_interp2 = xx_interp2(age_float)   #interpolated value for AGE in the 5 yearly period of interest
+    x_interp3 = xx_interp3(age_float)   #interpolated value for AGE in 5 yearly period after
 
     # matrix of vals
     life_exp_yr = np.zeros((3,2))
@@ -334,6 +353,18 @@ def lifeExpectancy(sex, region, refdate, age):
 
     return life_exp_yr[0,1]
     #life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
+
+def lifeExpectancyTotal(sex, region, dob):
+    if not isinstance(dob, date):
+        raise TypeError('One or more arguments did not match the expected parameter type')
+
+    if dob < date(1920, 1, 1) or dob > date(2059, 12, 31):
+        raise BirthdateOutOfRangeError(dob, 'between 1920-01-01 and 2059-12-31')
+
+    age = relativedelta(years=35)   # set an arbitrary age that keeps our calculation in the boundaries of lifeExpectancyRemaining()
+    age_float = relativedelta_to_decimal_years(age)
+    refdate = dob + age
+    return age_float + lifeExpectancyRemaining(sex, region, refdate, age)
 
 def populationCount(country, age=None, year=None):
     results = dataStore.data[dataStore.data['Location']==country]
