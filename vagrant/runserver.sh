@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo ''
 echo 'UPDATING AND RUNNING SERVER'
@@ -12,4 +13,5 @@ cd ~/population.io
 git pull
 
 # Run gunicorn server forked
-gunicorn -b 0.0.0.0:8000 population_io.wsgi
+. venv/bin/activate
+gunicorn -b 0.0.0.0:8000 population_io.wsgi:application
