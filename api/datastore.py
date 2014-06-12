@@ -19,9 +19,6 @@ class DataStore(object):
             print 'Base data not found in the data store, reading from CSV...'
             self.readCSVs()
 
-        # create two dimensional lookup table for extrapolation tables, based on (sex, country) tuples
-        self.extrapolation_tables = {}
-
     def registerTableBuilder(self, builder):
         self._extrapolation_table_builder = builder
 
@@ -63,20 +60,15 @@ class DataStore(object):
         start = time.clock()
         table = self._extrapolation_table_builder(sex, country)
         print 'Generated extrapolation table for (%s, %s) in %.02f seconds' % (sex, country, time.clock()-start)
-        self.storeExtrapolationTable(sex, country, table)
+        if settings.DATA_STORE_WRITABLE:
+            self.storeExtrapolationTable(sex, country, table)
         return table
 
     def getOrGenerateExtrapolationTable(self, sex, country):
-        if (sex, country) in self.extrapolation_tables:
-            return self.extrapolation_tables[(sex, country)]
-
         key = self._buildTableKey(sex, country)
         if self._store.get_node(key):
-            table = self.retrieveExtrapolationTable(sex, country)
+            return self.retrieveExtrapolationTable(sex, country)
         else:
-            table = self.generateExtrapolationTable(sex, country)
-        if settings.CACHE_TABLES_IN_MEMORY:
-            self.extrapolation_tables[(sex, country)] = table
-        return table
+            return self.generateExtrapolationTable(sex, country)
 
 dataStore = DataStore()
