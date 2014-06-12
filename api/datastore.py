@@ -1,4 +1,4 @@
-import os, time, cPickle as pickle
+import os, time
 import pandas as pd
 from django.conf import settings
 
@@ -53,13 +53,13 @@ class DataStore(object):
     def storeExtrapolationTable(self, sex, country, table):
         start = time.clock()
         #self._store.put(self._buildTableKey(sex, country), table)
-        table.save(self._buildExtrapolationTableFilename(sex, country))
+        table.to_pickle(self._buildExtrapolationTableFilename(sex, country))
         print 'Stored extrapolation table for (%s, %s) in %.02f seconds' % (sex, country, time.clock()-start)
 
     def retrieveExtrapolationTable(self, sex, country):
         start = time.clock()
         #table = self._store.get(self._buildTableKey(sex, country))
-        table = pd.load(self._buildExtrapolationTableFilename(sex, country))
+        table = pd.read_pickle(self._buildExtrapolationTableFilename(sex, country))
         print 'Retrieved extrapolation table for (%s, %s) in %.02f seconds' % (sex, country, time.clock()-start)
         return table
 
