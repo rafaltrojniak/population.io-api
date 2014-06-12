@@ -177,8 +177,5 @@ def total_life_expectancy(request, sex, country, dob):
 @expect_int('age', optional=True)
 @expect_int('year', optional=True)
 def population_data(request, country, age=None, year=None):
-    if not age and not year:
-        raise RuntimeError('Either age or year have to be specified')
-
     result = populationCount(country, age, year)
     return Response(result)

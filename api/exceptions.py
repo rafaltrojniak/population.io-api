@@ -9,7 +9,7 @@ class InvalidSexError(ParseError):
 
 class InvalidCountryError(ParseError):
     def __init__(self, invalidValue):
-        self.detail = '%s is an invalid value for the parameter "country", the list of valid values can be retrieved from the endpoint /meta/countries' % invalidValue
+        self.detail = '%s is an invalid value for the parameter "country", the list of valid values can be retrieved from the endpoint /countries' % invalidValue
 
 class DateParsingError(ParseError):
     def __init__(self, paramName, invalidValue):

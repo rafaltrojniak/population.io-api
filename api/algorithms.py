@@ -386,14 +386,32 @@ def lifeExpectancyTotal(sex, region, dob):
     return age_float + lifeExpectancyRemaining(sex, region, refdate, age)
 
 def populationCount(country, age=None, year=None):
-    results = dataStore.data[dataStore.data['Location']==country]
+    # check that all arguments have the right type (even though it's not very pythonic)
+    if not isinstance(country, basestring) or (age is not None and not isinstance(age, int)) or (year is not None and not isinstance(year, int)):
+        raise TypeError('One or more arguments did not match the expected parameter type')
+
+    # confirm that sex and region contain valid values
+    if country not in dataStore.countries:
+        raise InvalidCountryError(country)
+
+    # check the various date requirements
+    if age is None and year is None:   # note: age can be 0, so we have to check for None here, checking for truthyness is *not* sufficient!
+        raise DataOutOfRangeError('Either an age or a year have to be specified')
+    if age is not None and (age < 1 or age > 100):   # FIXME: actually, an age of 0 should be valid, but the lookup with Pandas doesn't work for some reason
+        raise DataOutOfRangeError('The age %i can not be processed, because only ages between 1 and 100 years are supported' % age)
+    if year is not None and (year < 1950 or year > 2100):
+        raise DataOutOfRangeError('The year %i can not be processed, because only years between 1950 and 2100 are supported' % year)
+
+    data = dataStore.data[dataStore.data['Location']==country]
     if age:
-        results = results[dataStore.data['Age']==age]
+        data = data[dataStore.data['Age']==age]
     if year:
-        results = results[dataStore.data['Time']==year]
-    for row in results.iterrows():
+        data = data[dataStore.data['Time']==year]
+    results = []
+    for row in data.iterrows():
         series = row[1]
         if age:
-            yield {'year': series['Time'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)}
+            results.append({'year': series['Time'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)})
         elif year:
-            yield {'age': series['Age'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)}
+            results.append({'age': series['Age'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)})
+    return results
