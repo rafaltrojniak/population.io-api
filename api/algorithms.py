@@ -188,6 +188,20 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     :param wRank:
     :return:
     """
+    # check that all arguments have the right type (even though it's not very pythonic)
+    if not isinstance(sex, basestring) or not isinstance(region, basestring) or not isinstance(dob, date):
+        raise TypeError('One or more arguments did not match the expected parameter type')
+
+    # confirm that sex and region contain valid values
+    if sex not in SEXES:
+        raise InvalidSexError(sex)
+    if region not in dataStore.countries:
+        raise InvalidCountryError(region)
+
+    # check the various date requirements
+    if dob < date(1920, 1, 1) or dob > date(2079, 12, 31):   # the end date has been chosen arbitrarily and is probably wrong
+        raise BirthdateOutOfRangeError(dob, 'between 1920-01-01 and 2079-12-31')
+
     # internally, the algorithm works with k-ranks
     rank = rank / 1000.0
 
@@ -208,8 +222,8 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
         try:
             xx.append(_calculateRankByDate(table, dob, dob + relativedelta(days = jj*3650)))
         except Exception:
-            print "Breaks the function if either the birthdate is too late \
-            for some rank or the rank is too high for some birthdate"
+            # Breaks the function if either the birthdate is too late for some rank or the rank is too high for some birthdate
+            raise DataOutOfRangeError(detail='The input data is out of range: the birthdate is too late for the rank or the rank is too high for the birthdate')
 
     # check the array for NaN?
     xx = np.array(xx) # convert xx from list to array
@@ -218,8 +232,7 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     ''' NEED TO BREAK THE FUNCTION IF CC IS TRUE - NOT YET IMPLEMENTED '''
     # check to see if all of the Ranks are less than the wRank
     if np.all(xx < rank):
-        print "You are too young"
-        return
+        raise DataOutOfRangeError(detail='The input data is out of range: the person is too young')
 
     #print xx
     # now find the interval containing wRank
@@ -227,6 +240,12 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     #print np.amin(np.where((xx < rank) == False))
     Upper_bound = (np.amin(np.where((xx < rank) == False))+1)*10 # +1 because of zero index
     Lower_bound = Upper_bound-10
+
+    if Lower_bound < 2:
+        # I don't know what this error means, but if Lower_bound is < 2, then range_2 will start with a value < 0
+        # which means _calculateRankByDate() will be called with a negative age, and that will fail
+        raise DataOutOfRangeError()
+
     #print Upper_bound, Lower_bound
 
     # Define new range

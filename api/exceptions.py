@@ -42,3 +42,7 @@ class CalculationTooWideError(ParseError):
 class AgeOutOfRangeError(ParseError):
     def __init__(self, invalidValue):
         self.detail = 'The age %s can not be processed, because only calculations up to an age of 100 years are supported' % offset_to_str(invalidValue)
+
+class DataOutOfRangeError(ParseError):
+    def __init__(self, detail=None):
+        self.detail = detail or 'The input data is out of range'
