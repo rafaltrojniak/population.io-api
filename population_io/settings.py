@@ -103,7 +103,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # Settings of the api app
 
-DATA_STORE_PATH = os.path.join(BASE_DIR, 'data', 'datastore.hdf5')
+DATA_STORE_PATH = os.environ.get('POPULATIONIO_DATASTORE_LOCATION', os.path.join(BASE_DIR, 'data', 'datastore.hdf5'))
+DATA_STORE_WRITABLE = os.environ.get('POPULATIONIO_DATASTORE_WRITABLE', 'true').lower() != 'false'
 CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
 CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
 CACHE_TABLES_IN_MEMORY = DEBUG   # This should only be enabled during development, when working without pregenerated tables.

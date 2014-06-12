@@ -10,7 +10,7 @@ class DataStore(object):
 
     def __init__(self, storeFilename=settings.DATA_STORE_PATH):
         # prepare the filesystem cache
-        self._store = pd.HDFStore(storeFilename, mode='a', complevel=9, complib='blosc')
+        self._store = pd.HDFStore(storeFilename, mode='a' if settings.DATA_STORE_WRITABLE else 'r', complevel=9, complib='blosc')
 
         # if possible, initialize from data store, otherwise read the CSVs
         if self._store.get_node('data') and self._store.get_node('life_expectancy_ages'):
