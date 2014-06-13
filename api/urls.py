@@ -1,7 +1,5 @@
-from django.conf.urls import patterns, include, url
-from django.conf import settings
+from django.conf.urls import url
 from api import views
-
 
 
 WP_RANK_PREFIX = r'wp-rank/'
