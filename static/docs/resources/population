@@ -54,8 +54,8 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Retrieve population tables for a specific year and country",
-                    "notes": "Retrieve population tables for a specific year and country. Returns tables for all ages from 0 to 100.",
+                    "summary": "Retrieve population tables for a given year and country",
+                    "notes": "Retrieve population tables for a given year and country. Returns tables for all ages from 0 to 100.",
                     "nickname": "retrievePopulationTableAllAges",
                     "type": "PopulationTables",
                     "parameters": [
