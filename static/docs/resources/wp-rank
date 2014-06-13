@@ -1,0 +1,80 @@
+{
+    "apiVersion": "1.0",
+    "swaggerVersion": "1.2",
+    "basePath": "/1.0",
+    "resourcePath": "/wp-rank",
+    "apis": [
+        {
+            "path": "/wp-rank/{year}/{country}/{age}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Retrieve population table for a specific age group in the given year and country",
+                    "notes": "Retrieve population table for a specific age group in the given year and country.",
+                    "nickname": "retrievePopulationTable",
+                    "type": "PopulationTables",
+                    "parameters": [
+                        {
+                            "name": "year",
+                            "paramType": "path",
+                            "description": "the year to retrieve the population table for",
+                            "type": "int",
+                            "defaultValue": "1980",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to retrieve the population table for",
+                            "type": "string",
+                            "defaultValue": "Brazil",
+                            "required": true
+                        },
+                        {
+                            "name": "age",
+                            "paramType": "path",
+                            "description": "the age to retrieve the population table for",
+                            "type": "int",
+                            "defaultValue": "18",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "PopulationTables": {
+            "id": "PopulationTables",
+            "description": "a list of population tables",
+            "required": ["tables"],
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {"$ref": "PopulationTable"},
+                    "description": "NOTE: due to a bug, the API currently directly returns the JS array here, instead of a JSON object with the 'tables' field!"
+                }
+            }
+        },
+        "ErrorMessage": {
+            "id": "ErrorMessage",
+            "description": "an error message",
+            "required": ["detail"],
+            "properties": {
+                "detail": {"type": "string", "description": "the reason why the request could not be successfully processed"}
+            }
+        }
+    },
+    "produces": [
+        "application/json",
+        "text/html",
+        "application/javascript"
+    ]
+}
