@@ -141,6 +141,11 @@
   padding: 0 0 10px;
   color: #333333;
 }
+.swagger-section .swagger-ui-wrap .info_description h4 {
+    color: #0f6ab4;
+    padding: 15px 0 5px;
+    font-size: 1.1em;
+}
 .swagger-section .swagger-ui-wrap q:before,
 .swagger-section .swagger-ui-wrap q:after,
 .swagger-section .swagger-ui-wrap blockquote:before,

@@ -5,37 +5,302 @@
     "resourcePath": "/wp-rank",
     "apis": [
         {
-            "path": "/wp-rank/{year}/{country}/{age}/",
+            "path": "/wp-rank/{dob}/{sex}/{country}/today/",
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Retrieve population table for a specific age group in the given year and country",
-                    "notes": "Retrieve population table for a specific age group in the given year and country.",
-                    "nickname": "retrievePopulationTable",
-                    "type": "PopulationTables",
+                    "summary": "Calculate a given person's world population rank as of today",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date formats.",
+                    "nickname": "worldPopulationRankToday",
+                    "type": "WorldPopulationRankToday",
                     "parameters": [
                         {
-                            "name": "year",
+                            "name": "dob",
                             "paramType": "path",
-                            "description": "the year to retrieve the population table for",
-                            "type": "int",
-                            "defaultValue": "1980",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex (valid values are unisex, female and male)",
+                            "type": "string",
+                            "defaultValue": "male",
                             "required": true
                         },
                         {
                             "name": "country",
                             "paramType": "path",
-                            "description": "the country to retrieve the population table for",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "Brazil",
+                            "defaultValue": "UK",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/wp-rank/{dob}/{sex}/{country}/on/{date}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate a given person's world population rank on a certain date",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Please see the general API documentation on information about supported date formats.",
+                    "nickname": "worldPopulationRankByDate",
+                    "type": "WorldPopulationRankByDate",
+                    "parameters": [
+                        {
+                            "name": "dob",
+                            "paramType": "path",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex (valid values are unisex, female and male)",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
+                            "required": true
+                        },
+                        {
+                            "name": "date",
+                            "paramType": "path",
+                            "description": "the reference date to calculate the rank for",
+                            "type": "date string",
+                            "defaultValue": "2001-05-11",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/wp-rank/{dob}/{sex}/{country}/aged/{age}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate a given person's world population rank at a certain age",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by the person's age.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Please see the general API documentation on information about supported date and offset formats.",
+                    "nickname": "worldPopulationRankByAge",
+                    "type": "WorldPopulationRankByAge",
+                    "parameters": [
+                        {
+                            "name": "dob",
+                            "paramType": "path",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex (valid values are unisex, female and male)",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
                             "required": true
                         },
                         {
                             "name": "age",
                             "paramType": "path",
-                            "description": "the age to retrieve the population table for",
+                            "description": "the reference date to calculate the rank for, expressed through the person's age",
+                            "type": "offset string",
+                            "defaultValue": "49y2m",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/wp-rank/{dob}/{sex}/{country}/ago/{ago}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate a given person's world population rank a given time in the past",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the past from today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date and offset formats.",
+                    "nickname": "worldPopulationRankInPast",
+                    "type": "WorldPopulationRankWithOffset",
+                    "parameters": [
+                        {
+                            "name": "dob",
+                            "paramType": "path",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex (valid values are unisex, female and male)",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
+                            "required": true
+                        },
+                        {
+                            "name": "ago",
+                            "paramType": "path",
+                            "description": "how much time back in the past to calculate the rank for",
+                            "type": "offset string",
+                            "defaultValue": "1y2m3d",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/wp-rank/{dob}/{sex}/{country}/in/{in}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate a given person's world population rank a given time in the future",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the future from today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date and offset formats.",
+                    "nickname": "worldPopulationRankInFuture",
+                    "type": "WorldPopulationRankWithOffset",
+                    "parameters": [
+                        {
+                            "name": "dob",
+                            "paramType": "path",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex (valid values are unisex, female and male)",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
+                            "required": true
+                        },
+                        {
+                            "name": "in",
+                            "paramType": "path",
+                            "description": "how much time in the future to calculate the rank for",
+                            "type": "offset string",
+                            "defaultValue": "1y2m3d",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/wp-rank/{dob}/{sex}/{country}/ranked/{rank}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate the date a given person reaches a given world population rank",
+                    "notes": "Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Please see the general API documentation on information about supported date formats.",
+                    "nickname": "dateByWorldPopulationRank",
+                    "type": "DateByWorldPopulationRank",
+                    "parameters": [
+                        {
+                            "name": "dob",
+                            "paramType": "path",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex (valid values are unisex, female and male)",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
+                            "required": true
+                        },
+                        {
+                            "name": "rank",
+                            "paramType": "path",
+                            "description": "the rank to calculate the date for",
                             "type": "int",
-                            "defaultValue": "18",
+                            "defaultValue": "30000000",
                             "required": true
                         }
                     ],
@@ -51,15 +316,134 @@
         }
     ],
     "models": {
-        "PopulationTables": {
-            "id": "PopulationTables",
-            "description": "a list of population tables",
-            "required": ["tables"],
+        "WorldPopulationRankToday": {
+            "id": "WorldPopulationRankToday",
+            "description": "world population rank calculation result",
+            "required": ["dob", "sex", "country", "rank"],
             "properties": {
-                "tables": {
-                    "type": "array",
-                    "items": {"$ref": "PopulationTable"},
-                    "description": "NOTE: due to a bug, the API currently directly returns the JS array here, instead of a JSON object with the 'tables' field!"
+                "dob": {
+                    "type": "date string",
+                    "description": "the given date of birth"
+                },
+                "sex": {
+                    "type": "string",
+                    "description": "the given sex"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "the given country"
+                },
+                "rank": {
+                    "type": "int",
+                    "description": "the calculated rank"
+                }
+            }
+        },
+        "WorldPopulationRankByDate": {
+            "id": "WorldPopulationRankByDate",
+            "description": "world population rank calculation result",
+            "required": ["dob", "sex", "country", "rank", "date"],
+            "properties": {
+                "dob": {
+                    "type": "date string",
+                    "description": "the given date of birth"
+                },
+                "sex": {
+                    "type": "string",
+                    "description": "the given sex"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "the given country"
+                },
+                "rank": {
+                    "type": "int",
+                    "description": "the calculated rank"
+                },
+                "date": {
+                    "type": "date string",
+                    "description": "the given reference date"
+                }
+            }
+        },
+        "WorldPopulationRankByAge": {
+            "id": "WorldPopulationRankByAge",
+            "description": "world population rank calculation result",
+            "required": ["dob", "sex", "country", "rank", "age"],
+            "properties": {
+                "dob": {
+                    "type": "date string",
+                    "description": "the given date of birth"
+                },
+                "sex": {
+                    "type": "string",
+                    "description": "the given sex"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "the given country"
+                },
+                "rank": {
+                    "type": "int",
+                    "description": "the calculated rank"
+                },
+                "age": {
+                    "type": "offset string",
+                    "description": "the given age"
+                }
+            }
+        },
+        "WorldPopulationRankWithOffset": {
+            "id": "WorldPopulationRankWithOffset",
+            "description": "world population rank calculation result",
+            "required": ["dob", "sex", "country", "rank", "offset"],
+            "properties": {
+                "dob": {
+                    "type": "date string",
+                    "description": "the given date of birth"
+                },
+                "sex": {
+                    "type": "string",
+                    "description": "the given sex"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "the given country"
+                },
+                "rank": {
+                    "type": "int",
+                    "description": "the calculated rank"
+                },
+                "offset": {
+                    "type": "offset string",
+                    "description": "the given offset from today"
+                }
+            }
+        },
+        "DateByWorldPopulationRank": {
+            "id": "DateByWorldPopulationRank",
+            "description": "world population rank calculation result",
+            "required": ["dob", "sex", "country", "rank", "date_on_rank"],
+            "properties": {
+                "dob": {
+                    "type": "date string",
+                    "description": "the given date of birth"
+                },
+                "sex": {
+                    "type": "string",
+                    "description": "the given sex"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "the given country"
+                },
+                "rank": {
+                    "type": "int",
+                    "description": "the given rank"
+                },
+                "date_on_rank": {
+                    "type": "date string",
+                    "description": "the calculated date"
                 }
             }
         },
@@ -68,7 +452,10 @@
             "description": "an error message",
             "required": ["detail"],
             "properties": {
-                "detail": {"type": "string", "description": "the reason why the request could not be successfully processed"}
+                "detail": {
+                    "type": "string",
+                    "description": "the reason why the request could not be successfully processed"
+                }
             }
         }
     },

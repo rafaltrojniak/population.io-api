@@ -10,7 +10,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate remaining life expectancy",
-                    "notes": "Calculate remaining life expectancy of a person with given sex, country, and age at a given point in time. <p>Please see the general API documentation on information about the valid date and offset formats.<h4>Examples</h4><p><strong>/api/1.0/life-expectancy/remaining/male/UK/2001-05-11/49y2m/</strong>: Calculates the remaining life expectancy of a UK male, who on May 11, 2001 was 49 years and two months old.",
+                    "notes": "Calculate remaining life expectancy of a person with given sex, country, and age at a given point in time. <p>Please see the general API documentation on information about the valid date and offset formats.<h4>Examples</h4><p><strong>/1.0/life-expectancy/remaining/male/UK/2001-05-11/49y2m/</strong>: Calculates the remaining life expectancy of a UK male, who on May 11, 2001 was 49 years and two months old.",
                     "nickname": "calculateRemainingLifeExpectancy",
                     "type": "RemainingLifeExpectancy",
                     "parameters": [
@@ -64,7 +64,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate total life expectancy",
-                    "notes": "Calculate total life expectancy of a person with given sex, country, and date of birth.<p>Note that this function is implemented based on the remaining life expectancy by picking a reference date based on an age of 35 years. It is therefore of limited accuracy.<p>Please see the general API documentation on information about the valid date format.<h4>Examples</h4><p><strong>/api/1.0/life-expectancy/total/male/UK/1952-03-11/</strong>: Calculates the remaining life expectancy of a UK male, born on March 11, 1952.",
+                    "notes": "Calculate total life expectancy of a person with given sex, country, and date of birth.<p>Note that this function is implemented based on the remaining life expectancy by picking a reference date based on an age of 35 years. It is therefore of limited accuracy.<p>Please see the general API documentation on information about the valid date format.<h4>Examples</h4><p><strong>/1.0/life-expectancy/total/male/UK/1952-03-11/</strong>: Calculates the remaining life expectancy of a UK male, born on March 11, 1952.",
                     "nickname": "calculateTotalLifeExpectancy",
                     "type": "TotalLifeExpectancy",
                     "parameters": [
