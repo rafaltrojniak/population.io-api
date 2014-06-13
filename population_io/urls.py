@@ -1,14 +1,21 @@
 from django.conf.urls import patterns, include, url
+from django.http.response import HttpResponse
 import api.urls
 
-#from django.contrib import admin
-#admin.autodiscover()
+
+API_VERSION_PREFIX = r'^1.0/'
+
+
+# FIXME: hack to make the swagger-ui index.html be served from /
+def docs_index(request):
+    page = open('static/swagger-ui/index.html', 'r').read()
+    return HttpResponse(page)
+
 
 urlpatterns = patterns('',
-    url(r'^api/', include(api.urls)),
+    # /1.0/ (API)
+    url(API_VERSION_PREFIX, include(api.urls)),
 
-    # Examples:
-    # url(r'^$', 'population_io.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-    # url(r'^admin/', include(admin.site.urls)),
+    # / (Swagger documentation)
+    url(r'^$', docs_index),
 )

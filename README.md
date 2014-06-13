@@ -43,7 +43,7 @@ To just update the CSVs in the data store without rebuilding the tables, run `py
 
 * Install Vagrant: https://www.vagrantup.com/.
 * Run `vagrant up` in the `/vagrant` subdirectory of the project.
-* View the API docs of your app at `http://localhost:9999/api/docs/`.
+* View the API docs of your app at `http://localhost:9999/`.
 
 ## Running in production
 
