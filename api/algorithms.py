@@ -410,8 +410,5 @@ def populationCount(country, age=None, year=None):
     results = []
     for row in data.iterrows():
         series = row[1]
-        if age:
-            results.append({'year': series['Time'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)})
-        elif year:
-            results.append({'age': series['Age'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)})
+        results.append({'year': series['Time'], 'age': series['Age'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)})
     return results

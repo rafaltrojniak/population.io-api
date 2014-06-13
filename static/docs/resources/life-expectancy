@@ -1,0 +1,145 @@
+{
+    "apiVersion": "1.0",
+    "swaggerVersion": "1.2",
+    "basePath": "/1.0",
+    "resourcePath": "/life-expectancy",
+    "apis": [
+        {
+            "path": "/life-expectancy/remaining/{sex}/{country}/{date}/{age}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate remaining life expectancy",
+                    "notes": "Calculate remaining life expectancy of a person with given sex, country, and age at a given point in time. <p>Please see the general API documentation on information about the valid date and offset formats.<h4>Examples</h4><p><strong>/api/1.0/life-expectancy/remaining/male/UK/2001-05-11/49y2m/</strong>: Calculates the remaining life expectancy of a UK male, who on May 11, 2001 was 49 years and two months old.",
+                    "nickname": "calculateRemainingLifeExpectancy",
+                    "type": "RemainingLifeExpectancy",
+                    "parameters": [
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
+                            "required": true
+                        },
+                        {
+                            "name": "date",
+                            "paramType": "path",
+                            "description": "the point in time to calculate the remaining life expectancy at",
+                            "type": "date string",
+                            "defaultValue": "2001-05-11",
+                            "required": true
+                        },
+                        {
+                            "name": "age",
+                            "paramType": "path",
+                            "description": "the person's age at the given point of time",
+                            "type": "offset string",
+                            "format": "plain digits to indicate days (e.g. '1000') or a combination of years, months and days in the format ##y##m##d (e.g. '3y6m9d')",
+                            "defaultValue": "49y2m",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/life-expectancy/total/{sex}/{country}/{dob}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Calculate total life expectancy",
+                    "notes": "Calculate total life expectancy of a person with given sex, country, and date of birth.<p>Note that this function is implemented based on the remaining life expectancy by picking a reference date based on an age of 35 years. It is therefore of limited accuracy.<p>Please see the general API documentation on information about the valid date format.<h4>Examples</h4><p><strong>/api/1.0/life-expectancy/total/male/UK/1952-03-11/</strong>: Calculates the remaining life expectancy of a UK male, born on March 11, 1952.",
+                    "nickname": "calculateTotalLifeExpectancy",
+                    "type": "TotalLifeExpectancy",
+                    "parameters": [
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the person's sex",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
+                            "type": "string",
+                            "defaultValue": "UK",
+                            "required": true
+                        },
+                        {
+                            "name": "dob",
+                            "paramType": "path",
+                            "description": "the person's date of birth",
+                            "type": "date string",
+                            "defaultValue": "1952-03-11",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "RemainingLifeExpectancy": {
+            "id": "RemainingLifeExpectancy",
+            "description": "a successful life expectancy result",
+            "required": ["date", "sex", "country", "age", "remaining_life_expectancy"],
+            "properties": {
+                "sex": {"type": "string", "enum": ["unisex", "male", "female"], "description": "given sex"},
+                "country": {"type": "string", "description": "given country"},
+                "date": {"type": "date string", "description": "given reference date, as string with date format YYYY-MM-DD"},
+                "age": {"type": "offset string", "description": "given age, as string in offset format ##y##m##d"},
+                "remaining_life_expectancy": {"type": "float", "description": "calculated remaining life expectancy"}
+            }
+        },
+        "TotalLifeExpectancy": {
+            "id": "TotalLifeExpectancy",
+            "description": "a successful life expectancy result",
+            "required": ["date", "sex", "dob", "total_life_expectancy"],
+            "properties": {
+                "sex": {"type": "string", "enum": ["unisex", "male", "female"], "description": "given sex"},
+                "country": {"type": "string", "description": "given country"},
+                "dob": {"type": "date string", "description": "given date of birth, as string with date format YYYY-MM-DD"},
+                "total_life_expectancy": {"type": "float", "description": "calculated total life expectancy"}
+            }
+        },
+        "ErrorMessage": {
+            "id": "ErrorMessage",
+            "description": "an error message",
+            "required": ["detail"],
+            "properties": {
+                "detail": {"type": "string", "description": "the reason why the request could not be successfully processed"}
+            }
+        }
+    },
+    "produces": [
+        "application/json",
+        "text/html",
+        "application/javascript"
+    ]
+}

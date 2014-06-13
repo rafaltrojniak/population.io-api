@@ -1,0 +1,26 @@
+{
+    "swaggerVersion": "1.2",
+    "apiVersion": "1.0",
+    "info": {
+        "title": "World Population API",
+        "description": "This is a sample server Petstore server.<br><b>Can I do HTML <a href=\"http://example.com\">here</a>?</b> write about API conventions: returns JSON, JSONP, CORS, use Accept header, write about date and offset format, whole API is public"
+    },
+    "apis": [
+        {
+            "path": "/../resources/countries",
+            "description": "list available countries"
+        },
+        {
+            "path": "/../resources/wp-rank",
+            "description": "determine world population rank"
+        },
+        {
+            "path": "/../resources/life-expectancy",
+            "description": "calculate life expectancy"
+        },
+        {
+            "path": "/../resources/population",
+            "description": "retrieve population tables"
+        }
+    ]
+}

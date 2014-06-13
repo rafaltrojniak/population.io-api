@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['population.io', 'www.population.io', '104.130.5.217']
 
 INSTALLED_APPS = (
     'rest_framework',
-    'rest_framework_swagger',
     'corsheaders',
     'django.contrib.staticfiles',
     'api',

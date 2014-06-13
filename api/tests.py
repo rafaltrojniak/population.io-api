@@ -133,7 +133,7 @@ class TestViews(APISimpleTestCase):
         self._testEndpoint('/life-expectancy/total/unisex/World/2060-01-01/', expectErrorContaining='birthdate')
 
     def _testEndpoint(self, path, expectErrorContaining=None):
-        response = self.client.get('/api/1.0' + path)
+        response = self.client.get('/1.0' + path)
         if expectErrorContaining:
             self.assertEqual(response.status_code, 400)
             self.assertTrue(expectErrorContaining in response.data['detail'], 'Expected fragment "%s" in error message: %s' % (expectErrorContaining, response.data['detail']))

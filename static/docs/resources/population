@@ -1,0 +1,166 @@
+{
+    "apiVersion": "1.0",
+    "swaggerVersion": "1.2",
+    "basePath": "/1.0",
+    "resourcePath": "/population",
+    "apis": [
+        {
+            "path": "/population/{year}/{country}/{age}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Retrieve population table for a specific age group in the given year and country",
+                    "notes": "Retrieve population table for a specific age group in the given year and country.",
+                    "nickname": "retrievePopulationTable",
+                    "type": "PopulationTables",
+                    "parameters": [
+                        {
+                            "name": "year",
+                            "paramType": "path",
+                            "description": "the year to retrieve the population table for",
+                            "type": "int",
+                            "defaultValue": "1980",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to retrieve the population table for",
+                            "type": "string",
+                            "defaultValue": "Brazil",
+                            "required": true
+                        },
+                        {
+                            "name": "age",
+                            "paramType": "path",
+                            "description": "the age to retrieve the population table for",
+                            "type": "int",
+                            "defaultValue": "18",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/population/{year}/{country}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Retrieve population tables for a specific year and country",
+                    "notes": "Retrieve population tables for a specific year and country. Returns tables for all ages from 0 to 100.",
+                    "nickname": "retrievePopulationTableAllAges",
+                    "type": "PopulationTables",
+                    "parameters": [
+                        {
+                            "name": "year",
+                            "paramType": "path",
+                            "description": "the year to retrieve the population tables for",
+                            "type": "int",
+                            "defaultValue": "1980",
+                            "required": true
+                        },
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to retrieve the population tables for",
+                            "type": "string",
+                            "defaultValue": "Brazil",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/population/{country}/{age}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Retrieve population tables for a specific age group in the given country",
+                    "notes": "Retrieve population tables for a specific age group in the given country. Returns tables for all years from 1950 to 2100.",
+                    "nickname": "retrievePopulationTableAllYears",
+                    "type": "PopulationTables",
+                    "parameters": [
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to retrieve the population tables for",
+                            "type": "string",
+                            "defaultValue": "Brazil",
+                            "required": true
+                        },
+                        {
+                            "name": "age",
+                            "paramType": "path",
+                            "description": "the age to retrieve the population tables for",
+                            "type": "int",
+                            "defaultValue": "18",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "PopulationTables": {
+            "id": "PopulationTables",
+            "description": "a list of population tables",
+            "required": ["tables"],
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {"$ref": "PopulationTable"},
+                    "description": "NOTE: due to a bug, the API currently directly returns the JS array here, instead of a JSON object with the 'tables' field!"
+                }
+            }
+        },
+        "PopulationTable": {
+            "id": "PopulationTable",
+            "description": "a population table for a certain year and age",
+            "required": ["total", "females", "males", "year", "age"],
+            "properties": {
+                "total": {"type": "int", "description": "total size of population in given country, year, and age"},
+                "females": {"type": "int", "description": "size of female population in given country, year, and age"},
+                "males": {"type": "int", "description": "size of male population in given country, year, and age"},
+                "year": {"type": "int", "description": "year"},
+                "age": {"type": "age", "description": "age"}
+            }
+        },
+        "ErrorMessage": {
+            "id": "ErrorMessage",
+            "description": "an error message",
+            "required": ["detail"],
+            "properties": {
+                "detail": {"type": "string", "description": "the reason why the request could not be successfully processed"}
+            }
+        }
+    },
+    "produces": [
+        "application/json",
+        "text/html",
+        "application/javascript"
+    ]
+}

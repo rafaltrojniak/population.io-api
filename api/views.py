@@ -178,4 +178,6 @@ def total_life_expectancy(request, sex, country, dob):
 @expect_int('year', optional=True)
 def population_data(request, country, age=None, year=None):
     result = populationCount(country, age, year)
+    # FIXME: the API currently returns a flat JS array here, which is invalid JSON. The commented out line would fix this, but is currently deactivated as not to break the frontend!
     return Response(result)
+    #return Response({"tables": result})
