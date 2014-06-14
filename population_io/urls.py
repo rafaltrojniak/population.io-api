@@ -8,8 +8,8 @@ API_VERSION_PREFIX = r'^1.0/'
 
 # FIXME: hack to make the swagger-ui index.html be served from /
 def docs_index(request):
-    page = open('static/swagger-ui/index.html', 'r').read()
-    return HttpResponse(page)
+    with open('static/swagger-ui/index.html', 'r') as index:
+        return HttpResponse(index.read())
 
 
 urlpatterns = patterns('',
