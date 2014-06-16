@@ -10,7 +10,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate a given person's world population rank as of today",
-                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date formats.",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth decreasing. The last person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date formats.",
                     "nickname": "worldPopulationRankToday",
                     "type": "WorldPopulationRankToday",
                     "parameters": [
@@ -55,7 +55,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate a given person's world population rank on a certain date",
-                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Please see the general API documentation on information about supported date formats.",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth decreasing. The last person born is assigned rank #1.<p>Please see the general API documentation on information about supported date formats.",
                     "nickname": "worldPopulationRankByDate",
                     "type": "WorldPopulationRankByDate",
                     "parameters": [
@@ -108,7 +108,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate a given person's world population rank at a certain age",
-                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by the person's age.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Please see the general API documentation on information about supported date and offset formats.",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by the person's age.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth decreasing. The last person born is assigned rank #1.<p>Please see the general API documentation on information about supported date and offset formats.",
                     "nickname": "worldPopulationRankByAge",
                     "type": "WorldPopulationRankByAge",
                     "parameters": [
@@ -161,7 +161,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate a given person's world population rank a given time in the past",
-                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the past from today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date and offset formats.",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the past from today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth decreasing. The last person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date and offset formats.",
                     "nickname": "worldPopulationRankInPast",
                     "type": "WorldPopulationRankWithOffset",
                     "parameters": [
@@ -214,7 +214,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate a given person's world population rank a given time in the future",
-                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the future from today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date and offset formats.",
+                    "notes": "Calculates the world population rank of a person with the given date of birth, sex and country of origin on a certain date as expressed by an offset towards the future from today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth decreasing. The last person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>Please see the general API documentation on information about supported date and offset formats.",
                     "nickname": "worldPopulationRankInFuture",
                     "type": "WorldPopulationRankWithOffset",
                     "parameters": [
@@ -267,7 +267,7 @@
                 {
                     "method": "GET",
                     "summary": "Calculate the date a given person reaches a given world population rank",
-                    "notes": "Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Please see the general API documentation on information about supported date formats.",
+                    "notes": "Calculates the day on which a person with the given date of birth, sex and country of origin has reached (or will reach) a certain world population rank.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth decreasing. The last person born is assigned rank #1.<p>Please see the general API documentation on information about supported date formats.",
                     "nickname": "dateByWorldPopulationRank",
                     "type": "DateByWorldPopulationRank",
                     "parameters": [
