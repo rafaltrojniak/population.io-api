@@ -2,12 +2,13 @@ import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from api.datastore import dataStore
-from api.decorators import expect_date, expect_offset, expect_int
+from api.decorators import expect_date, expect_offset, expect_int, cache_until_utc_eod, cache_unlimited
 from api.utils import offset_to_str
 from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, lifeExpectancyTotal, populationCount
 
 
 @api_view(['GET'])
+@cache_unlimited()
 def list_countries(request):
     """ Return a list of all countries in the statistical dataset. These are also the valid input values to the various 'country' parameters across the remaining API.<p>
         Please see <a href="/">the full API browser</a> for more information.
@@ -16,6 +17,7 @@ def list_countries(request):
 
 
 @api_view(['GET'])
+@cache_until_utc_eod()
 @expect_date('dob')
 def world_population_rank_today(request, dob, sex, country):
     """ Calculates the world population rank of a person with the given date of birth, sex and country of origin as of today.<p>The world population rank is defined as the position of someone's birthday among the group of living people of the same sex and country of origin, ordered by date of birth increasing. The first person born is assigned rank #1.<p>Today's date is always based on the current time in the timezone UTC.<p>
@@ -27,6 +29,7 @@ def world_population_rank_today(request, dob, sex, country):
 
 
 @api_view(['GET'])
+@cache_unlimited()
 @expect_date('dob')
 @expect_date('date')
 def world_population_rank_by_date(request, dob, sex, country, date):
@@ -38,6 +41,7 @@ def world_population_rank_by_date(request, dob, sex, country, date):
 
 
 @api_view(['GET'])
+@cache_unlimited()
 @expect_date('dob')
 @expect_offset('age')
 def world_population_rank_by_age(request, dob, sex, country, age):
@@ -49,6 +53,7 @@ def world_population_rank_by_age(request, dob, sex, country, age):
 
 
 @api_view(['GET'])
+@cache_until_utc_eod()
 @expect_date('dob')
 @expect_offset('offset')
 def world_population_rank_in_past(request, dob, sex, country, offset):
@@ -61,6 +66,7 @@ def world_population_rank_in_past(request, dob, sex, country, offset):
 
 
 @api_view(['GET'])
+@cache_until_utc_eod()
 @expect_date('dob')
 @expect_offset('offset')
 def world_population_rank_in_future(request, dob, sex, country, offset):
@@ -73,6 +79,7 @@ def world_population_rank_in_future(request, dob, sex, country, offset):
 
 
 @api_view(['GET'])
+@cache_unlimited()
 @expect_date('dob')
 @expect_int('rank')
 def date_by_world_population_rank(request, dob, sex, country, rank):
@@ -84,6 +91,7 @@ def date_by_world_population_rank(request, dob, sex, country, rank):
 
 
 @api_view(['GET'])
+@cache_unlimited()
 @expect_date('date')
 @expect_offset('age')
 def calculate_remaining_life_expectancy(request, sex, country, date, age):
@@ -95,6 +103,7 @@ def calculate_remaining_life_expectancy(request, sex, country, date, age):
 
 
 @api_view(['GET'])
+@cache_unlimited()
 @expect_date('dob')
 def total_life_expectancy(request, sex, country, dob):
     """ Calculate total life expectancy of a person with given sex, country, and date of birth.<p>Note that this function is implemented based on the remaining life expectancy by picking a reference date based on an age of 35 years. It is therefore of limited accuracy.<p>
@@ -105,6 +114,7 @@ def total_life_expectancy(request, sex, country, dob):
 
 
 @api_view(['GET'])
+@cache_unlimited()
 @expect_int('age', optional=True)
 @expect_int('year', optional=True)
 def retrieve_population_table(request, country, age=None, year=None):

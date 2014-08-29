@@ -73,9 +73,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 # Here preconfigured for Heroku: https://devcenter.heroku.com/articles/getting-started-with-django#django-settings
-STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
@@ -107,3 +105,5 @@ DATA_STORE_PATH = os.environ.get('POPULATIONIO_DATASTORE_LOCATION', os.path.join
 DATA_STORE_WRITABLE = os.environ.get('POPULATIONIO_DATASTORE_WRITABLE', 'true').lower() != 'false'
 CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
 CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
+
+CACHE_CONTROL_MAXAGE = 24 * 60 * 60
