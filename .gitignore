@@ -6,3 +6,4 @@ venv
 data/*.csv
 *.hdf5
 .vagrant
+*.pkl

@@ -72,11 +72,12 @@ class HDF5DataStore(object):
             return self.generateExtrapolationTable(sex, country)
 
 
-class CSVDataStore(object):
-    """ Data store implementation based on various CSVs with predefined filenames in a local filesystem path.
+class PickleDataStore(object):
+    """ Data store implementation based on reading the base CSVs (population and life expectancy) into memory and then fetching
+        the cached tables as pickle files with predefined filenames in a local filesystem path.
     """
 
-    def __init__(self, storeFilename=settings.DATA_STORE_PATH):
+    def __init__(self):
         print 'Reading base data CSVs...'
         self.readCSVs()
 
@@ -130,4 +131,4 @@ class CSVDataStore(object):
 
 
 # the central data store instance we're gonna use
-dataStore = CSVDataStore()
+dataStore = PickleDataStore()
