@@ -14,8 +14,11 @@ Django project for population.io
 ## Project setup for development
 
 ```shell
-# Create a virtualenv to isolate our package dependencies locally
-virtualenv env
+# Create a virtualenv to isolate our package dependencies locally, but use system packages,
+# because NumPy/SciPy/Pandas/PyTables are often installed by external package managers
+virtualenv --system-site-packages env
+
+# Activate the new virtualenv
 source env/bin/activate  # On Windows use `env\Scripts\activate`
 
 # Install dependencies
