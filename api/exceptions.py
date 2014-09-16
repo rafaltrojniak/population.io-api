@@ -31,6 +31,10 @@ class BirthdateOutOfRangeError(ParseError):
     def __init__(self, invalidValue, dateIntervalText):
         self.detail = 'The birthdate %s can not be processed, only dates %s are supported' % (invalidValue, dateIntervalText)
 
+class EffectiveBirthdateOutOfRangeError(ParseError):
+    def __init__(self, invalidValue):
+        self.detail = 'The person\'s effective birthdate of %s is invalid, only birthdates past 2015-06-30 are supported' % invalidValue
+
 class CalculationDateOutOfRangeError(ParseError):
     def __init__(self, invalidValue, dateIntervalText):
         self.detail = 'The calculation date %s can not be processed, only dates %s are supported' % (invalidValue, dateIntervalText)

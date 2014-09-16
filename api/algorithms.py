@@ -23,7 +23,7 @@ AGE3 = [x*365+183 for x in range(0,100)]
 AGEOUT = range(0, 36501)
 
 SEXES = {'male': 'PopMale', 'female': 'PopFemale', 'unisex': 'PopTotal',}
-SEXES_LIFE_EXPECTANCY = {'male': 1, 'female': 2, 'unisex': 3,}
+SEXES_LIFE_EXPECTANCY = {'male': 1, 'female': 2,}
 
 POSIX_EPOCH = date(1970, 1, 1)
 def inPosixDays(date):
@@ -322,6 +322,8 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     age_float = relativedelta_to_decimal_years(age)
     if age_float > 100:
         raise AgeOutOfRangeError(age)
+    if refdate - age > date(2015, 6, 30):
+        raise EffectiveBirthdateOutOfRangeError(invalidValue=(refdate-age))
 
     # find beginning of 5 yearly period for the le_date
     le_yr = refdate.year   #(le_date.loc['1'])[0:4]
