@@ -21,6 +21,7 @@ from scipy.interpolate import splrep, InterpolatedUnivariateSpline, interp1d
 #folderpath = os.getcwd()
 
 inputData = '../../data/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv'
+inputLifeExpectancy = '../../data/life_expectancy_ages.csv'
 
 def main():
 
@@ -385,7 +386,7 @@ def main():
 	DoB = "1993/12/06"
 	speRANK = 7000000
 	#read data for life expectancy: male=1,female=2,both=3
-	life_expectancy_ages = pd.read_csv("/Users/apple/Dropbox/rank and cohort life expectancy/life_expectancy_Cohort_ages.csv")
+	life_expectancy_ages = pd.read_csv(inputLifeExpectancy)
 	# What is the life expectancy on when I reach specific RANK speRANK 
 	le_exact_age = RES.exactAge 
 	le_age =  RES.age
