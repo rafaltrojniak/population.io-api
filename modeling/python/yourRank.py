@@ -381,20 +381,20 @@ def main():
 	RES = yourRANKTomorrow('1993/12/06', 7000000)
 
 
-		''' --- LIFE EXPECTANCY --- '''
+	''' --- LIFE EXPECTANCY --- '''
 	DoB = "1993/12/06"
 	speRANK = 7000000
 	#read data for life expectancy: male=1,female=2,both=3
-	life_expectancy_ages = pd.read_csv("life_expectancy_ages.csv")
-
+	life_expectancy_ages = pd.read_csv("/Users/apple/Dropbox/rank and cohort life expectancy/life_expectancy_Cohort_ages.csv")
 	# What is the life expectancy on when I reach specific RANK speRANK 
 	le_exact_age = RES.exactAge 
 	le_age =  RES.age
 	le_date = RES.DATE
-
-	#For which CNTRY AND SEX DO YOU WANT TO KNOW THE REMAINING LIFE EXPECTANCY AT CERTAIN TIME/AGE
-	CNTRY1 = "WORLD"
-	iSEX1 = 2 #male=0,female=1,both=2
+	
+	# --- ADDED make sure World is lower case and isex is iether male or female
+    	#For which CNTRY AND SEX DO YOU WANT TO KNOW THE REMAINING LIFE EXPECTANCY AT CERTAIN TIME/AGE
+    	CNTRY1 = "World"
+    	iSEX1 = 1 #male=0,female=1,both=2
 
 	''' --- rem_le function ---'''
 	def rem_le(CNTRY1, iSEX1, le_date):
@@ -409,18 +409,13 @@ def main():
 		life_exp_prd_5above = life_expectancy_ages[(life_expectancy_ages.region == CNTRY1) & (life_expectancy_ages.sex == iSEX1) & (life_expectancy_ages.Begin_prd == lowest_year+5)]
 		
 		life_exp_prd = pd.concat([life_exp_prd_5below, life_exp_prd_ext, life_exp_prd_5above])
-		print life_exp_prd
-
 		life_exp_prd = life_exp_prd.ix[:,7:len(life_exp_prd.columns)]
-		print life_exp_prd
 
 		# Place holder for Agenames and values for three consecutive periods of interest
 		life_exp_ = np.zeros((len(life_exp_prd.columns), 4))
-		print life_exp_
 
-		# Age group starting at and less than the next value: 0, 1, 5, 10 
-		life_exp_[:,0] =  np.insert((np.arange(5, 105, 5)), 0, [0,1])
-		print life_exp_[:,0]
+		# Age group starting at and less than the next value: 0, 1, 5, 10 to 125
+		life_exp_[:,0] =  np.insert((np.arange(5, 130, 5)), 0, [0,1])
 
 		# transpose the dataframe - prep for assinging life expectancy vals
 		life_exp_prd = life_exp_prd.T 
@@ -431,9 +426,10 @@ def main():
 		life_exp_[:,3]  = life_exp_prd[life_exp_prd.columns[2]].values
 
 		# interpolations
-		xx_interp1 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,1] )
-		xx_interp2 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,2] )
-		xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,3])
+		xx_interp1 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,0],life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,1] )
+        	xx_interp2 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,0],life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,2] )
+		xx_interp3 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,3])
+
 
 		# predictions
 		x_interp1 = xx_interp1(le_exact_age)#interpolated value for AGE in earlier 5 yearly period
@@ -448,21 +444,13 @@ def main():
   		#In the following we turn the year to the date and then to numeric. We will use these to interpolate between periods and then predict the le for exact date 
   		addDate = lambda d: numDate(datetime.strptime(str(int(d)+3) + "/01/01", date_format))
 
-
   		life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5) ]
   		life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
 
-  		print life_exp_yr
-  		print life_exp_yr[:1,1]
-
   		return life_exp_yr[:1,1] 
-  		#life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
-
-
-	rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=le_date)
 
 	''' --- continuing the example --- '''
-	x_interp = rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=le_date)
+	x_interp = rem_le(CNTRY1=CNTRY1,iSEX1=iSEX1,le_date=le_date) 
 
 	dateOfDeath = lambda d: ((datetime.strptime(le_date[0], '%Y-%m-%d')) + timedelta(days=d)).strftime('%Y/%m/%d')  
 
