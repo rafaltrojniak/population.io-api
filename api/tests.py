@@ -73,6 +73,10 @@ class AlgorithmTests(SimpleTestCase):
 
 
 class ApiIntegrationTests(APISimpleTestCase):
+    """
+    A set of test cases testing the whole stack, from the url routing to the request processing to delivering the right status code. Do not check any returned data.
+    """
+
     def _testEndpoint(self, path, expectErrorContaining=None):
         response = self.client.get('/1.0' + path)
         if expectErrorContaining:
@@ -109,37 +113,41 @@ class ApiIntegrationTests(APISimpleTestCase):
         self._testEndpoint('/population/1980/Brazil/')
 
     def testLifeExpectancyRemainingEndpoint_successMaxDate(self):
-        self._testEndpoint('/life-expectancy/remaining/unisex/World/2094-12-31/100y/')
+        self._testEndpoint('/life-expectancy/remaining/female/World/2094-12-31/100y/')
 
     def testLifeExpectancyRemainingEndpoint_exceedMaxDate(self):
-        self._testEndpoint('/life-expectancy/remaining/unisex/World/2095-01-01/100y/', expectErrorContaining='calculation date')
+        self._testEndpoint('/life-expectancy/remaining/female/World/2095-01-01/100y/', expectErrorContaining='calculation date')
 
     def testLifeExpectancyRemainingEndpoint_exceedAge(self):
-        self._testEndpoint('/life-expectancy/remaining/unisex/World/2094-12-31/100y1d/', expectErrorContaining='age')
+        self._testEndpoint('/life-expectancy/remaining/female/World/2094-12-31/100y1d/', expectErrorContaining='age')
 
     def testLifeExpectancyRemainingEndpoint_successMinDate(self):
-        self._testEndpoint('/life-expectancy/remaining/unisex/World/1955-01-01/1/')
+        self._testEndpoint('/life-expectancy/remaining/female/World/1955-01-01/1/')
 
     def testLifeExpectancyRemainingEndpoint_belowMinDate(self):
-        self._testEndpoint('/life-expectancy/remaining/unisex/World/1954-12-31/1/', expectErrorContaining='calculation date')
+        self._testEndpoint('/life-expectancy/remaining/female/World/1954-12-31/1/', expectErrorContaining='calculation date')
 
     def testLifeExpectancyRemainingEndpoint_exceedAgeAtMinDate(self):
-        self._testEndpoint('/life-expectancy/remaining/unisex/World/1955-01-01/100y1d/', expectErrorContaining='age')
+        self._testEndpoint('/life-expectancy/remaining/female/World/1955-01-01/100y1d/', expectErrorContaining='age')
 
     def testLifeExpectancyTotalEndpoint_successMinBirthdate(self):
-        self._testEndpoint('/life-expectancy/total/unisex/World/1920-01-01/')
+        self._testEndpoint('/life-expectancy/total/female/World/1920-01-01/')
 
     def testLifeExpectancyTotalEndpoint_belowMinBirthdate(self):
-        self._testEndpoint('/life-expectancy/total/unisex/World/1919-12-31/', expectErrorContaining='birthdate')
+        self._testEndpoint('/life-expectancy/total/female/World/1919-12-31/', expectErrorContaining='birthdate')
 
     def testLifeExpectancyTotalEndpoint_successMaxBirthdate(self):
-        self._testEndpoint('/life-expectancy/total/unisex/World/2059-12-31/')
+        self._testEndpoint('/life-expectancy/total/female/World/2059-12-31/')
 
     def testLifeExpectancyTotalEndpoint_exceedMaxBirthdate(self):
-        self._testEndpoint('/life-expectancy/total/unisex/World/2060-01-01/', expectErrorContaining='birthdate')
+        self._testEndpoint('/life-expectancy/total/female/World/2060-01-01/', expectErrorContaining='birthdate')
 
 
 class AlgorithmAcceptanceTests(SimpleTestCase):
+    """
+    A set of tests based on the acceptance tests previously written in R.
+    """
+
     CNTRY = 'World'
     iSEX = 'unisex'
     TODAY = date(2014, 9, 15)
