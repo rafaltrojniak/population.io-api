@@ -24,11 +24,12 @@ source env/bin/activate  # On Windows use `env\Scripts\activate`
 # Install dependencies
 pip install --requirement requirements.txt
 
+# Decompress the data files
+unzip "data/*.zip" -d data
+
 # Run development server
 python manage.py runserver
 ```
-
-You will also have to unpack the CSV data files from the ZIP archives in the `data` subdirectory.
 
 ## Running unit tests
 
