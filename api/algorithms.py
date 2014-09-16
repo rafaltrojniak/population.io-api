@@ -327,20 +327,20 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     le_yr = refdate.year   #(le_date.loc['1'])[0:4]
     lowest_year = math.floor(int(le_yr)/5)*5
 
-    #extract a row corresponding to the time-period
+    # extract a row corresponding to the time-period
     life_exp_prd_5below = dataStore.life_expectancy_ages[(dataStore.life_expectancy_ages.region == region) & (dataStore.life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.life_expectancy_ages.Begin_prd == lowest_year-5)]
     life_exp_prd_ext = dataStore.life_expectancy_ages[(dataStore.life_expectancy_ages.region == region) & (dataStore.life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.life_expectancy_ages.Begin_prd == lowest_year)]
     life_exp_prd_5above = dataStore.life_expectancy_ages[(dataStore.life_expectancy_ages.region == region) & (dataStore.life_expectancy_ages.sex == SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.life_expectancy_ages.Begin_prd == lowest_year+5)]
 
+    # life_exp_prd
     life_exp_prd = pd.concat([life_exp_prd_5below, life_exp_prd_ext, life_exp_prd_5above])
-
-    life_exp_prd = life_exp_prd.ix[:,7:len(life_exp_prd.columns)]
+    life_exp_prd = life_exp_prd.ix[:,4:len(life_exp_prd.columns)]
 
     # Place holder for Agenames and values for three consecutive periods of interest
     life_exp_ = np.zeros((len(life_exp_prd.columns), 4))
 
     # Age group starting at and less than the next value: 0, 1, 5, 10
-    life_exp_[:,0] = np.insert((np.arange(5, 105, 5)), 0, [0,1])
+    life_exp_[:,0] = np.insert((np.arange(5, 130, 5)), 0, [0,1])
 
     # transpose the dataframe - prep for assinging life expectancy vals
     life_exp_prd = life_exp_prd.T
@@ -351,9 +351,9 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     life_exp_[:,3] = life_exp_prd[life_exp_prd.columns[2]].values
 
     # interpolations
-    xx_interp1 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,1])
-    xx_interp2 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,2])
-    xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0], life_exp_[:,3])
+    xx_interp1 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,1])
+    xx_interp2 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,2])
+    xx_interp3 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,3])
 
     # predictions
     x_interp1 = xx_interp1(age_float)   #interpolated value for AGE in earlier 5 yearly period
