@@ -15,10 +15,8 @@ import math
 from scipy import interpolate
 from scipy.interpolate import splrep, InterpolatedUnivariateSpline, interp1d
 
-# OLDEST POPULATION DATA
-inputData = '/Users/apple/Dropbox/projects/archive/WorldBank-PortingProj/code/versions/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv'
-# USE THE NEWEST LIFE EXPECTANCY DATA
-inputLifeExpectancy = '/Users/apple/Dropbox/rank and cohort life expectancy/life_expectancy_Cohort_ages.csv'
+inputData = '../../data/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv'
+inputLifeExpectancy = '../../data/life_expectancy_ages.csv'
 
 def main():
     # -- Read in Data --- # 
@@ -75,7 +73,6 @@ def main():
             holder.append(headers)
     SEXnames = holder
     print SEXnames
-
 
     # AGE in days refering to the annual data - we assume that the average age of one years old is 1 years and 183 days
     age3 = range(0,100)
@@ -137,9 +134,8 @@ def main():
             return result1
         else:
             return result1
-
     # Examples
-    CNTRY = "WORLD"
+    CNTRY = "World"
     iSEX = 2
     RESULT = 1
     #doitall(CNTRY, iSEX, RESULT)
@@ -329,7 +325,7 @@ def main():
         
         return pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
 
-    RES = yourRANKTomorrow('1993/12/06', 7000000)
+    RES = yourRANKTomorrow('1990/12/06', 7000000)
 
 
     ''' --- LIFE EXPECTANCY --- '''
