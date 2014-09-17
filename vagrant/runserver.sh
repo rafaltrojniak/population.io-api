@@ -11,6 +11,9 @@ ps aux | grep -ie gunicorn | awk '{print $2}' | xargs kill
 cd ~/population.io
 git pull
 
-# Run gunicorn server forked
+# Activate virtualenv
 . venv/bin/activate
+
+# Run gunicorn server forked
+echo 'Launching server at http://localhost:9999/...'
 gunicorn -b 0.0.0.0:8000 population_io.wsgi:application

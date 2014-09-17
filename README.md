@@ -6,20 +6,21 @@ Django project for population.io
 ## Requirements
 
 * Python 2.7
-* pip 1.5+
-* NumPy 1.7.0+, SciPy 0.11.0+, Pandas 0.13.1+ (see http://www.scipy.org/install.html for installation instructions)
-* PyTables 3.1+
-* further dependencies can be installed with pip from a requirements file
+* pip 1.5+ (see http://pip.readthedocs.org/en/latest/installing.html for installation instructions)
+* NumPy 1.7.0+, Pandas 0.13.1+ (see http://www.scipy.org/install.html for installation instructions)
+* further dependencies are installed with pip from a requirements file into a virtualenv
+
+If you're using apt-get as a package manager, the recommended set of initial packages is: `apt-get install unzip python-virtualenv python-pip python-pandas python-numpy`
 
 ## Project setup for development
 
 ```shell
 # Create a virtualenv to isolate our package dependencies locally, but use system packages,
-# because NumPy/SciPy/Pandas/PyTables are often installed by external package managers
+# because NumPy/Pandas are often better installed by external package managers
 virtualenv --system-site-packages env
 
 # Activate the new virtualenv
-source env/bin/activate  # On Windows use `env\Scripts\activate`
+source env/bin/activate   # On Windows use `env\Scripts\activate`
 
 # Install dependencies
 pip install --requirement requirements.txt
