@@ -35,7 +35,7 @@
                             "paramType": "path",
                             "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "UK",
+                            "defaultValue": "United Kingdom",
                             "required": true
                         }
                     ],
@@ -80,7 +80,7 @@
                             "paramType": "path",
                             "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "UK",
+                            "defaultValue": "United Kingdom",
                             "required": true
                         },
                         {
@@ -133,7 +133,7 @@
                             "paramType": "path",
                             "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "UK",
+                            "defaultValue": "United Kingdom",
                             "required": true
                         },
                         {
@@ -186,7 +186,7 @@
                             "paramType": "path",
                             "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "UK",
+                            "defaultValue": "United Kingdom",
                             "required": true
                         },
                         {
@@ -239,7 +239,7 @@
                             "paramType": "path",
                             "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "UK",
+                            "defaultValue": "United Kingdom",
                             "required": true
                         },
                         {
@@ -292,7 +292,7 @@
                             "paramType": "path",
                             "description": "the person's country of origin (valid values can be retrieved from /countries, e.g. 'World' for all)",
                             "type": "string",
-                            "defaultValue": "UK",
+                            "defaultValue": "United Kingdom",
                             "required": true
                         },
                         {
