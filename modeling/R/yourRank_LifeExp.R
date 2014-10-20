@@ -5,8 +5,8 @@ library(splines)# interpolating using splines - methods (need to read this to un
 library(car)#general functions 
 
 #setwd("/Users/florianhuber/Dropbox/uni/phd/Samir World Bank/BigData") #set working directory
-#setwd("C:/Users/tkriszti/Google Drive/World Bank/population.io-api-master/population.io-api-master/modeling/R") #set working directory
-setwd("c:/dropbox/Samir World Bank/BigData")
+setwd("C:/Users/tkriszti/Google Drive/World Bank/population.io-api-master/population.io-api-master/modeling/R") #set working directory
+#setwd("c:/dropbox/Samir World Bank/BigData")
 
 # 1. Interpolate between calendar days 
 # For e.g. interpolate between 1 year old in 1st July 2010 and 1 year old in 1st July 2011 
@@ -170,9 +170,8 @@ CNTRY = "World" # as named in lstcntry
 #Type Sex
 iSEX = 3 # 1= Males, 2 = Females, and 3 = Both Sexes
 #First run the interpolation for the calendar dates in days
-tic()
 pop2 <- doitall(CNTRY=CNTRY,iSEX=3, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
-toc()
+
 
 DoB = "1993/12/6"
 
@@ -254,4 +253,87 @@ paste("You, born in",DoB, "will reach", paste(speRANK*1000,"th person in ", ifel
 
 #[1] "You, born in 1993/12/6 will reach 7e+09th person in the WORLD on 2049-03-11 and you will be 55  years old. As a  WORLD citizen, you will still have 26.24 years to live.
 #And your expected date of death is 2075-05-31"
+
+
+
+
+#####test case#####
+
+#e.g.:
+CNTRY = "World" # as named in new lstcntry#KC#
+iSEX = 3 # 1= Males, 2 = Females, and 3 = Both Sexes
+pop2 <- doitall(CNTRY=CNTRY,iSEX=3, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+
+DoB = "1993/12/6"
+#The following values for the corresponding example of DoB keeps changing as we run this on different date#KC#
+#function run on 2014/09/15
+yourRANKToday(DoB) #my ranking today: 2578836 
+yourRANKbyAge(DoB=DoB,iAge=as.numeric(Sys.Date()-as.Date(DoB,"%Y/%m/%d"))) #my ranking at today's age: 2578836
+yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old (3650 days) : 1209918
+yourRANKbyDate(DoB,"2001/09/11") #my ranking on 11th Sept 2001 :940947
+
+
+DoB = "1920/01/01"
+yourRANKbyDate(DoB,"1949/12/31") #my ranking on 31st Dec 1949 :ERROR Data not available 
+yourRANKbyDate(DoB,"1950/01/01") #1506711 #my ranking on 1st Jan 1950: minimum Date for which rank can be reported
+
+yourRANKbyDate(DoB,"2020/01/01") #NA #my ranking on 1st Jan 2020: 
+yourRANKbyDate(DoB,"2019/12/09") #NA #if you are more than 36500 days older then you are too old to report exact rank
+
+DoB = "2020/12/31"
+yourRANKToday(DoB) #NA #because the person is not born yet
+yourRANKbyDate(DoB,"2021/12/31") #133045.1
+
+DoB = "2100/12/31" #maximum DoB
+yourRANKToday(DoB) #NA
+yourRANKbyDate(DoB,"2100/12/31") #349.4013 #Also maximum Date that a rank can be reported...
+
+DoB = "1920/1/1" #minimum DoB (it is possible for DoB few years earlier but I suggest to start at 1920, for older cohorts, we put a message that the person is too old for and report the rank of the person born on 1920/1/1, saying your rank is higher than the rank for 1920/1/1 )
+yourRANKToday(DoB) #7265259
+yourRANKbyDate(DoB,"2100/12/31") #NA
+
+
+###Test for another country####
+CNTRY = "Austria" # as named in new lstcntry#KC#
+iSEX = 1 # 1= Males, 2 = Females, and 3 = Both Sexes
+pop2 <- doitall(CNTRY=CNTRY,iSEX=iSEX, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+
+DoB = '1983/12/19'
+yourRANKToday(DoB) #my ranking today: 1472 
+yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old (3650 days) : 481
+yourRANKbyDate(DoB,"2001/09/11") #my ranking on 11th Sept 2001 :827.4809
+
+speRANK <- 2000 #specific rank
+RES <- yourRANKTomorrow(DoB,speRANK)
+le_exact_age <-  RES$exactAGE #exact age in years in two decimals to reach speRANK 40.12
+le_age <-  RES$AGE # age in years to reach speRANK: 40
+le_date <- RES$DATE # date to reach speRANK: "2024-01-20"
+x_interp <- rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=RES$DATE)
+x_interp$y # 44.68
+paste("You, born in",DoB, "will reach", paste(speRANK*1000,"th person in ", ifelse(CNTRY=="WORLD","the WORLD",CNTRY), " on",sep=""),
+      le_date,"and you will be",le_age," years old. As a",c("Male","Female","")[iSEX]  ,CNTRY, "citizen, you will still have", round(x_interp$y,2), "years to live. And your expected date of death is", le_date + x_interp$y*365,sep=" "   )
+
+
+###Test 3rd country#######
+CNTRY = "India" # as named in new lstcntry#KC#
+iSEX = 2 # 1= Males, 2 = Females, and 3 = Both Sexes
+pop2 <- doitall(CNTRY=CNTRY,iSEX=iSEX, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+
+DoB = '1984/01/06'
+yourRANKToday(DoB) #my ranking today: 344670.4 
+yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old (3650 days) : 113045.3
+yourRANKbyDate(DoB,"2001/09/11") #my ranking on 11th Sept 2001 :199842.8
+
+speRANK <- 500000 #specific rank
+RES <- yourRANKTomorrow(DoB,speRANK)
+le_date=RES$DATE # 
+le_exact_age <-  RES$exactAGE #exact age in years in two decimals to reach speRANK: 45
+le_age <-  RES$AGE # age in years to reach speRANK: 45
+le_date <- RES$DATE # date to reach speRANK:  "2062-07-25"
+x_interp <- rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=RES$DATE)
+
+x_interp$y # 57.98883
+
+paste("You, born in",DoB, "will reach", paste(speRANK*1000,"th person in ", ifelse(CNTRY=="WORLD","the WORLD",CNTRY), " on",sep=""),
+      le_date,"and you will be",le_age," years old. As a",c("Male","Female","")[iSEX]  ,CNTRY, "citizen, you will still have", round(x_interp$y,2), "years to live. And your expected date of death is", le_date + x_interp$y*365,sep=" "   )
 

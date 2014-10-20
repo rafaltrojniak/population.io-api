@@ -245,7 +245,7 @@ def main():
         # The number of years from input birth to '2100/01/01'
         length_time = relativedelta(datetime.strptime(final_time, date_format) , datetime.strptime(birth, date_format)).years
 
-        # Make sure that difference between DOB and final Date > 100
+        # Make sure that difference between DOB and final Date < 100
         if length_time < 100:
             l_max = np.round(length_time)
         else:
@@ -269,7 +269,7 @@ def main():
         cc = np.all(xx < wRank)
         if cc == True:
             print("You are too young")
-            #break 
+            return [None]
 
         # now find the interval containing wRank
         Upper_bound =  (np.amin(np.where((xx < wRank) == False))+1)*10 # +1 because of zero index
@@ -383,9 +383,9 @@ def main():
 
         # interpolations
         # --- ADDED (np.amax(max(np.where(life_exp_[:,1] == 0))))
-        xx_interp1 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,0],life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,1] )
-        xx_interp2 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,0],life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,2] )
-        xx_interp3 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,3])
+        xx_interp1 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,1] )
+        xx_interp2 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,2] )
+        xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,3] )
 
         # predictions
         x_interp1 = xx_interp1(le_exact_age)#interpolated value for AGE in earlier 5 yearly period
@@ -402,9 +402,9 @@ def main():
 
         life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5) ]
         life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
-        print(life_exp_yr)
-
-        return life_exp_yr[:1,1] 
+        #print(life_exp_yr)
+        life_exp_spl = InterpolatedUnivariateSpline(life_exp_yr[:,0],life_exp_yr[:,1],k=2)
+        return life_exp_spl(numDate(datetime.strptime(le_date[0], date_format))) 
 
     ''' --- continuing the example --- '''
     x_interp = rem_le(CNTRY1=CNTRY1,iSEX1=iSEX1,le_date=le_date) 
@@ -415,7 +415,89 @@ def main():
     print("You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " \
     + str(CNTRY) + " on "+ str(le_date[0]) + " and you will be " + str(le_age[0]) + " years old. As a " \
     + str(iSEX1) + " " + str(CNTRY1) + " citizen, you will still have" + str(np.round(x_interp,2)) \
-    + " years to live. And your expected date of death is " + str(dateOfDeath(x_interp[0]*365)))
+    + " years to live. And your expected date of death is " + str(dateOfDeath(x_interp*365)))
+
+
+    #Test cases - Samir
+    #e.g.:
+    CNTRY = 'World' # as named in new lstcntry#KC#
+    iSEX = 2 # 0= Males, 1 = Females, and 2 = Both Sexes
+    pop2 = doitall(CNTRY=CNTRY,iSEX=iSEX, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+    
+    DoB = "1993/12/06"
+    #The following values for the corresponding example of DoB keeps changing as we run this on different date#KC#
+    yourRANKToday(DoB) 
+    yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old 
+    yourRANKbyDate(DoB,"2001/09/11") #my ranking on 11th Sept 2001 
+    
+    
+    DoB = "1920/01/01"
+    #Just to test errors:
+    #yourRANKbyDate(DoB,"1949/12/31") #my ranking on 31st Dec 1949 :ERROR Data not available 
+    yourRANKbyDate(DoB,"1950/01/01") #1506711 #my ranking on 1st Jan 1950: minimum Date for which rank can be reported
+    
+    yourRANKbyDate(DoB,"2020/01/01") #NA #my ranking on 1st Jan 2020: 
+    yourRANKbyDate(DoB,"2019/12/09") #NA #if you are more than 36500 days older then you are too old to report exact rank
+    
+    
+    DoB = "2020/12/31"
+    yourRANKToday(DoB) #NA #because the person is not born yet
+    yourRANKbyDate(DoB,"2021/12/31") #133045.1
+    
+    DoB = "2100/12/31" #maximum DoB
+    yourRANKToday(DoB) #NA
+    yourRANKbyDate(DoB,"2100/12/31") #349.4013 #Also maximum Date that a rank can be reported...
+    
+    DoB = "1920/1/1" #minimum DoB (it is possible for DoB few years earlier but I suggest to start at 1920, for older cohorts, we put a message that the person is too old for and report the rank of the person born on 1920/1/1, saying your rank is higher than the rank for 1920/1/1 )
+    yourRANKToday(DoB) #7265259
+    yourRANKbyDate(DoB,"2100/12/31") #NA
+    
+    
+    ###Test for other country####
+    CNTRY = 'Austria' # as named in new lstcntry#KC#
+    iSEX = 0 # 1= Males, 2 = Females, and 3 = Both Sexes
+    pop2 = doitall(CNTRY,iSEX, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+    
+    DoB = '1983/12/19'
+    yourRANKToday(DoB) #my ranking today: 1472 
+    yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old (3650 days) : 481
+    yourRANKbyDate(DoB,"2001/09/11") #my ranking on 11th Sept 2001 :827.4809
+    
+    speRANK = 2000 #specific rank
+    RES = yourRANKTomorrow(DoB,speRANK)
+    le_exact_age =  RES.exactAge #exact age in years in two decimals to reach speRANK 40.12
+    le_age =  RES.age # age in years to reach speRANK: 40
+    le_date = RES.DATE # date to reach speRANK: "2024-01-20"
+    x_interp = rem_le(CNTRY1=CNTRY,iSEX1=1,le_date=RES.DATE)
+    x_interp # 44.68
+    print("You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " \
+    + str(CNTRY) + " on "+ str(le_date[0]) + " and you will be " + str(le_age[0]) + " years old. As a " \
+    + str(iSEX) + " " + str(CNTRY) + " citizen, you will still have" + str(np.round(x_interp,2)) \
+    + " years to live. And your expected date of death is " + str(dateOfDeath(x_interp*365)))
+
+    
+    ###Test 3rd country#######
+    CNTRY = 'India' # as named in new lstcntry#KC#
+    iSEX = 1 # 1= Males, 2 = Females, and 3 = Both Sexes
+    pop2 = doitall(CNTRY=CNTRY,iSEX=iSEX, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+    
+    DoB = '1984/01/06'
+    yourRANKToday(DoB) #my ranking today: 344670.4 
+    yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old (3650 days) : 113045.3
+    yourRANKbyDate(DoB,'2001/09/11') #my ranking on 11th Sept 2001 :199842.8
+    
+    speRANK = 500000 #specific rank
+    RES = yourRANKTomorrow(DoB,speRANK)
+    le_exact_age =  RES.exactAge #exact age in years in two decimals to reach speRANK 45.12
+    le_age =  RES.age # age in years to reach speRANK: 45
+    le_date = RES.DATE # date to reach speRANK: "2062-07-25"
+    x_interp = rem_le(CNTRY1=CNTRY,iSEX1=iSEX+1,le_date=RES.DATE)
+    x_interp # 33.15
+    print("You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " \
+    + str(CNTRY) + " on "+ str(le_date[0]) + " and you will be " + str(le_age[0]) + " years old. As a " \
+    + str(iSEX) + " " + str(CNTRY) + " citizen, you will still have" + str(np.round(x_interp,2)) \
+    + " years to live. And your expected date of death is " + str(dateOfDeath(x_interp*365)))
+ 
 
 
 if __name__ == '__main__':
