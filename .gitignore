@@ -7,3 +7,5 @@ data/*.csv
 *.hdf5
 .vagrant
 *.pkl
+env/*
+.~*
