@@ -22,15 +22,12 @@ def main():
     # -- Read in Data --- # 
     # UN population by age in single years and sex annually during 1950-2100 
     data = pd.read_csv(inputData)
-    print data.head()
+    print(data.head())
 
     # store columns to objects:
     Location = data.Location
     Time = data.Time
     Age = data.Age
-    PopMale = data.PopMale
-    PopFemale = data.PopFemale
-    PopTotal = data.PopTotal
 
     # -- Change the value of Australia -- #
     Location = Location.replace("Australia/New Zealand", "Australia and New Zealand")
@@ -72,7 +69,7 @@ def main():
         if "Pop" in headers:
             holder.append(headers)
     SEXnames = holder
-    print SEXnames
+    print(SEXnames)
 
     # AGE in days refering to the annual data - we assume that the average age of one years old is 1 years and 183 days
     age3 = range(0,100)
@@ -91,42 +88,40 @@ def main():
         pop1 = pop1[['Time', 'Age', SEX]]
 
         ''' --- Date interpolation function --- '''
+        days= range(xout[0], xout[1]+1)        
         def dateInterp(iage):
-            popi = pop1[Age == iage]
-            popi = np.asarray(popi[SEX])
+            popi = np.asarray(pop1.loc[Age == iage.name, SEX])
                 
             # spline interpolation function from Scipy Package
-            days= range(xout[0], xout[1]+1)
-            iuspl = InterpolatedUnivariateSpline(date2, popi)
-            iuspl_pred = iuspl(days)
-            return iuspl_pred
+            iuspl = InterpolatedUnivariateSpline(date2, popi, k=4)
+            return iuspl(days)
 
         # --- store the results of the date interpolation --- #
-        result1 =[]
-        for i in range(0,100):
-            result1.append(np.array(dateInterp(i)))
-        # List to pandas dataframe | dataframe.T transposes data
-        result1 = pd.DataFrame(result1).T # from 55151col x 100row --> 55151row x 100col
-
+        result1 = pd.DataFrame(index = range(0,len(days)), columns = range(0,100))
+        result1 = result1.apply(dateInterp, axis=0)        
+        
         # --- Change column names by appending "age_" --- #
         oldHeaders = result1.columns
         newHeaders = []
         for i in oldHeaders:
             newHeaders.append("age" + "_" + str(i))
         result1.columns = newHeaders
-        print result1.head # results: "age_0, age_1, ..."
+        #print(result1.head) # results: "age_0, age_1, ..."
 
         # --- Convert the numerical days to date string --- #
         # the full date range in days from 1970/01/01 - 2100/12/31
         days= range(xout[0], xout[1]+1) 
         def toDate(d):
-            return (refDate + timedelta(days=d)).strftime('%Y-%m-%d') 
-        toDate = np.vectorize(toDate) 
-        fullDateRange = toDate(days) # 1st result: 1950-01-01
+           return (refDate + timedelta(days=d)).strftime('%Y/%m/%d') 
+        #toDate = np.vectorize(toDate) 
+        #fullDateRange = toDate(days) # 1st result: 1950-01-01
+        fullDateRange = len(days)*[None]
+        for i in range(0,len(days)):
+            fullDateRange[i] = toDate(days[i])
 
         # --- Add the fullDateRange to the result1 --- #
         result1['date1'] = fullDateRange
-        print result1['date1']
+        #print(result1['date1'])
 
         # --- End the doitall function --- #
         if (RESULT == 0):
@@ -160,21 +155,21 @@ def main():
         iuspl2_pred = iuspl2(ageout)
 
         # the output
-        col1 =  pd.DataFrame(ageout, columns=['AGE'])
-        col2 = pd.DataFrame(iuspl2_pred, columns = ['POP'])
-        merged = col1.join(col2)
+        merged = pd.DataFrame(index = range(0,len(ageout)), columns = ['AGE','POP'])
+        merged['AGE'] = ageout
+        merged['POP'] = iuspl2_pred
         return merged
 
     
     ''' --- function: my rank by age --- '''
     # def match function and toDate  
-    toDate = lambda d: (refDate + timedelta(days=d)).strftime('%Y-%m-%d') 
+    toDate = lambda d: (refDate + timedelta(days=d)).strftime('%Y/%m/%d') 
 
     # what will be my rank when I am aged xxx days
     def yourRANKbyAge (DoB, iAge):
         DoB = datetime.strptime(DoB, date_format)
         DATE = numDate(DoB) + iAge # returns the numerical date from 1970/01/01
-        DATE = toDate(DATE)
+        DATE = toDate(int(DATE))
         X = dayInterpA(DATE) # CHECK IF THIS CAN TAKE BOTH DATE AND NUMERIC FORMAT!!!
 
         # store age and pop in array
@@ -195,7 +190,7 @@ def main():
         DATE = DATE     # any input date
 
         # --- interpolated age --- #
-        iAge = numDate(datetime.strptime(DATE, '%Y-%m-%d')) - numDate(DoB) 
+        iAge = numDate(datetime.strptime(DATE,  date_format)) - numDate(DoB) 
         X = dayInterpA(DATE) 
 
         # store age and pop in array
@@ -216,8 +211,8 @@ def main():
 
         # get time now
         now = datetime.now()
-        today = now.strftime('%Y-%m-%d')
-        iAge = numDate(datetime.strptime(today, '%Y-%m-%d')) - numDate(DoB)
+        today = now.strftime('%Y/%m/%d')
+        iAge = numDate(datetime.strptime(today,  date_format)) - numDate(DoB)
 
         # interpolate values for that day
         X = dayInterpA(today)
@@ -232,6 +227,15 @@ def main():
         # take the mean of the cumulative sum of the iAge year and preceeding
         RANK = np.mean(np.extract((ageArray >= iAge -1) & (ageArray <= iAge), cumSum))
         return RANK
+
+
+    DoB = '1993/12/06'
+    
+    yourRANKToday(DoB) #my ranking today: 2591260
+    yourRANKbyAge(DoB=DoB,iAge=3650) #my ranking when I was 10 years old (3650 days) : 1209884
+    yourRANKbyDate(DoB,'2001/09/11') #my ranking on 11th Sept 2001 :941006
+
+
 
     ''' --- function: your rank tomorrow --- '''
     # finding the date for specific rank
@@ -252,8 +256,8 @@ def main():
             try:
                 xx.append(yourRANKbyAge(DoB = birth, iAge= (jj*3650)))
             except Exception:
-                print "Breaks the function if either the birthdate is too late \
-                for some rank or the rank is too high for some birthdate"
+                print("Breaks the function if either the birthdate is too late \
+                for some rank or the rank is too high for some birthdate")
                 pass
 
         # check the array for NaN?
@@ -264,7 +268,7 @@ def main():
         # check to see if all of the Ranks are less than the wRank
         cc = np.all(xx < wRank)
         if cc == True:
-            print "You are too young"
+            print("You are too young")
             #break 
 
         # now find the interval containing wRank
@@ -309,13 +313,14 @@ def main():
         ''' CHECK THESE INTERPOLATION VALUES '''
         #now we also want to plot our life-path, so we do spline interpolation for the stuff we calculated in the first step
         # (i.e. the ranks over decades) and interpolate using bSplines.
-        xx_interp = InterpolatedUnivariateSpline((np.arange(10, l_max+1, 10)*365),xx)
+        xx_interp = InterpolatedUnivariateSpline((np.arange(10, l_max+1, 10)*365),xx,k=4)
         # print xx_interp
         x_interp = xx_interp((np.arange(1,36501,365)))
         # print x_interp
 
         # find the rank nearest to wRank
-        find_r = np.amin(np.where(abs(x_interp - wRank)))
+        #find_r = np.amin(np.where(abs(x_interp - wRank)))
+        find_r = np.where(abs(x_interp-wRank)==np.min(abs(x_interp-wRank)))[0][0]
         # print find_r
 
         # The value this function returns
@@ -325,6 +330,9 @@ def main():
         
         return pd.DataFrame({'exactAge': pd.Series([exactAge], index = ['1']), 'age': pd.Series([age],index = ['1']), 'DATE': pd.Series([DATE], index = ['1'])})
 
+    
+    
+    
     RES = yourRANKTomorrow('1990/12/06', 7000000)
 
 
@@ -333,7 +341,7 @@ def main():
     speRANK = 7000000
     #read data for life expectancy: male=0,female=1
     life_expectancy_ages = pd.read_csv(inputLifeExpectancy)
-    print life_expectancy_ages.columns
+    print(life_expectancy_ages.columns)
     # What is the life expectancy on when I reach specific RANK speRANK 
     le_exact_age = RES.exactAge 
     le_age =  RES.age
@@ -394,7 +402,7 @@ def main():
 
         life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5) ]
         life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
-        print life_exp_yr
+        print(life_exp_yr)
 
         return life_exp_yr[:1,1] 
 
@@ -402,20 +410,14 @@ def main():
     x_interp = rem_le(CNTRY1=CNTRY1,iSEX1=iSEX1,le_date=le_date) 
 
     # --- calc the date of death --- # 
-    dateOfDeath = lambda d: ((datetime.strptime(le_date[0], '%Y-%m-%d')) + timedelta(days=d)).strftime('%Y/%m/%d')  
+    dateOfDeath = lambda d: ((datetime.strptime(le_date[0], '%Y/%m/%d')) + timedelta(days=d)).strftime('%Y/%m/%d')  
 
-    print "You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " \
+    print("You, born in " + str(DoB) + " will reach " + str(speRANK*1000) + "th person in " \
     + str(CNTRY) + " on "+ str(le_date[0]) + " and you will be " + str(le_age[0]) + " years old. As a " \
     + str(iSEX1) + " " + str(CNTRY1) + " citizen, you will still have" + str(np.round(x_interp,2)) \
-    + " years to live. And your expected date of death is " + str(dateOfDeath(x_interp[0]*365))
+    + " years to live. And your expected date of death is " + str(dateOfDeath(x_interp[0]*365)))
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
 

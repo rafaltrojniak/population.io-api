@@ -5,7 +5,8 @@ library(splines)# interpolating using splines - methods (need to read this to un
 library(car)#general functions 
 
 #setwd("/Users/florianhuber/Dropbox/uni/phd/Samir World Bank/BigData") #set working directory
-setwd("c:/dropbox/Samir World Bank/BigData") #set working directory
+#setwd("C:/Users/tkriszti/Google Drive/World Bank/population.io-api-master/population.io-api-master/modeling/R") #set working directory
+setwd("c:/dropbox/Samir World Bank/BigData")
 
 # 1. Interpolate between calendar days 
 # For e.g. interpolate between 1 year old in 1st July 2010 and 1 year old in 1st July 2011 
@@ -40,6 +41,7 @@ doitall <- function (CNTRY, iSEX, RESULT) { #for given country, sex, and RESULT 
   }
   result1 <- sapply(X=c(0:100),FUN = dateInterp, simplify=TRUE, USE.NAMES=TRUE) #loop for all ages
   result1 <- as.data.frame(result1) #save it in data frame format
+
   names(result1)<- paste("age",0:100, sep="_") #column names
   result1 <- transform(result1, date1 = as.Date(seq(xout[1],xout[2],by=1),origin = "1970-01-01"))
   if(RESULT == 0) { 
@@ -164,11 +166,14 @@ yourRANKTomorrow <- function(birth,wRank){
 
 #e.g.:
 #Type your country
-CNTRY = "WORLD" # as named in lstcntry
+CNTRY = "World" # as named in lstcntry
 #Type Sex
 iSEX = 3 # 1= Males, 2 = Females, and 3 = Both Sexes
 #First run the interpolation for the calendar dates in days
+tic()
 pop2 <- doitall(CNTRY=CNTRY,iSEX=3, RESULT = 1) #if RESULT = 0 then this function will save a ~93mb file in csv 
+toc()
+
 DoB = "1993/12/6"
 
 yourRANKToday(DoB) #my ranking today: 2537976
@@ -201,8 +206,8 @@ le_date <- RES$DATE # date to reach speRANK: 2049-03-11
 
 
 #For which CNTRY AND SEX DO YOU WANT TO KNOW THE REMAINING LIFE EXPECTANCY AT CERTAIN TIME/AGE
-CNTRY1 = "WORLD"
-iSEX1 = 3 #male=1,female=2,both=3
+CNTRY1 = "World"
+iSEX1 = 1 #male=1,female=2
 
 
 rem_le <- function (CNTRY1,iSEX1,le_date) {
@@ -236,7 +241,7 @@ rem_le <- function (CNTRY1,iSEX1,le_date) {
 }
 
 #rem_le(CNTRY1=CNTRY,iSEX1=iSEX,lowest_yr=lowest_yr)
-x_interp <- rem_le(CNTRY1=CNTRY,iSEX1=iSEX,le_date=le_date)# continuing the example: 
+x_interp <- rem_le(CNTRY1=CNTRY1,iSEX1=iSEX1,le_date=le_date)# continuing the example: 
 
 #Date
 as.Date(x_interp$x, origin = "1970-01-01") #2049-03-11
