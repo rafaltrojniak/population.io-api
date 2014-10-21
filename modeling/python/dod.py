@@ -35,9 +35,12 @@ def main():
         # get closest age in 5 year windows
         flr_age = rounddown(iage, base=5)
         #print(flr_age)
-    
+        
         # Get the age cohort
-        cohort_st = list(data.columns).index("X"+str(flr_age-5))
+        if flr_age>=5:
+            cohort_st = list(data.columns).index("X"+str(flr_age-5))
+        else:
+            cohort_st = 4
         cohort_end = len(data.columns)
         #cohort = data.ix[:,cohort_st:cohort_end]
         cohort = data.loc[(data.region==cntry) & (data.sex==sex) & (data.Begin_prd >=(flr_yr-5))].ix[:,cohort_st:cohort_end]
@@ -56,7 +59,10 @@ def main():
         odata = pd.DataFrame(temp, columns=["lower_age","pr0","pr1","pr2","pr_sx_date","death_percent","dth_pc_after_exact_age"])
         
         # fill in with existing values
-        odata['lower_age'] =np.arange(iage-5, 130, 5)
+        if iage>=5:
+            odata['lower_age'] =np.arange(iage-5, 130, 5)
+        else:
+            odata['lower_age'] =np.arange(0, 130, 5)
         odata['pr0'] = np.matrix(cohort_old).diagonal().T
         odata['pr1'] = np.matrix(cohort).diagonal().T
         odata['pr2'] = np.matrix(cohort_young).diagonal().T
@@ -89,9 +95,12 @@ def main():
     
     
         # add 5 to each of the "ages"
-        odata["lower_age"] = odata["lower_age"]+5
+        if iage>=5:
+            odata["lower_age"] = odata["lower_age"]+5
+        else:
+            odata["lower_age"] = odata["lower_age"]+iage
     
-        output = odata.ix[1:clen-1,['lower_age', 'dth_pc_after_exact_age']]
+        output = odata.ix[0:clen-1,['lower_age', 'dth_pc_after_exact_age']]
         return output
     # --- function end --- #
     
@@ -99,7 +108,7 @@ def main():
     cntry = "Nepal"
     sex = 1 #1=Man, 2=Woman
     idate = time.strftime('%Y-%m-%d')
-    iage = 5
+    iage =0
     
     #print(cntry, sex, idate, iage)    
     output = dist_odata(cntry, sex, idate, iage)
@@ -108,6 +117,9 @@ def main():
     # plt.show()
     print output
 
+    spl = InterpolatedUnivariateSpline(output['lower_age'], output['dth_pc_after_exact_age'])
+    yrs = np.arange(output['lower_age'][0],output['lower_age'][len(output)-1])
+    plt.plot(yrs,abs(spl(yrs)))
 
     # --- part 2 --- #
     # find percentiles
