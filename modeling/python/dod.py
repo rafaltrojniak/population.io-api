@@ -100,7 +100,7 @@ def main():
         else:
             odata["lower_age"] = odata["lower_age"]+iage
     
-        output = odata.ix[0:clen-1,['lower_age', 'dth_pc_after_exact_age']]
+        output = odata.ix[1:clen-1,['lower_age', 'dth_pc_after_exact_age']]
         return output
     # --- function end --- #
     
@@ -112,14 +112,14 @@ def main():
     
     #print(cntry, sex, idate, iage)    
     output = dist_odata(cntry, sex, idate, iage)
+    print output
     
     plt.plot(output['lower_age'], output['dth_pc_after_exact_age'])
     # plt.show()
-    print output
 
-    spl = InterpolatedUnivariateSpline(output['lower_age'], output['dth_pc_after_exact_age'])
-    yrs = np.arange(output['lower_age'][0],output['lower_age'][len(output)-1])
-    plt.plot(yrs,abs(spl(yrs)))
+    # spl = InterpolatedUnivariateSpline(output['lower_age'], output['dth_pc_after_exact_age'])
+    # yrs = np.arange(output['lower_age'][0],output['lower_age'][len(output)-1])
+    # plt.plot(yrs,abs(spl(yrs)))
 
     # --- part 2 --- #
     # find percentiles
