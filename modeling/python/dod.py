@@ -34,7 +34,7 @@ def main():
     
         # get closest age in 5 year windows
         flr_age = rounddown(iage, base=5)
-       #print(flr_age)
+        #print(flr_age)
     
         # Get the age cohort
         cohort_st = list(data.columns).index("X"+str(flr_age-5))
@@ -61,7 +61,6 @@ def main():
         odata['pr1'] = np.matrix(cohort).diagonal().T
         odata['pr2'] = np.matrix(cohort_young).diagonal().T
     
-        # ----------- problems start here -----------
         # Interpolate for the input date (idate)
         odata["pr_sx_date"] = np.array([InterpolatedUnivariateSpline(dates,list(odata.ix[i,1:4]),k=2)(daysSinceEpoch(idate)) for i in np.arange(0, len(cohort.columns),1)])
         
@@ -100,13 +99,14 @@ def main():
     cntry = "Nepal"
     sex = 1 #1=Man, 2=Woman
     idate = time.strftime('%Y-%m-%d')
-    iage = 40
+    iage = 5
     
     #print(cntry, sex, idate, iage)    
     output = dist_odata(cntry, sex, idate, iage)
     
     plt.plot(output['lower_age'], output['dth_pc_after_exact_age'])
     # plt.show()
+    print output
 
 
     # --- part 2 --- #
