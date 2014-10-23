@@ -54,22 +54,15 @@ def generateExtrapolationTable(sex, region):
 
     ''' --- Date interpolation function --- '''
     def dateInterp(iage):
-        popi = pop1[dataStore.data.Age == iage]
-        #popi = pop1[Age == 21] #select particular age COMMENT OUT
-        popi = np.asarray(popi[SEXES[sex]])
+        popi = np.asarray(pop1.loc[dataStore.data.Age == iage.name, SEXES[sex]])
 
         # spline interpolation function from Scipy Package
-        iuspl = InterpolatedUnivariateSpline(july1from1950to2100, popi)
-        iuspl_pred = iuspl(dateRange1970to2100inPosixDays)
-        return iuspl_pred
-    ''' --- function end --- '''
+        iuspl = InterpolatedUnivariateSpline(july1from1950to2100, popi, k=4)
+        return iuspl(dateRange1970to2100inPosixDays)
 
-    # store the results of the date interpolation
-    table = []
-    for i in range(0,100):
-        table.append(np.array(dateInterp(i)))
-    # List to pandas dataframe | dataframe.T transposes data
-    table = pd.DataFrame(table).T # from 55151col x 100row --> 55151row x 100col
+    # --- store the results of the date interpolation --- #
+    result1 = pd.DataFrame(index = range(0,len(dateRange1970to2100inPosixDays)), columns = range(0,100))
+    table = result1.apply(dateInterp, axis=0)
 
     # Change column names by appending "age_"
     oldHeaders = table.columns
@@ -83,7 +76,10 @@ def generateExtrapolationTable(sex, region):
     def toDate(d):
         return (date(1970, 1, 1) + timedelta(days=d)).strftime('%Y-%m-%d')
     toDate = np.vectorize(toDate) # vectorize the function to iterate over numpy ndarray
-    fullDateRange = toDate(dateRange1970to2100inPosixDays) # 1st result: 1950-01-01
+    #fullDateRange = toDate(dateRange1970to2100inPosixDays) # 1st result: 1950-01-01
+    fullDateRange = len(july1from1950to2100)*[None]
+    for i in range(0,len(july1from1950to2100)):
+        fullDateRange[i] = toDate(july1from1950to2100[i])
 
     # Add the fullDateRange to the result1
     table['date1'] = fullDateRange
@@ -118,12 +114,9 @@ def dayInterpA(table, date):
     iuspl2_pred = iuspl2(AGEOUT)
 
     # the output
-    col1 = pd.DataFrame(AGEOUT, columns=['AGE'])
-    col2 = pd.DataFrame(iuspl2_pred, columns = ['POP'])
-    #print col1, col2
-    merged = col1.join(col2)
-    #print merged
-    #return pd.DataFrame(ageout, iuspl2_pred, columns=['AGE', 'POP'])
+    merged = pd.DataFrame(index = range(0,len(AGEOUT)), columns = ['AGE','POP'])
+    merged['AGE'] = AGEOUT
+    merged['POP'] = iuspl2_pred
     return merged
 
 def _calculateRankByDate(table, dob, date):
@@ -211,11 +204,8 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     # The number of years from input birth to '2100/01/01'
     length_time = relativedelta(date(2100, 1, 1), dob).years
 
-    # Make sure that difference between DOB and final Date > 100
-    if length_time < 100:
-        l_max = np.round(length_time)
-    else:
-        l_max = 100
+    # Make sure that difference between DOB and final Date < 100
+    l_max = np.round(length_time) if length_time < 100 else 100
 
     xx = []
     for jj in range(1, (len(range(10, l_max+10, 10))+1)):
@@ -326,7 +316,7 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
         raise EffectiveBirthdateOutOfRangeError(invalidValue=(refdate-age))
 
     # find beginning of 5 yearly period for the le_date
-    le_yr = refdate.year   #(le_date.loc['1'])[0:4]
+    le_yr = refdate.year
     lowest_year = math.floor(int(le_yr)/5)*5
 
     # extract a row corresponding to the time-period
@@ -353,9 +343,9 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     life_exp_[:,3] = life_exp_prd[life_exp_prd.columns[2]].values
 
     # interpolations
-    xx_interp1 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,1] == 0)))):,1])
-    xx_interp2 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,2] == 0)))):,2])
-    xx_interp3 = InterpolatedUnivariateSpline(life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,0], life_exp_[(np.amax(max(np.where(life_exp_[:,3] == 0)))):,3])
+    xx_interp1 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,1])
+    xx_interp2 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,2])
+    xx_interp3 = InterpolatedUnivariateSpline(life_exp_[:,0],life_exp_[:,3])
 
     # predictions
     x_interp1 = xx_interp1(age_float)   #interpolated value for AGE in earlier 5 yearly period
@@ -372,8 +362,8 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5)]
     life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
 
-    return life_exp_yr[0,1]
-    #life_exp_yr[,1]<- as.numeric(as.Date(c(paste(lowest_yr-5+3,1,1,sep="/"),paste(lowest_yr+3,1,1,sep="/"),paste(lowest_yr+5+3,1,1,sep="/")),"%Y/%m/%d"))
+    life_exp_spl = InterpolatedUnivariateSpline(life_exp_yr[:,0],life_exp_yr[:,1],k=2)
+    return life_exp_spl(inPosixDays(refdate))
 
 def lifeExpectancyTotal(sex, region, dob):
     if not isinstance(dob, date):
