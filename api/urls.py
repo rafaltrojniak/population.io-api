@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'population/(?P<year>[^/]+)/(?P<country>[^/]+)/(?P<age>[^/]+)/', views.retrieve_population_table),
     url(r'population/(?P<year>\d+)/(?P<country>[^/]+)/', views.retrieve_population_table),
     url(r'population/(?P<country>[^/]+)/(?P<age>\d+)/', views.retrieve_population_table),
+    url(r'population/(?P<country>[^/]+)/today-and-tomorrow/', views.retrieve_total_population_now),
+    url(r'population/(?P<country>[^/]+)/(?P<refdate>[^/]+)/', views.retrieve_total_population),
 
     # /api/1.0/wp-rank/
     url(r'wp-rank/' + PERSON_PATH + r'today/', views.world_population_rank_today),

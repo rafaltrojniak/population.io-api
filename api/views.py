@@ -1,10 +1,12 @@
 import datetime
+from dateutil.relativedelta import relativedelta
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from api.datastore import dataStore
 from api.decorators import expect_date, expect_offset, expect_int, cache_until_utc_eod, cache_unlimited
 from api.utils import offset_to_str
-from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, lifeExpectancyTotal, populationCount
+from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, lifeExpectancyTotal, populationCount, \
+    totalPopulation
 
 
 @api_view(['GET'])
@@ -125,3 +127,27 @@ def retrieve_population_table(request, country, age=None, year=None):
     # FIXME: the API currently returns a flat JS array here, which is invalid JSON. The commented out line would fix this, but is currently deactivated as not to break the frontend!
     return Response(result)
     #return Response({"tables": result})
+
+
+@api_view(['GET'])
+@cache_unlimited()
+def retrieve_total_population_now(request, country):
+    """ Retrieve total population count for country today and tomorrow.<p>
+        Please see <a href="/">the full API browser</a> for more information.
+    """
+    today = datetime.datetime.utcnow().date()
+    tomorrow = today + relativedelta(days=1)
+    population_today = {'date': today, 'population': totalPopulation(country, today)}
+    population_tomorrow = {'date': tomorrow, 'population': totalPopulation(country, tomorrow)}
+    return Response({'total_population': [population_today, population_tomorrow]})
+
+
+@api_view(['GET'])
+@cache_unlimited()
+@expect_date('refdate')
+def retrieve_total_population(request, country, refdate):
+    """ Retrieve total population count for country on given date.<p>
+        Please see <a href="/">the full API browser</a> for more information.
+    """
+    result = {'date': refdate, 'population': totalPopulation(country, refdate)}
+    return Response({'total_population': result})

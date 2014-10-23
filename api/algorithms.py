@@ -404,3 +404,24 @@ def populationCount(country, age=None, year=None):
         series = row[1]
         results.append({'year': series['Time'], 'age': series['Age'], 'males': int(series['PopMale']*1000), 'females': int(series['PopFemale']*1000), 'total': int(series['PopTotal']*1000)})
     return results
+
+def totalPopulation(country, refdate):
+    # check that all arguments have the right type (even though it's not very pythonic)
+    if not isinstance(country, basestring) or (not isinstance(refdate, date)):
+        raise TypeError('One or more arguments did not match the expected parameter type')
+
+    # confirm that sex and region contain valid values
+    if country not in dataStore.countries:
+        raise InvalidCountryError(country)
+
+    # check the various date requirements
+    if refdate < date(2013, 1, 1) or refdate > date(2022, 12, 31):
+        raise CalculationDateOutOfRangeError(refdate, 'between 2013-01-01 and 2022-12-31')
+
+    # filter the rows by country and date, then return the totpop column
+    refdateAsShortDateString = refdate.strftime('%y/%m/%d')
+    column_country = dataStore.total_population['country']
+    column_date = dataStore.total_population['date']
+    row = dataStore.total_population[column_country==country][column_date==refdateAsShortDateString]
+    result = int(row['totpop'])
+    return result

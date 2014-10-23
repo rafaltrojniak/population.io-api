@@ -122,6 +122,72 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/population/{country}/{date}/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Determine total population for a given country on a given date",
+                    "notes": "Determines total population for a given country on a given date. Valid dates are 2013-01-01 to 2022-12-31.",
+                    "nickname": "determineTotalPopulationByDate",
+                    "type": "TotalPopulations",
+                    "parameters": [
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to determine the total population for",
+                            "type": "string",
+                            "defaultValue": "Brazil",
+                            "required": true
+                        },
+                        {
+                            "name": "date",
+                            "paramType": "path",
+                            "description": "the date to determine the total population for",
+                            "type": "string",
+                            "defaultValue": "2015-12-24",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/population/{country}/today-and-tomorrow/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Determine total population for a given country today and tomorrow",
+                    "notes": "Determines total population for a given country with separate results for today and tomorrow.",
+                    "nickname": "determineTotalPopulationTodayAndTomorrow",
+                    "type": "TotalPopulations",
+                    "parameters": [
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to determine the total population for",
+                            "type": "string",
+                            "defaultValue": "Brazil",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -147,6 +213,26 @@
                 "males": {"type": "int", "description": "size of male population in given country, year, and age"},
                 "year": {"type": "int", "description": "year"},
                 "age": {"type": "age", "description": "age"}
+            }
+        },
+        "TotalPopulations": {
+            "id": "TotalPopulations",
+            "description": "a list of total population counts",
+            "required": ["tables"],
+            "properties": {
+                "total_population": {
+                    "type": "array",
+                    "items": {"$ref": "TotalPopulation"}
+                }
+            }
+        },
+        "TotalPopulation": {
+            "id": "TotalPopulation",
+            "description": "a total population count for a certain date",
+            "required": ["date", "population"],
+            "properties": {
+                "date": {"type": "date", "description": "the date"},
+                "population": {"type": "int", "description": "the total population on that date"}
             }
         },
         "ErrorMessage": {

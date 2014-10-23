@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.test import SimpleTestCase
 from rest_framework.test import APISimpleTestCase
 from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, populationCount, \
-    lifeExpectancyTotal
+    lifeExpectancyTotal, totalPopulation
 from api.datastore import dataStore
 from api.exceptions import *
 
@@ -80,6 +80,10 @@ class AlgorithmTests(SimpleTestCase):
         self.assertEqual(1980, data[30]['year'])
         self.assertEqual(2719710, data[30]['total'])
 
+    def test_total_population(self):
+        self.assertEqual(totalPopulation('United Kingdom', date(2013, 1, 1)), 62961264)
+        self.assertEqual(totalPopulation('Afghanistan', date(2022, 12, 31)), 37599673)
+
 
 class ApiIntegrationTests(APISimpleTestCase):
     """
@@ -121,6 +125,14 @@ class ApiIntegrationTests(APISimpleTestCase):
 
     def testPopulationEndpoint_successYearAndCountryOnly(self):
         self._testEndpoint('/population/1980/Brazil/')
+
+    def testPopulationEndpoint_totalPopulation(self):
+        self._testEndpoint('/population/Brazil/today-and-tomorrow/')
+        self._testEndpoint('/population/United%20Kingdom/2015-11-12/')
+
+    def testPopulationEndpoint_totalPopulation_outOfRange(self):
+        self._testEndpoint('/population/Brazil/2012-12-31/', expectErrorContaining='calculation date')
+        self._testEndpoint('/population/Brazil/2023-01-01/', expectErrorContaining='calculation date')
 
     def testLifeExpectancyRemainingEndpoint_successMaxDate(self):
         self._testEndpoint('/life-expectancy/remaining/female/World/2094-12-31/100y/')
