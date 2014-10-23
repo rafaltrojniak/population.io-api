@@ -252,7 +252,8 @@ def main():
 
         # Make sure that difference between DOB and final Date < 100
         if length_time < 100:
-            l_max = np.round(length_time)
+            #l_max = np.round(length_time)
+            l_max = int(np.floor(length_time/10)*10)
         else:
             l_max = 100
 
@@ -276,9 +277,14 @@ def main():
             print("You are too young")
             return [None]
 
+        
+        
         # now find the interval containing wRank
         Upper_bound =  (np.amin(np.where((xx < wRank) == False))+1)*10 # +1 because of zero index
         Lower_bound = Upper_bound-10
+        
+        if xx[1]>wRank:
+            Lower_bound = 2
 
         # Define new range
         range_2 = np.arange(Lower_bound-2, Upper_bound+1) # +1 due to zero index
@@ -292,8 +298,14 @@ def main():
             xx_[(kk - np.amin(range_2)),1] = kk*365
 
         # Search again for the yearly interval containing wRank
-        Upper_bound =   xx_[np.amin(np.where((xx_[:,0] < wRank) == False)),1]
-        Lower_bound = xx_[np.amax(np.where((xx_[:,0] < wRank) == True)),1]
+        #Upper_bound =   xx_[np.amin(np.where((xx_[:,0] < wRank) == False)),1]
+        #Lower_bound = xx_[np.amax(np.where((xx_[:,0] < wRank) == True)),1]
+        if xx_[1,0]>wRank:
+            Lower_bound = 0
+            Upper_bound = xx_[-1,1]
+        else:
+            Upper_bound =   xx_[np.amin(np.where((xx_[:,0] < wRank) == False)),1]
+            Lower_bound = xx_[np.amax(np.where((xx_[:,0] < wRank) == True)),1]
 
         range_3 = np.arange(Lower_bound, Upper_bound+1)
         #print (range_3)
