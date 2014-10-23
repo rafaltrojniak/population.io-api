@@ -108,6 +108,7 @@ class ApiIntegrationTests(APISimpleTestCase):
 
     def testRankEndpointAged_successWithOffset(self):
         self._testEndpoint('/wp-rank/1952-03-11/unisex/World/aged/12y34m56d/')
+        self._testEndpoint('/wp-rank/1952-03-11/male/United%20Kingdom/aged/49y2m/')
 
     def testRankEndpointAged_invalidOffset(self):
         self._testEndpoint('/wp-rank/1952-03-11/unisex/World/aged/5x/', expectErrorContaining='offset')

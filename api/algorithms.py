@@ -50,7 +50,7 @@ def generateExtrapolationTable(sex, region):
 
     july1from1950to2100 = [inPosixDays(date(y, 7, 1)) for y in xrange(1950, 2100+1)]
 
-    dateRange1970to2100inPosixDays = range(inPosixDays(date(1950,1,1)), inPosixDays(date(2100,12,31))+1)
+    dateRange1950to2100inPosixDays = range(inPosixDays(date(1950,1,1)), inPosixDays(date(2100,12,31))+1)
 
     ''' --- Date interpolation function --- '''
     def dateInterp(iage):
@@ -58,10 +58,10 @@ def generateExtrapolationTable(sex, region):
 
         # spline interpolation function from Scipy Package
         iuspl = InterpolatedUnivariateSpline(july1from1950to2100, popi, k=4)
-        return iuspl(dateRange1970to2100inPosixDays)
+        return iuspl(dateRange1950to2100inPosixDays)
 
     # --- store the results of the date interpolation --- #
-    result1 = pd.DataFrame(index = range(0,len(dateRange1970to2100inPosixDays)), columns = range(0,100))
+    result1 = pd.DataFrame(index = range(0,len(dateRange1950to2100inPosixDays)), columns = range(0,100))
     table = result1.apply(dateInterp, axis=0)
 
     # Change column names by appending "age_"
@@ -77,9 +77,9 @@ def generateExtrapolationTable(sex, region):
         return (date(1970, 1, 1) + timedelta(days=d)).strftime('%Y-%m-%d')
     toDate = np.vectorize(toDate) # vectorize the function to iterate over numpy ndarray
     #fullDateRange = toDate(dateRange1970to2100inPosixDays) # 1st result: 1950-01-01
-    fullDateRange = len(july1from1950to2100)*[None]
-    for i in range(0,len(july1from1950to2100)):
-        fullDateRange[i] = toDate(july1from1950to2100[i])
+    fullDateRange = len(dateRange1950to2100inPosixDays)*[None]
+    for i in range(0,len(dateRange1950to2100inPosixDays)):
+        fullDateRange[i] = toDate(dateRange1950to2100inPosixDays[i])
 
     # Add the fullDateRange to the result1
     table['date1'] = fullDateRange
