@@ -60,6 +60,12 @@ class AlgorithmTests(SimpleTestCase):
     def test_byRank(self):
         self.assertEqual(date(2049,  3, 11), dateByWorldPopulationRank('unisex', 'World', date(1993, 12,  6), 7000000000))
 
+    def test_byRank_veryLowRank(self):
+        self.assertEqual(date(2000,  1,  1), dateByWorldPopulationRank('female', 'World', date(2004, 11, 22), 10000))
+
+    def test_byRank_veryHighRank(self):
+        self.assertEqual(date(2000,  1,  1), dateByWorldPopulationRank('unisex', 'World', date(2004, 11, 22), 3000000000))
+
     def test_lifeExpectancyRemaining(self):
         self.assertAlmostEqual(28.53, lifeExpectancyRemaining('female', 'World', date(2049, 3, 11), relativedelta(years=55, months=4)), places=0)
         self.assertAlmostEqual(32.80, lifeExpectancyRemaining('male', 'United Kingdom', date(2001, 5, 11), relativedelta(years=49)), places=0)
