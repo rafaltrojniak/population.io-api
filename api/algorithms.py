@@ -310,7 +310,7 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     if refdate < date(1955, 1, 1) or refdate >= date(2095, 1, 1):
         raise CalculationDateOutOfRangeError(refdate, 'from 1955-01-01 to 2094-12-31')
     age_float = relativedelta_to_decimal_years(age)
-    if age_float > 100:
+    if age_float > 120:
         raise AgeOutOfRangeError(age)
     if refdate - age > date(2015, 6, 30):
         raise EffectiveBirthdateOutOfRangeError(invalidValue=(refdate-age))
@@ -362,8 +362,8 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     life_exp_yr[:,0] = [addDate(lowest_year-5), addDate(lowest_year), addDate(lowest_year+5)]
     life_exp_yr[:,1] = [x_interp1, x_interp2, x_interp3]
 
-    life_exp_spl = InterpolatedUnivariateSpline(life_exp_yr[:,0],life_exp_yr[:,1],k=2)
-    return life_exp_spl(inPosixDays(refdate))
+    life_exp_spl = InterpolatedUnivariateSpline(life_exp_yr[:,0], life_exp_yr[:,1], k=2)
+    return life_exp_spl(inPosixDays(refdate))[()]
 
 def lifeExpectancyTotal(sex, region, dob):
     if not isinstance(dob, date):

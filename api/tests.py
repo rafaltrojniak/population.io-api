@@ -64,6 +64,10 @@ class AlgorithmTests(SimpleTestCase):
         self.assertAlmostEqual(28.53, lifeExpectancyRemaining('female', 'World', date(2049, 3, 11), relativedelta(years=55, months=4)), places=0)
         self.assertAlmostEqual(32.80, lifeExpectancyRemaining('male', 'United Kingdom', date(2001, 5, 11), relativedelta(years=49)), places=0)
 
+    def test_lifeExpectancyRemaining_maxAge(self):
+        self.assertAlmostEqual(1.12, lifeExpectancyRemaining('female', 'Afghanistan', date(1955, 1, 1), relativedelta(years=120)), places=0)
+        self.assertAlmostEqual(1.12, lifeExpectancyRemaining('male', 'United Kingdom', date(2050, 1, 1), relativedelta(years=120)), places=0)
+
     def test_lifeExpectancyTotal(self):
         self.assertAlmostEqual(90.34, lifeExpectancyTotal('female', 'World', date(2015, 6, 30)), places=0)
 
@@ -123,8 +127,14 @@ class ApiIntegrationTests(APISimpleTestCase):
     def testLifeExpectancyRemainingEndpoint_exceedMaxDate(self):
         self._testEndpoint('/life-expectancy/remaining/female/World/2095-01-01/100y/', expectErrorContaining='calculation date')
 
+    def testLifeExpectancyRemainingEndpoint_successMaxAge(self):
+        self._testEndpoint('/life-expectancy/remaining/male/Afghanistan/1990-01-01/120y/')
+
     def testLifeExpectancyRemainingEndpoint_exceedAge(self):
-        self._testEndpoint('/life-expectancy/remaining/female/World/2094-12-31/100y1d/', expectErrorContaining='age')
+        self._testEndpoint('/life-expectancy/remaining/female/World/2094-12-31/120y1d/', expectErrorContaining='age')
+
+    def testLifeExpectancyRemainingEndpoint_exceedAgeFuture(self):
+        self._testEndpoint('/life-expectancy/remaining/female/World/2094-12-31/120y1d/', expectErrorContaining='age')
 
     def testLifeExpectancyRemainingEndpoint_successMinDate(self):
         self._testEndpoint('/life-expectancy/remaining/female/World/1955-01-01/1/')
@@ -133,7 +143,7 @@ class ApiIntegrationTests(APISimpleTestCase):
         self._testEndpoint('/life-expectancy/remaining/female/World/1954-12-31/1/', expectErrorContaining='calculation date')
 
     def testLifeExpectancyRemainingEndpoint_exceedAgeAtMinDate(self):
-        self._testEndpoint('/life-expectancy/remaining/female/World/1955-01-01/100y1d/', expectErrorContaining='age')
+        self._testEndpoint('/life-expectancy/remaining/female/World/1955-01-01/120y1d/', expectErrorContaining='age')
 
     def testLifeExpectancyRemainingEndpoint_successMaxBirthdate(self):
         self._testEndpoint('/life-expectancy/remaining/female/World/2015-06-30/1/')
