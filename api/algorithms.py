@@ -205,7 +205,7 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     length_time = relativedelta(date(2100, 1, 1), dob).years
 
     # Make sure that difference between DOB and final Date < 100
-    l_max = np.round(length_time) if length_time < 100 else 100
+    l_max = min(int(np.floor(length_time/10)*10), 100)
 
     xx = []
     for jj in range(1, (len(range(10, l_max+10, 10))+1)):
@@ -231,12 +231,13 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
     Upper_bound = (np.amin(np.where((xx < rank) == False))+1)*10 # +1 because of zero index
     Lower_bound = Upper_bound-10
 
+    if xx[1] > rank:
+        Lower_bound = 2
+
     if Lower_bound < 2:
         # I don't know what this error means, but if Lower_bound is < 2, then range_2 will start with a value < 0
         # which means _calculateRankByDate() will be called with a negative age, and that will fail
         raise DataOutOfRangeError()
-
-    #print Upper_bound, Lower_bound
 
     # Define new range
     range_2 = np.arange(Lower_bound-2, Upper_bound+1) # +1 due to zero index
@@ -252,8 +253,12 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
         xx_[(kk - np.amin(range_2)),1] = kk*365
 
     # Search again for the yearly interval containing wRank
-    Upper_bound = xx_[np.amin(np.where((xx_[:,0] < rank) == False)),1]
-    Lower_bound = xx_[np.amax(np.where((xx_[:,0] < rank) == True)),1]
+    if xx_[1,0] > rank:
+        Lower_bound = 0
+        Upper_bound = xx_[-1,1]
+    else:
+        Upper_bound = xx_[np.amin(np.where((xx_[:,0] < rank) == False)),1]
+        Lower_bound = xx_[np.amax(np.where((xx_[:,0] < rank) == True)),1]
 
     range_3 = np.arange(Lower_bound, Upper_bound+1)
     #print (range_3)

@@ -61,10 +61,11 @@ class AlgorithmTests(SimpleTestCase):
         self.assertEqual(date(2049,  3, 11), dateByWorldPopulationRank('unisex', 'World', date(1993, 12,  6), 7000000000))
 
     def test_byRank_veryLowRank(self):
-        self.assertEqual(date(2000,  1,  1), dateByWorldPopulationRank('female', 'World', date(2004, 11, 22), 10000))
+        self.assertEqual(date(2004, 11, 22), dateByWorldPopulationRank('female', 'World', date(2004, 11, 22), 10000))
+        self.assertEqual(date(2014,  1,  1), dateByWorldPopulationRank('male',   'World', date(2014,  1,  1), 300))
 
     def test_byRank_veryHighRank(self):
-        self.assertEqual(date(2000,  1,  1), dateByWorldPopulationRank('unisex', 'World', date(2004, 11, 22), 3000000000))
+        self.assertEqual(date(2027, 11, 29), dateByWorldPopulationRank('unisex', 'World', date(2004, 11, 22), 3000000000))
 
     def test_lifeExpectancyRemaining(self):
         self.assertAlmostEqual(28.53, lifeExpectancyRemaining('female', 'World', date(2049, 3, 11), relativedelta(years=55, months=4)), places=0)
@@ -89,6 +90,7 @@ class AlgorithmTests(SimpleTestCase):
     def test_total_population(self):
         self.assertEqual(totalPopulation('United Kingdom', date(2013, 1, 1)), 62961264)
         self.assertEqual(totalPopulation('Afghanistan', date(2022, 12, 31)), 37599673)
+        self.assertEqual(totalPopulation('World', date(2018, 7, 31)), 7569167368)
 
 
 class ApiIntegrationTests(APISimpleTestCase):
