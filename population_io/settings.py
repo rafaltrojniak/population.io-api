@@ -134,5 +134,6 @@ DATA_STORE_WRITABLE = os.environ.get('POPULATIONIO_DATASTORE_WRITABLE', 'true').
 CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
 CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
 CSV_TOTAL_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'Total_population_for_date_and_countries_and_world.csv')
+CSV_SURVIVAL_RATIO_PATH = os.path.join(BASE_DIR, 'data', 'Survival_ratio_Cohort_ages.csv')
 
 CACHE_CONTROL_MAXAGE = 24 * 60 * 60

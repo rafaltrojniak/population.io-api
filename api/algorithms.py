@@ -425,3 +425,88 @@ def totalPopulation(country, refdate):
     row = dataStore.total_population[column_country==country][column_date==refdateAsShortDateString]
     result = int(row['totpop'])
     return result
+
+def calculateMortalityDistribution(country, sex):
+    # check that all arguments have the right type (even though it's not very pythonic)
+    if not isinstance(sex, basestring) or not isinstance(country, basestring):
+        raise TypeError('One or more arguments did not match the expected parameter type')
+
+    # confirm that sex and region contain valid values
+    if sex not in SEXES_LIFE_EXPECTANCY:
+        raise InvalidSexError(sex)
+    if country not in dataStore.countries:
+        raise InvalidCountryError(country)
+
+    # helper function
+    def setInterpDate(x, offset):
+        """ ??? """
+        idate = datetime.strptime(str(x+offset+3)+"/1"+"/1", "%Y/%m/%d")
+        return (idate - datetime(1970, 1, 1)).days
+    def rounddown(x, base=5):
+        return int(base * math.floor(float(x)/base))
+
+    # get columns which correspond to the inputs
+    idate = datetime.utcnow().date()
+    iage = 0
+    iyear = idate.year
+    flr_yr = rounddown(iyear, base=5)
+
+    # get closest age in 5 year windows
+    flr_age = rounddown(iage, base=5)
+
+    # Get the age cohort
+    if flr_age >= 5:
+        cohort_st = list(dataStore.survival_ratio.columns).index("X"+str(flr_age-5))
+    else:
+        cohort_st = 4
+    cohort_end = len(dataStore.survival_ratio.columns)
+    cohort = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr-5))].ix[:,cohort_st:cohort_end]
+
+    # get older and younger cohort
+    cohort_old = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr-10))].ix[:,cohort_st:cohort_end]
+    cohort_young = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr))].ix[:,cohort_st:cohort_end]
+
+    # get dates for the jan 1st for 3 years --> then to Unix timestamp
+    dates = [setInterpDate(flr_yr, -5), setInterpDate(flr_yr, 0), setInterpDate(flr_yr, +5)]
+
+    # make the output dataStore.survival_ratiotable
+    temp = np.zeros(shape=(len(cohort.columns),7))
+    odata = pd.DataFrame(temp, columns=["lower_age","pr0","pr1","pr2","pr_sx_date","death_percent","dth_pc_after_exact_age"])
+
+    # fill in with existing values
+    if iage>=5:
+        odata['lower_age'] = np.arange(iage-5, 130, 5)
+    else:
+        odata['lower_age'] = np.arange(0, 130, 5)
+    odata['pr0'] = np.matrix(cohort_old).diagonal().T
+    odata['pr1'] = np.matrix(cohort).diagonal().T
+    odata['pr2'] = np.matrix(cohort_young).diagonal().T
+
+    # Interpolate for the input date (idate)
+    odata["pr_sx_date"] = np.array([InterpolatedUnivariateSpline(dates,list(odata.ix[i,1:4]),k=2)(inPosixDays(idate)) for i in np.arange(0, len(cohort.columns),1)])
+
+    clen = len(odata)
+    # calc the % deaths
+    odata["death_percent"][1] = 100
+    for i in np.arange(2,clen,1):
+        odata["death_percent"][i] = odata["death_percent"][i-1]*odata["pr_sx_date"][i-1]
+
+    # percentage deaths
+    for i in np.arange(1,clen-1,1):
+        odata["dth_pc_after_exact_age"][i] = odata["death_percent"][i] - odata["death_percent"][i+1]
+
+    odata["dth_pc_after_exact_age"][clen-1] = odata["death_percent"][clen-1]
+
+    # proportion of people who will die before iage
+    beforeDod = odata["dth_pc_after_exact_age"][1] * (iage - flr_age)/5
+    odata["dth_pc_after_exact_age"][1] = odata["dth_pc_after_exact_age"][1] - beforeDod
+    odata["dth_pc_after_exact_age"] = odata["dth_pc_after_exact_age"]* 100/odata["dth_pc_after_exact_age"].sum()
+
+    # add 5 to each of the "ages"
+    if iage>=5:
+        odata["lower_age"] = odata["lower_age"]+5
+    else:
+        odata["lower_age"] = odata["lower_age"]+iage
+
+    output = odata.ix[1:clen-1,['lower_age', 'dth_pc_after_exact_age']]
+    return list(output.values)

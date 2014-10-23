@@ -20,6 +20,10 @@
         {
             "path": "/../resources/population",
             "description": "retrieve population tables"
+        },
+        {
+            "path": "/../resources/mortality-distribution",
+            "description": "retrieve mortality distribution tables"
         }
     ]
 }

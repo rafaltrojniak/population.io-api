@@ -182,6 +182,9 @@ class ApiIntegrationTests(APISimpleTestCase):
     def testLifeExpectancyTotalEndpoint_exceedMaxBirthdate(self):
         self._testEndpoint('/life-expectancy/total/female/World/2015-07-01/', expectErrorContaining='birthdate')
 
+    def testMortalityDistribution(self):
+        self._testEndpoint('/mortality-distribution/World/female/today/')
+
 
 @skip
 class AlgorithmAcceptanceTests(SimpleTestCase):

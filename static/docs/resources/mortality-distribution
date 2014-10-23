@@ -1,0 +1,80 @@
+{
+    "apiVersion": "1.0",
+    "swaggerVersion": "1.2",
+    "basePath": "/1.0",
+    "resourcePath": "/mortality-distribution",
+    "apis": [
+        {
+            "path": "/mortality-distribution/{country}/{sex}/today/",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Retrieve mortality distribution table for given country and sex",
+                    "notes": "Retrieves the mortality distribution tables for the given country and sex.",
+                    "nickname": "retrieveMortalityDistributionTable",
+                    "type": "",
+                    "parameters": [
+                        {
+                            "name": "country",
+                            "paramType": "path",
+                            "description": "the country to retrieve the distribution for",
+                            "type": "string",
+                            "defaultValue": "United Kingdom",
+                            "required": true
+                        },
+                        {
+                            "name": "sex",
+                            "paramType": "path",
+                            "description": "the sex to retrieve the distribution for",
+                            "type": "string",
+                            "defaultValue": "male",
+                            "required": true
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "invalid request argument, or request argument out of boundaries",
+                            "responseModel": "ErrorMessage"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "MortalityDistributions": {
+            "id": "MortalityDistributions",
+            "description": "a list of mortality distributions for different age groups",
+            "required": ["tables"],
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {"$ref": "MortalityDistribution"}
+                }
+            }
+        },
+        "MortalityDistribution": {
+            "id": "MortalityDistribution",
+            "description": "mortality for a certain age group",
+            "required": ["age", "mortality_percent"],
+            "properties": {
+                "age": {"type": "int", "description": "upper limit of the age group"},
+                "mortality_percent": {"type": "float", "description": "mortality for the age group in percent"}
+            }
+        },
+        "ErrorMessage": {
+            "id": "ErrorMessage",
+            "description": "an error message",
+            "required": ["detail"],
+            "properties": {
+                "detail": {"type": "string", "description": "the reason why the request could not be successfully processed"}
+            }
+        }
+    },
+    "produces": [
+        "application/json",
+        "text/html",
+        "application/javascript"
+    ]
+}

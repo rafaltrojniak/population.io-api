@@ -92,6 +92,7 @@ class PickleDataStore(object):
         self.data = pd.read_csv(settings.CSV_POPULATION_PATH)
         self.life_expectancy_ages = pd.read_csv(settings.CSV_LIFE_EXPECTANCY_PATH)
         self.total_population = pd.read_csv(settings.CSV_TOTAL_POPULATION_PATH)
+        self.survival_ratio = pd.read_csv(settings.CSV_SURVIVAL_RATIO_PATH)
         self.countries = pd.unique(self.data.Location).tolist()
         logger.info('Parsed CSVs in %.02f seconds', (time.clock()-start))
 

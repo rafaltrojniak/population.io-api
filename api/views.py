@@ -6,7 +6,7 @@ from api.datastore import dataStore
 from api.decorators import expect_date, expect_offset, expect_int, cache_until_utc_eod, cache_unlimited
 from api.utils import offset_to_str
 from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, lifeExpectancyTotal, populationCount, \
-    totalPopulation
+    totalPopulation, calculateMortalityDistribution
 
 
 @api_view(['GET'])
@@ -151,3 +151,14 @@ def retrieve_total_population(request, country, refdate):
     """
     result = {'date': refdate, 'population': totalPopulation(country, refdate)}
     return Response({'total_population': result})
+
+
+@api_view(['GET'])
+@cache_unlimited()
+def calculate_mortality_distribution(request, country, sex):
+    """ Retrieve mortality distribution for given country / sex.<p>
+        Please see <a href="/">the full API browser</a> for more information.
+    """
+    plain_distribution = calculateMortalityDistribution(country, sex)
+    mortality_distribution = [{'age': val[0], 'mortality_percent': val[1]} for val in plain_distribution]
+    return Response({'mortality_distribution': mortality_distribution})
