@@ -130,7 +130,7 @@ def retrieve_population_table(request, country, age=None, year=None):
 
 
 @api_view(['GET'])
-@cache_unlimited()
+@cache_until_utc_eod()   # may only be cached until the day ends, as it is dependent on the current system date
 def retrieve_total_population_now(request, country):
     """ Retrieve total population count for country today and tomorrow.<p>
         Please see <a href="/">the full API browser</a> for more information.
