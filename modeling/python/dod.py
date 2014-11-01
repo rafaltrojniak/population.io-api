@@ -99,7 +99,7 @@ def dist_odata(cntry, sex, idate, iage):
     else:
         odata["lower_age"] = odata["lower_age"]+iage
 
-    output = odata.ix[1:clen-1,['lower_age', 'dth_pc_after_exact_age']]
+    output = odata.ix[0:clen-1,['lower_age', 'dth_pc_after_exact_age']]
     return output
 # --- function end --- #
 
@@ -107,7 +107,7 @@ def dist_odata(cntry, sex, idate, iage):
 cntry = "Nepal"
 sex = 1 #1=Man, 2=Woman
 idate = time.strftime('%Y-%m-%d')
-iage =0
+iage = 34 # TODO should be exposed too
 
 #print(cntry, sex, idate, iage)
 output = dist_odata(cntry, sex, idate, iage)
