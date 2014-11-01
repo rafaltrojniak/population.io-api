@@ -513,5 +513,5 @@ def calculateMortalityDistribution(country, sex):
     else:
         odata["lower_age"] = odata["lower_age"]+iage
 
-    output = odata.ix[1:clen-1,['lower_age', 'dth_pc_after_exact_age']]
+    output = odata.ix[0:clen-1,['lower_age', 'dth_pc_after_exact_age']]
     return list(output.values)
