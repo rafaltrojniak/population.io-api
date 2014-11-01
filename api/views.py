@@ -155,10 +155,11 @@ def retrieve_total_population(request, country, refdate):
 
 @api_view(['GET'])
 @cache_unlimited()
-def calculate_mortality_distribution(request, country, sex):
-    """ Retrieve mortality distribution for given country / sex.<p>
+@expect_offset('age')
+def calculate_mortality_distribution(request, country, sex, age):
+    """ Retrieve mortality distribution for given country / sex / age.<p>
         Please see <a href="/">the full API browser</a> for more information.
     """
-    plain_distribution = calculateMortalityDistribution(country, sex)
+    plain_distribution = calculateMortalityDistribution(country, sex, age)
     mortality_distribution = [{'age': val[0], 'mortality_percent': val[1]} for val in plain_distribution]
     return Response({'mortality_distribution': mortality_distribution})

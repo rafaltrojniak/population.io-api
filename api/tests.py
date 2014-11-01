@@ -185,7 +185,7 @@ class ApiIntegrationTests(APISimpleTestCase):
         self._testEndpoint('/life-expectancy/total/female/World/2015-07-01/', expectErrorContaining='birthdate')
 
     def testMortalityDistribution(self):
-        self._testEndpoint('/mortality-distribution/World/female/today/')
+        self._testEndpoint('/mortality-distribution/United%20Kingdom/male/49y2m/today/')
 
 
 @skip

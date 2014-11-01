@@ -431,9 +431,9 @@ def totalPopulation(country, refdate):
     result = int(row['totpop'])
     return result
 
-def calculateMortalityDistribution(country, sex):
+def calculateMortalityDistribution(country, sex, age):
     # check that all arguments have the right type (even though it's not very pythonic)
-    if not isinstance(sex, basestring) or not isinstance(country, basestring):
+    if not isinstance(sex, basestring) or not isinstance(country, basestring) or not isinstance(age, relativedelta):
         raise TypeError('One or more arguments did not match the expected parameter type')
 
     # confirm that sex and region contain valid values
@@ -441,6 +441,9 @@ def calculateMortalityDistribution(country, sex):
         raise InvalidSexError(sex)
     if country not in dataStore.countries:
         raise InvalidCountryError(country)
+    age_float = relativedelta_to_decimal_years(age)
+    if age_float > 120:
+        raise AgeOutOfRangeError(age)
 
     # helper function
     def setInterpDate(x, offset):
@@ -452,7 +455,7 @@ def calculateMortalityDistribution(country, sex):
 
     # get columns which correspond to the inputs
     idate = datetime.utcnow().date()
-    iage = 0
+    iage = age_float
     iyear = idate.year
     flr_yr = rounddown(iyear, base=5)
 

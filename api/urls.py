@@ -30,5 +30,5 @@ urlpatterns = [
     url(r'life-expectancy/total/(?P<sex>[^/]+)/(?P<country>[^/]+)/(?P<dob>[^/]+)/', views.total_life_expectancy),
 
     # /api/1.0/mortality-distribution/
-    url(r'mortality-distribution/(?P<country>[^/]+)/(?P<sex>[^/]+)/today/', views.calculate_mortality_distribution),
+    url(r'mortality-distribution/(?P<country>[^/]+)/(?P<sex>[^/]+)/(?P<age>[^/]+)/today/', views.calculate_mortality_distribution),
 ]

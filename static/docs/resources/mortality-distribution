@@ -5,12 +5,12 @@
     "resourcePath": "/mortality-distribution",
     "apis": [
         {
-            "path": "/mortality-distribution/{country}/{sex}/today/",
+            "path": "/mortality-distribution/{country}/{sex}/{age}/today/",
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Retrieve mortality distribution table for given country and sex",
-                    "notes": "Retrieves the mortality distribution tables for the given country and sex.",
+                    "summary": "Retrieve mortality distribution table",
+                    "notes": "Retrieves the mortality distribution tables for the given country, sex and age.",
                     "nickname": "retrieveMortalityDistributionTable",
                     "type": "",
                     "parameters": [
@@ -28,6 +28,15 @@
                             "description": "the sex to retrieve the distribution for",
                             "type": "string",
                             "defaultValue": "male",
+                            "required": true
+                        },
+                        {
+                            "name": "age",
+                            "paramType": "path",
+                            "description": "the age to retrieve the distribution for",
+                            "type": "offset string",
+                            "format": "plain digits to indicate days (e.g. '1000') or a combination of years, months and days in the format ##y##m##d (e.g. '3y6m9d')",
+                            "defaultValue": "49y2m",
                             "required": true
                         }
                     ],
