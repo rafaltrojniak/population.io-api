@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.test import SimpleTestCase
 from rest_framework.test import APISimpleTestCase
 from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, populationCount, \
-    lifeExpectancyTotal, totalPopulation
+    lifeExpectancyTotal, totalPopulation, calculateMortalityDistribution
 from api.datastore import dataStore
 from api.exceptions import *
 
@@ -91,6 +91,9 @@ class AlgorithmTests(SimpleTestCase):
         self.assertEqual(totalPopulation('United Kingdom', date(2013, 1, 1)), 62961264)
         self.assertEqual(totalPopulation('Afghanistan', date(2022, 12, 31)), 37599673)
         self.assertEqual(totalPopulation('World', date(2018, 7, 31)), 7569167368)
+        
+    def test_mortality_distribution(self):
+        self.assertEqual(calculateMortalityDistribution('Germany', 'male', relativedelta(years=43, months=3))[3][1],2.2179399450663992)            
 
 
 class ApiIntegrationTests(APISimpleTestCase):

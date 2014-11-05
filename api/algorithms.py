@@ -468,36 +468,36 @@ def calculateMortalityDistribution(country, sex, age):
     else:
         cohort_st = 4
     cohort_end = len(dataStore.survival_ratio.columns)
-    cohort = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr-5))].ix[:,cohort_st:cohort_end]
+    #cohort = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr-5))].ix[:,cohort_st:cohort_end]
 
     # get older and younger cohort
     cohort_old = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr-10))].ix[:,cohort_st:cohort_end]
-    cohort_young = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr))].ix[:,cohort_st:cohort_end]
+    #cohort_young = dataStore.survival_ratio.loc[(dataStore.survival_ratio.region==country) & (dataStore.survival_ratio.sex==SEXES_LIFE_EXPECTANCY[sex]) & (dataStore.survival_ratio.Begin_prd >=(flr_yr))].ix[:,cohort_st:cohort_end]
 
     # get dates for the jan 1st for 3 years --> then to Unix timestamp
     dates = [setInterpDate(flr_yr, -5), setInterpDate(flr_yr, 0), setInterpDate(flr_yr, +5)]
 
     # make the output dataStore.survival_ratiotable
-    temp = np.zeros(shape=(len(cohort.columns),7))
+    temp = np.zeros(shape=(len(cohort_old.columns),7))
     odata = pd.DataFrame(temp, columns=["lower_age","pr0","pr1","pr2","pr_sx_date","death_percent","dth_pc_after_exact_age"])
 
     # fill in with existing values
     if iage>=5:
-        odata['lower_age'] = np.arange(iage-5, 130, 5)
+        odata['lower_age'] = np.arange(flr_age-5, 130, 5)
     else:
         odata['lower_age'] = np.arange(0, 130, 5)
     odata['pr0'] = np.matrix(cohort_old).diagonal().T
-    odata['pr1'] = np.matrix(cohort).diagonal().T
-    odata['pr2'] = np.matrix(cohort_young).diagonal().T
+    odata['pr1'] = np.matrix(cohort_old).diagonal(-1).T
+    odata['pr2'] = np.matrix(cohort_old).diagonal(-2).T
 
     # Interpolate for the input date (idate)
-    odata["pr_sx_date"] = np.array([InterpolatedUnivariateSpline(dates,list(odata.ix[i,1:4]),k=2)(inPosixDays(idate)) for i in np.arange(0, len(cohort.columns),1)])
+    odata["pr_sx_date"] = np.array([InterpolatedUnivariateSpline(dates,list(odata.ix[i,1:4]),k=2)(inPosixDays(idate)) for i in np.arange(0, len(cohort_old.columns),1)])
 
     clen = len(odata)
     # calc the % deaths
     odata["death_percent"][1] = 100
     for i in np.arange(2,clen,1):
-        odata["death_percent"][i] = odata["death_percent"][i-1]*odata["pr_sx_date"][i-1]
+        odata["death_percent"][i] = odata["death_percent"][i-1]*odata["pr_sx_date"][i]
 
     # percentage deaths
     for i in np.arange(1,clen-1,1):

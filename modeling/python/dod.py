@@ -8,6 +8,8 @@ import math
 from scipy import interpolate
 #import matplotlib.pyplot as plt
 from scipy.interpolate import splrep, InterpolatedUnivariateSpline, UnivariateSpline
+from dateutil.relativedelta import relativedelta
+
 
 # round data to nearest 5 year time window
 def rounddown(x, base=5):
@@ -20,6 +22,9 @@ def setInterpDate(x, offset):
 def daysSinceEpoch(x, format="%Y-%m-%d"):
     idate = datetime.strptime(x,format)
     return (idate - datetime(1970, 1, 1)).days
+    
+def relativedelta_to_decimal_years(offset):
+    return offset.years * 1.0 + offset.months / 12.0 + offset.days / 365.0
 
 # Import data
 data = pd.read_csv('../../data/Survival_ratio_Cohort_ages.csv', header=0)
@@ -31,6 +36,7 @@ def dist_odata(cntry, sex, idate, iage):
     flr_yr = rounddown(iyear, base=5)
     #print(iyear, flr_yr)
 
+    #iage = relativedelta_to_decimal_years(iage)
     # get closest age in 5 year windows
     flr_age = rounddown(iage, base=5)
     #print(flr_age)
@@ -42,32 +48,32 @@ def dist_odata(cntry, sex, idate, iage):
         cohort_st = 4
     cohort_end = len(data.columns)
     #cohort = data.ix[:,cohort_st:cohort_end]
-    cohort = data.loc[(data.region==cntry) & (data.sex==sex) & (data.Begin_prd >=(flr_yr-5))].ix[:,cohort_st:cohort_end]
+    #cohort = data.loc[(data.region==cntry) & (data.sex==sex) & (data.Begin_prd >=(flr_yr-5))].ix[:,cohort_st:cohort_end]
     #print(cohort.columns)
 
     # get older and younger cohort
     cohort_old = data.loc[(data.region==cntry) & (data.sex==sex) & (data.Begin_prd >=(flr_yr-10))].ix[:,cohort_st:cohort_end]
-    cohort_young = data.loc[(data.region==cntry) & (data.sex==sex) & (data.Begin_prd >=(flr_yr))].ix[:,cohort_st:cohort_end]
+    #cohort_young = data.loc[(data.region==cntry) & (data.sex==sex) & (data.Begin_prd >=(flr_yr))].ix[:,cohort_st:cohort_end]
 
     # get dates for the jan 1st for 3 years --> then to Unix timestamp
     dates = [setInterpDate(flr_yr, -5), setInterpDate(flr_yr,0), setInterpDate(flr_yr,+5)]
     #print(dates)
 
     # make the output datatable
-    temp = np.zeros(shape=(len(cohort.columns),7))
+    temp = np.zeros(shape=(len(cohort_old.columns),7))
     odata = pd.DataFrame(temp, columns=["lower_age","pr0","pr1","pr2","pr_sx_date","death_percent","dth_pc_after_exact_age"])
 
     # fill in with existing values
     if iage>=5:
-        odata['lower_age'] =np.arange(iage-5, 130, 5)
+        odata['lower_age'] =np.arange(flr_age-5, 130, 5)
     else:
         odata['lower_age'] =np.arange(0, 130, 5)
     odata['pr0'] = np.matrix(cohort_old).diagonal().T
-    odata['pr1'] = np.matrix(cohort).diagonal().T
-    odata['pr2'] = np.matrix(cohort_young).diagonal().T
+    odata['pr1'] = np.matrix(cohort_old).diagonal(-1).T
+    odata['pr2'] = np.matrix(cohort_old).diagonal(-2).T
 
     # Interpolate for the input date (idate)
-    odata["pr_sx_date"] = np.array([InterpolatedUnivariateSpline(dates,list(odata.ix[i,1:4]),k=2)(daysSinceEpoch(idate)) for i in np.arange(0, len(cohort.columns),1)])
+    odata["pr_sx_date"] = np.array([InterpolatedUnivariateSpline(dates,list(odata.ix[i,1:4]),k=2)(daysSinceEpoch(idate)) for i in np.arange(0, len(cohort_old.columns),1)])
 
 
     clen = len(odata)
@@ -76,7 +82,7 @@ def dist_odata(cntry, sex, idate, iage):
     odata["death_percent"][1] = 100
     #odata["death_percent"][2:clen] = [((odata["death_percent"][i-1])*(odata["pr_sx_date"][i-1])) for i in np.arange(2,clen,1) ]
     for i in np.arange(2,clen,1):
-        odata["death_percent"][i] = odata["death_percent"][i-1]*odata["pr_sx_date"][i-1]
+        odata["death_percent"][i] = odata["death_percent"][i-1]*odata["pr_sx_date"][i]
 
 
     # percentage deaths
@@ -104,10 +110,10 @@ def dist_odata(cntry, sex, idate, iage):
 # --- function end --- #
 
 # data input
-cntry = "Nepal"
+cntry = "Germany"
 sex = 1 #1=Man, 2=Woman
 idate = time.strftime('%Y-%m-%d')
-iage = 34 # TODO should be exposed too
+iage = 43.25 # TODO should be exposed too
 
 #print(cntry, sex, idate, iage)
 output = dist_odata(cntry, sex, idate, iage)
