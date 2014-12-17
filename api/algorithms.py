@@ -100,13 +100,10 @@ def dayInterpA(table, date):
     popi = table[table.date1 == iDate]
 
     # Remove the columns for age 100 and the date1
-    rmCols = [col for col in popi.columns if col not in ['date1', 'age_100']]
-    popi = popi[rmCols]
+    popi = popi.iloc[:,0:100]
 
     # store the popi results into an array for the interpolation
     #popi = (np.asarray(popi)).tolist()
-    popi = popi.values
-    popi = [vals for i in popi for vals in i]
     popi = np.asarray(popi)
 
     # Interpolate the age in Days
