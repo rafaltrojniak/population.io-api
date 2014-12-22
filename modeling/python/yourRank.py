@@ -17,6 +17,7 @@ from scipy.interpolate import splrep, InterpolatedUnivariateSpline, interp1d
 
 inputData = '../../data/WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv'
 inputLifeExpectancy = '../../data/life_expectancy_ages.csv'
+inputContinents = '../../data/continent_countries.csv'
 
 def main():
     # -- Read in Data --- # 
@@ -77,6 +78,10 @@ def main():
 
     # Range of days (age)
     ageout = range(0, 36501)
+    
+    
+    continent_countries = pd.read_csv(inputContinents)
+    Continent = continent_countries.CONTINENT
 
     ''' --- function doitall() start --- '''
     # --- Function that extrapolates the 1st July data to each calender day --- #
@@ -129,12 +134,77 @@ def main():
             return result1
         else:
             return result1
+            
     # Examples
     CNTRY = "World"
     iSEX = 2
     RESULT = 1
     #doitall(CNTRY, iSEX, RESULT)
     pop2 = doitall(CNTRY, iSEX, RESULT)
+            
+    def generateWorldBirthTable(RESULT): 
+        # --- Which country --- #
+        pop1 = data.groupby(by=['Location','Time'],as_index=False,sort=False)['PopTotal'].sum()
+
+        ''' --- Date interpolation function --- '''
+        days= range(xout[0], xout[1]+1)        
+        def dateInterp(cntry):
+            popi = np.asarray(pop1.loc[pop1.Location == countries[cntry.name],'PopTotal'])
+            # spline interpolation function from Scipy Package
+            iuspl = InterpolatedUnivariateSpline(date2, popi, k=4)
+            return iuspl(days)
+
+        # --- store the results of the date interpolation --- #
+        result1 = pd.DataFrame(index = range(0,len(days)), columns = range(0,countries.size))
+        result1 = result1.apply(dateInterp, axis=0)        
+        
+        # --- Change column names to countries --- #
+        result1.columns = countries
+       
+        # --- Convert the numerical days to date string --- #
+        # the full date range in days from 1970/01/01 - 2100/12/31
+        days= range(xout[0], xout[1]+1) 
+        def toDate(d):
+           return (refDate + timedelta(days=d)).strftime('%Y/%m/%d') 
+        #toDate = np.vectorize(toDate) 
+        #fullDateRange = toDate(days) # 1st result: 1950-01-01
+        fullDateRange = len(days)*[None]
+        for i in range(0,len(days)):
+            fullDateRange[i] = toDate(days[i])
+
+        # --- Add the fullDateRange to the result1 --- #
+        result1['date1'] = fullDateRange
+        #print(result1['date1'])
+
+        # --- End the doitall function --- #
+        if (RESULT == 0):
+            result1.to_csv(CNTRY+SEX+".csv")
+            return result1
+        else:
+            return result1
+
+    #Example
+    popBirths = generateWorldBirthTable(1)
+    
+    def continentBirthsByDateCountry(continent,DATE):
+         DATE = datetime.strptime(DATE,'%Y-%m-%d' ).strftime(date_format)
+         DATE = datetime.strptime(DATE, date_format)
+         DATE = int(numDate(DATE))
+         
+         cntrys = continent_countries.loc[Continent==continent,'POPIO_NAME']
+         
+         #Population aged 0 at DATE
+         births1 = popBirths.loc[DATE,cntrys]
+         #Population aged 0 at DATE+1
+         births2 = popBirths.loc[DATE+1,cntrys]
+         
+         births_on_day = births2-births1
+         births_on_day[births_on_day<0] = 0
+         
+         return births_on_day
+         
+    #Example
+    continentBirthsByDateCountry('Europe','1983-12-19')      
 
     ''' --- function that interpolates age in days -- '''
     def dayInterpA(iDate):
