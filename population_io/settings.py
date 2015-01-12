@@ -135,5 +135,7 @@ CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_
 CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
 CSV_TOTAL_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'Total_population_for_date_and_countries_and_world.csv')
 CSV_SURVIVAL_RATIO_PATH = os.path.join(BASE_DIR, 'data', 'Survival_ratio_Cohort_ages.csv')
+CSV_CONTINENT_COUNTRIES = os.path.join(BASE_DIR, 'data', 'continent_countries.csv')
+CSV_BIRTHS_DAY_COUNTRY = os.path.join(BASE_DIR, 'data', 'worldBirthsByDayAndCountry.csv')
 
 CACHE_CONTROL_MAXAGE = 24 * 60 * 60

@@ -11,6 +11,10 @@ class InvalidCountryError(ParseError):
     def __init__(self, invalidValue):
         self.detail = '%s is an invalid value for the parameter "country", the list of valid values can be retrieved from the endpoint /countries' % invalidValue
 
+class InvalidContinentError(ParseError):
+    def __init__(self, invalidValue):
+        self.detail = '%s is an invalid value for the parameter "continent", the list of valid values can be retrieved from the endpoint /continent_countries' % invalidValue
+
 class DateParsingError(ParseError):
     def __init__(self, paramName, invalidValue):
         self.detail = 'The given date %s in parameter %s could not be parsed. Please provide dates in the format YYYY-MM-DD' % (invalidValue, paramName)

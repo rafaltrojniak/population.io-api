@@ -178,7 +178,7 @@ def main():
 
         # --- End the doitall function --- #
         if (RESULT == 0):
-            result1.to_csv(CNTRY+SEX+".csv")
+            result1.to_csv("worldBirthsByDayAndCountry.csv")
             return result1
         else:
             return result1
