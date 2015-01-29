@@ -6,7 +6,7 @@ from api.datastore import dataStore
 from api.decorators import expect_date, expect_offset, expect_int, cache_until_utc_eod, cache_unlimited
 from api.utils import offset_to_str
 from api.algorithms import worldPopulationRankByDate, dateByWorldPopulationRank, lifeExpectancyRemaining, lifeExpectancyTotal, populationCount, \
-    totalPopulation, calculateMortalityDistribution
+    totalPopulation, continentBirthsByDate, calculateMortalityDistribution
 
 
 @api_view(['GET'])
@@ -150,6 +150,16 @@ def retrieve_total_population(request, country, refdate):
         Please see <a href="/">the full API browser</a> for more information.
     """
     result = {'date': refdate, 'population': totalPopulation(country, refdate)}
+    return Response({'total_population': result})
+    
+@api_view(['GET'])
+@cache_unlimited()
+@expect_date('refdate')
+def retrieve_total_population_continent(request, continent, refdate):
+    """ Retrieve total population count for all countries of a continent on given date.<p>
+        Please see <a href="/">the full API browser</a> for more information.
+    """
+    result = {'date': refdate, 'population': continentBirthsByDate(continent, refdate)}
     return Response({'total_population': result})
 
 
