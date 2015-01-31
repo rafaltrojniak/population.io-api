@@ -131,11 +131,13 @@ CORS_ORIGIN_ALLOW_ALL = True
 #DATA_STORE_PATH = os.environ.get('POPULATIONIO_DATASTORE_LOCATION', os.path.join(BASE_DIR, 'data', 'datastore.hdf5'))
 DATA_STORE_PATH = os.environ.get('POPULATIONIO_DATASTORE_LOCATION', os.path.join(BASE_DIR, 'data'))
 DATA_STORE_WRITABLE = os.environ.get('POPULATIONIO_DATASTORE_WRITABLE', 'true').lower() != 'false'
-CSV_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
-CSV_LIFE_EXPECTANCY_PATH = os.path.join(BASE_DIR, 'data', 'life_expectancy_ages.csv')
-CSV_TOTAL_POPULATION_PATH = os.path.join(BASE_DIR, 'data', 'Total_population_for_date_and_countries_and_world.csv')
-CSV_SURVIVAL_RATIO_PATH = os.path.join(BASE_DIR, 'data', 'Survival_ratio_Cohort_ages.csv')
-CSV_CONTINENT_COUNTRIES = os.path.join(BASE_DIR, 'data', 'continent_countries.csv')
-CSV_BIRTHS_DAY_COUNTRY = os.path.join(BASE_DIR, 'data', 'worldBirthsByDayAndCountry.csv')
+
+CSV_DIR = os.environ.get('POPULATIONIO_CSV_DIR', os.path.join(BASE_DIR, 'data'))
+CSV_POPULATION_PATH = os.path.join(CSV_DIR, 'WPP2012_INT_F3_Population_By_Sex_Annual_Single_100_Medium.csv')
+CSV_LIFE_EXPECTANCY_PATH = os.path.join(CSV_DIR, 'life_expectancy_ages.csv')
+CSV_TOTAL_POPULATION_PATH = os.path.join(CSV_DIR, 'Total_population_for_date_and_countries_and_world.csv')
+CSV_SURVIVAL_RATIO_PATH = os.path.join(CSV_DIR, 'Survival_ratio_Cohort_ages.csv')
+CSV_CONTINENT_COUNTRIES = os.path.join(CSV_DIR, 'continent_countries.csv')
+CSV_BIRTHS_DAY_COUNTRY = os.path.join(CSV_DIR, 'worldBirthsByDayAndCountry.csv')
 
 CACHE_CONTROL_MAXAGE = 24 * 60 * 60
