@@ -74,7 +74,7 @@ def generateExtrapolationTable(sex, region):
 
     # Convert the numerical days to date string
     def toDate(d):
-        return (date(1970, 1, 1) + timedelta(days=d)).strftime('%Y-%m-%d')
+        return (date(1970, 1, 1) + timedelta(days=int(d))).strftime('%Y-%m-%d')
     toDate = np.vectorize(toDate) # vectorize the function to iterate over numpy ndarray
     #fullDateRange = toDate(dateRange1970to2100inPosixDays) # 1st result: 1950-01-01
     fullDateRange = len(dateRange1950to2100inPosixDays)*[None]
