@@ -60,3 +60,25 @@ To just update the CSVs in the data store without rebuilding the tables, run `py
 * Install Vagrant: https://www.vagrantup.com/.
 * Run `vagrant up` in the `/vagrant` subdirectory of the project.
 * View the API docs of your app at `http://localhost:9999/`.
+
+## Deployment status
+### Destination deployment
+
+The destination deployment is going to be done using chef (http://chef.io/)
+The cookbook is here (https://github.com/rafaltrojniak/population-io) and the recipes are quite self-documenting (see here https://github.com/rafaltrojniak/population-io/blob/master/recipes/node.rb)
+
+The stack will consist of :
+- Load balancer part with caching
+-- Done based on nginx server
+-- Simple HTTP caching will be done on API calls
+- API server
+-- The code is checked out as `populationio` user
+-- The application is running as `populationio_app` user so it won't have write access to code or data
+-- Daemon will be managed by supervisor instance
+-- There will be many gunicorn daemons with single process each, so nginx can load-balance work on that level
+
+### Temporary deployment on rackspace
+This is done in manual way but simmilar to destination :
+- the serparate user was created and application is running there
+- The nginx works as http proxy and caching server
+- Supervisord manages single gunicorn instance with 7 processes     
