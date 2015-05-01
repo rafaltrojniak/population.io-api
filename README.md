@@ -69,13 +69,13 @@ The cookbook is here (https://github.com/rafaltrojniak/population-io) and the re
 
 The stack will consist of :
 - Load balancer part with caching
--- Done based on nginx server
--- Simple HTTP caching will be done on API calls
+ - Done based on nginx server
+ - Simple HTTP caching will be done on API calls
 - API server
 -- The code is checked out as `populationio` user
--- The application is running as `populationio_app` user so it won't have write access to code or data
--- Daemon will be managed by supervisor instance
--- There will be many gunicorn daemons with single process each, so nginx can load-balance work on that level
+ - The application is running as `populationio_app` user so it won't have write access to code or data
+ - Daemon will be managed by supervisor instance
+ - There will be many gunicorn daemons with single process each, so nginx can load-balance work on that level
 
 ### Temporary deployment on rackspace
 This is done in manual way but simmilar to destination :
