@@ -1,4 +1,4 @@
-''' 
+'''
 R to python: yourRank.r
 '''
 import math
@@ -116,7 +116,7 @@ def lifeExpectancyRemaining(sex, region, refdate, age):
     age_float = relativedelta_to_decimal_years(age)
     if age_float > 120:
         raise AgeOutOfRangeError(age)
-    if refdate - age > date(2015, 6, 30):
+    if refdate - age > date(2095, 6, 30):
         raise EffectiveBirthdateOutOfRangeError(invalidValue=(refdate-age))
 
     # find beginning of 5 yearly period for the le_date
