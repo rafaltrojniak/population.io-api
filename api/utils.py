@@ -18,7 +18,7 @@ def parse_offset(val):
     return None
 
 def offset_to_str(offset):
-    return '' + ('%iy' % offset.years if offset.years else '') + ('%im' % offset.months if offset.months else '') + ('%id' % offset.days if offset.days else '')
+    return '' + ('%iy' % offset.years if offset.years else '') + ('%im' % offset.months if offset.months else '') + ('%id' % offset.days if offset.days is not None else '')
 
 def decimal_years_to_relativedelta(years_float):
     years = math.trunc(years_float)

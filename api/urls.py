@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'countries/', views.list_countries),
 
     # /api/1.0/population/
+    url(r'population/(?P<year>[^/]+)/aged/(?P<age>[^/]+)/', views.retrieve_population_table),
     url(r'population/(?P<year>[^/]+)/(?P<country>[^/]+)/(?P<age>[^/]+)/', views.retrieve_population_table),
     url(r'population/(?P<year>\d+)/(?P<country>[^/]+)/', views.retrieve_population_table),
     url(r'population/(?P<country>[^/]+)/(?P<age>\d+)/', views.retrieve_population_table),

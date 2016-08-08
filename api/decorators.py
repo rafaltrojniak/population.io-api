@@ -58,7 +58,7 @@ expect_date = build_decorator(normalize_date)
 
 def normalize_offset(param_name, value):
     new_value = parse_offset(value)
-    if not new_value:
+    if new_value is None:
         raise OffsetParsingError(param_name, value)
     return new_value
 expect_offset = build_decorator(normalize_offset)

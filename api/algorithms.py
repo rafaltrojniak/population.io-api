@@ -94,8 +94,8 @@ def dateByWorldPopulationRank(sex, region, dob, rank):
         raise InvalidCountryError(region)
 
     # check the various date requirements
-    if dob < date(1920, 1, 1) or dob > date(2079, 12, 31):   # the end date has been chosen arbitrarily and is probably wrong
-        raise BirthdateOutOfRangeError(dob, 'between 1920-01-01 and 2079-12-31')
+    if dob < date(1920, 1, 1) or dob > date(2059, 12, 31):   # the end date has been chosen arbitrarily and is probably wrong
+        raise BirthdateOutOfRangeError(dob, 'between 1920-01-01 and 2059-12-31')
 
     return population.from_epoch_days(pop_day.pop_sum_dob_inverse_date(rank, region, SEXES[sex], population.to_epoch_days(dob)))
 
@@ -181,33 +181,54 @@ def lifeExpectancyTotal(sex, region, dob):
     refdate = dob + age
     return age_float + lifeExpectancyRemaining(sex, region, refdate, age)
 
-def populationCount(country, age=None, year=None):
+def populationCount(country=None, age=None, year=None):
     # check that all arguments have the right type (even though it's not very pythonic)
-    if not isinstance(country, basestring) or (age is not None and not isinstance(age, int)) or (year is not None and not isinstance(year, int)):
+    if (country is not None and not isinstance(country, basestring)) or \
+            (age is not None and not isinstance(age, int)) or \
+            (year is not None and not isinstance(year, int)):
         raise TypeError('One or more arguments did not match the expected parameter type')
 
     # confirm that sex and region contain valid values
-    if country not in dataStore.countries:
+    if country is not None and country not in dataStore.countries:
         raise InvalidCountryError(country)
 
     # check the various date requirements
-    if age is None and year is None:   # note: age can be 0, so we have to check for None here, checking for truthyness is *not* sufficient!
+    if country is None and age is None:
+        raise DataOutOfRangeError('Either an age or a country have to be specified')
+    elif age is None and year is None:
         raise DataOutOfRangeError('Either an age or a year have to be specified')
-    if age is not None and (age < 1 or age > 100):   # FIXME: actually, an age of 0 should be valid, but the lookup with Pandas doesn't work for some reason
-        raise DataOutOfRangeError('The age %i can not be processed, because only ages between 1 and 100 years are supported' % age)
+    if age is not None and (age < 0 or age > 100):
+        raise DataOutOfRangeError('The age %i can not be processed, because only ages between 0 and 100 years are supported' % age)
     if year is not None and (year < 1950 or year > 2100):
         raise DataOutOfRangeError('The year %i can not be processed, because only years between 1950 and 2100 are supported' % year)
 
+    if age is not None:
+        ages = [age]
+    else:
+        ages = pop_year.ages()
+
+    if year is not None:
+        years = [year]
+    else:
+        years = pop_year.dates()
+
+    if country is not None:
+        countries = [country]
+    else:
+        countries = dataStore.countries
+
     results = []
-    for a in [age] if age else pop_year.ages():
-        for y in [year] if year else pop_year.dates():
-            results.append({
-                'year': y,
-                'age': a,
-                'males': pop_year.pop_age(y, country, 'M', a),
-                'females': pop_year.pop_age(y, country, 'F', a),
-                'total': pop_year.pop_age(y, country, 'All', a)
-            })
+    for a in ages:
+        for y in years:
+            for c in countries:
+                results.append({
+                    'year': y,
+                    'age': a,
+                    'males': pop_year.pop_age(y, c, 'M', a),
+                    'females': pop_year.pop_age(y, c, 'F', a),
+                    'total': pop_year.pop_age(y, c, 'All', a),
+                    'country': c
+                })
     return results
 
 def totalPopulation(country, refdate):

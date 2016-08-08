@@ -119,7 +119,7 @@ def total_life_expectancy(request, sex, country, dob):
 @cache_unlimited()
 @expect_int('age', optional=True)
 @expect_int('year', optional=True)
-def retrieve_population_table(request, country, age=None, year=None):
+def retrieve_population_table(request, country=None, age=None, year=None):
     """ Retrieve population table for age group / year / country.<p>
         Please see <a href="/">the full API browser</a> for more information.
     """
